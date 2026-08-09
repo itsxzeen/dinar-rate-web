@@ -74,7 +74,7 @@
     display:flex;
     align-items:center;
     gap:16px;
-    padding:calc(16px + env(safe-area-inset-top)) 18px 16px;
+    padding:max(calc(env(safe-area-inset-top) + 10px), 58px) 18px 16px;
     border-bottom:1px solid rgba(0,212,255,.2);
     background:var(--dark);
     flex-shrink:0;
@@ -403,7 +403,7 @@
     flex-shrink:0;font-size:11px;color:var(--paper-dim);line-height:1.6;
     text-align:center;background:var(--dark);
     border-top:1px solid rgba(0,212,255,.15);
-    padding:12px 18px calc(12px + env(safe-area-inset-bottom));
+    padding:12px 18px max(calc(env(safe-area-inset-bottom) + 12px), 22px);
     z-index:20;
   }
   footer b{color:var(--purple-light)}
