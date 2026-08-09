@@ -490,11 +490,10 @@
   <div class="admin-title">ADMIN</div>
 
   <div id="adminLogin">
-    <input class="admin-input" id="admUser" placeholder="Username" autocapitalize="none" autocorrect="off" spellcheck="false" />
-    <input class="admin-input" id="admPass" type="password" placeholder="Password" />
-    <button class="admin-btn" id="admLoginBtn">Log in</button>
+    <input class="admin-input" id="admPass" type="password" inputmode="numeric" placeholder="Passcode" autocomplete="off" />
+    <button class="admin-btn" id="admLoginBtn">Enter</button>
     <div class="admin-msg" id="admMsg"></div>
-    <span class="admin-link" id="admSetupLink">First time? Create admin account</span>
+    <span class="admin-link" id="admSetupLink">First time? Set this passcode</span>
   </div>
 
   <div id="adminStats" style="display:none">
@@ -788,14 +787,14 @@
       .catch(function(){});
   }
 
+  var ADMIN_USER="itsxzeen";
   function admLogin(isSignup){
-    var user=(document.getElementById("admUser").value||"").trim();
     var pass=document.getElementById("admPass").value||"";
-    if(!user||!pass){ admMsg.textContent="Enter username and password."; return; }
+    if(pass.length<8){ admMsg.textContent="Passcode must be at least 8 characters."; return; }
     var path=isSignup ? "/auth/signup" : "/auth/login";
-    admMsg.textContent = isSignup ? "Creating account..." : "Logging in...";
+    admMsg.textContent = isSignup ? "Setting passcode..." : "Checking...";
     fetch(WORKER_URL+path,{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({email:user,password:pass})})
+      body:JSON.stringify({email:ADMIN_USER,password:pass})})
       .then(function(r){ return r.json().then(function(d){ return {ok:r.ok,d:d}; }); })
       .then(function(res){
         if(!res.ok){ admMsg.textContent=res.d.error||"Failed."; return; }
@@ -815,7 +814,7 @@
     localStorage.removeItem(TOKEN_KEY);
     if(statsTimer){ clearInterval(statsTimer); statsTimer=null; }
     admShow("login"); admMsg.textContent="";
-    document.getElementById("admUser").value=""; document.getElementById("admPass").value="";
+    document.getElementById("admPass").value="";
   });
   document.getElementById("admPass").addEventListener("keydown", function(e){ if(e.key==="Enter") admLogin(false); });
 })();
