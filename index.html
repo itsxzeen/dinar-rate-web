@@ -15,6 +15,27 @@
   @keyframes slideIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
+  /* --- Splash screen (comes & goes on load) --- */
+  @keyframes splashLogoIn{
+    0%{opacity:0;transform:scale(.7) translateY(14px);filter:blur(6px)}
+    60%{opacity:1;transform:scale(1.06) translateY(0);filter:blur(0)}
+    100%{opacity:1;transform:scale(1)}
+  }
+  @keyframes splashGlow{0%,100%{text-shadow:0 0 18px rgba(0,212,255,.5)}50%{text-shadow:0 0 34px rgba(0,255,255,.9)}}
+  @keyframes splashOut{to{opacity:0;visibility:hidden}}
+  #splash{
+    position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 45%, rgba(0,212,255,.12), transparent 60%), var(--dark);
+    animation:splashOut .6s ease-in 1.9s forwards;
+  }
+  #splash .splash-logo{
+    font-size:42px;font-weight:900;letter-spacing:2px;
+    background:linear-gradient(135deg,#00d4ff,#00ffff);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    animation:splashLogoIn .9s cubic-bezier(.2,.8,.2,1) both, splashGlow 1.6s ease-in-out .9s infinite;
+  }
+  #splash.hidden{display:none}
+
   :root{
     --dark:#0a0814;
     --dark-2:#0d1220;
@@ -73,7 +94,7 @@
     display:flex;
     align-items:center;
     gap:16px;
-    padding:max(calc(env(safe-area-inset-top) + 10px), 58px) 18px 16px;
+    padding:max(calc(env(safe-area-inset-top) + 4px), 16px) 18px 14px;
     border-bottom:1px solid rgba(0,212,255,.2);
     background:var(--dark);
     flex-shrink:0;
@@ -402,7 +423,7 @@
     flex-shrink:0;font-size:11px;color:var(--paper-dim);line-height:1.6;
     text-align:center;background:var(--dark);
     border-top:1px solid rgba(0,212,255,.15);
-    padding:12px 18px max(calc(env(safe-area-inset-bottom) + 12px), 22px);
+    padding:10px 18px max(calc(env(safe-area-inset-bottom) + 6px), 12px);
     z-index:20;
   }
   footer b{color:var(--purple-light)}
@@ -477,6 +498,7 @@
 </style>
 </head>
 <body>
+<div id="splash"><div class="splash-logo">Se3rForIQD</div></div>
 <canvas id="spaceBg"></canvas>
 
 
@@ -795,6 +817,12 @@
         }
       });
   }
+
+  // Remove the splash overlay after its come-and-go animation finishes.
+  setTimeout(function(){
+    var s = document.getElementById("splash");
+    if(s) s.classList.add("hidden");
+  }, 2600);
 
   priceHistory = loadHistory();
   renderRates();
