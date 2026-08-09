@@ -419,6 +419,14 @@
   .gold-ounce .oz-box{flex:1;text-align:center;}
   .gold-ounce .oz-val{font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:14px;color:#ffcf40;display:block;margin-top:2px;}
   .h2.gold::before{background:#ffcf40;box-shadow:0 0 12px #ffcf40;}
+  .gold-spot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,200,60,.2);}
+  .gold-spot .spot-live{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;}
+  .gold-spot .spot-price{font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:19px;color:#ffcf40;transition:color .3s;}
+  .gold-spot .spot-price.flash{color:#fff;}
+  .gold-spot .spot-sub{font-size:10px;color:var(--paper-dim);}
+  .gold-spot .spot-change{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;min-width:64px;text-align:right;}
+  .gold-spot .spot-change.up{color:var(--accent);}
+  .gold-spot .spot-change.down{color:#ff5c7c;}
 
   /* --- Admin panel --- */
   .admin-overlay{
@@ -585,6 +593,11 @@
   <section>
     <div class="h2 gold">Gold · per gram</div>
     <div class="card">
+      <div class="gold-spot" id="goldSpotBox">
+        <span class="spot-live"><span class="live-dot"></span>Live Spot</span>
+        <span><span class="spot-price mono" id="spotPrice">—</span> <span class="spot-sub">/oz</span></span>
+        <span class="spot-change" id="spotChange"></span>
+      </div>
       <div class="gold-head"><span>Karat</span><span>IQD</span><span>USD</span></div>
       <div id="goldList">
         <div class="gold-row"><span class="gold-karat">—</span><span class="gold-iqd">Loading…</span><span class="gold-usd"></span></div>
@@ -678,6 +691,29 @@
     stamp();
   }
 
+  var lastSpot = null;
+  function renderSpot(spot){
+    if(!spot || spot.usdPerOz==null) return;
+    var priceEl = document.getElementById("spotPrice");
+    var changeEl = document.getElementById("spotChange");
+    var newTxt = "$"+fmt(spot.usdPerOz);
+    if(priceEl.textContent !== newTxt && lastSpot!=null){
+      priceEl.classList.add("flash");
+      setTimeout(function(){ priceEl.classList.remove("flash"); }, 300);
+    }
+    priceEl.textContent = newTxt;
+    if(spot.changePct!=null){
+      var up = spot.changePct >= 0;
+      changeEl.textContent = (up?"▲ ":"▼ ")+Math.abs(spot.changePct).toFixed(2)+"%";
+      changeEl.className = "spot-change "+(up?"up":"down");
+    } else { changeEl.textContent=""; }
+    lastSpot = spot.usdPerOz;
+  }
+  function fetchGoldSpotLive(){
+    fetch(WORKER_URL+"/goldspot").then(function(r){ return r.json(); })
+      .then(function(d){ renderSpot(d.goldSpot); }).catch(function(){});
+  }
+
   function renderGold(gold){
     var list = document.getElementById("goldList");
     var ounce = document.getElementById("goldOunce");
@@ -738,6 +774,7 @@
         if(res.data.erbil) erbilSell = res.data.erbil.rate;
         if(res.data.baghdad) baghdadSell = res.data.baghdad.rate;
         renderGold(res.data.gold);
+        renderSpot(res.data.goldSpot);
 
         if(erbilSell && (prevErbil==null || erbilSell !== prevErbil)) addToHistory("Erbil", erbilSell, prevErbil);
         if(baghdadSell && (prevBaghdad==null || baghdadSell !== prevBaghdad)) addToHistory("Baghdad", baghdadSell, prevBaghdad);
@@ -776,6 +813,8 @@
   });
 
   setInterval(fetchLive, 30000);
+  fetchGoldSpotLive();
+  setInterval(fetchGoldSpotLive, 12000);
 
   /* ---------- Visitor analytics ---------- */
   function getVisitorId(){
