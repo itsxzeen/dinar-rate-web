@@ -66,6 +66,13 @@
     background:var(--dark);
   }
 
+  .app-header{
+    position:sticky;
+    top:0;
+    z-index:30;
+    background:var(--dark);
+    flex-shrink:0;
+  }
   .topbar{
     display:flex;
     align-items:center;
@@ -605,18 +612,20 @@
   </div>
 </div>
 
-<!-- TOPBAR -->
-<div class="topbar">
-  <button class="menu-btn" id="menuBtn">☰</button>
-  <div class="brand">
-    <div class="brand-text">Se3rForIQD</div>
+<div class="app-header">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <button class="menu-btn" id="menuBtn">☰</button>
+    <div class="brand">
+      <div class="brand-text">Se3rForIQD</div>
+    </div>
+    <button class="menu-btn" id="langBtn" style="font-size:13px;font-weight:700;">AR</button>
   </div>
-  <button class="menu-btn" id="langBtn" style="font-size:13px;font-weight:700;">AR</button>
-</div>
 
-<!-- GOLD TICKER -->
-<div class="ticker-bar" id="tickerBar">
-  <div class="ticker-track" id="tickerTrack"></div>
+  <!-- GOLD TICKER -->
+  <div class="ticker-bar" id="tickerBar">
+    <div class="ticker-track" id="tickerTrack"></div>
+  </div>
 </div>
 
 <!-- MAIN CONTENT -->
