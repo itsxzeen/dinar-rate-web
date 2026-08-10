@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#0a0108" />
-<title>Gold Price History · Se3rForIQD</title>
+<meta name="theme-color" content="#000000" />
+<title>Rate History · Se3rForIQD</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -24,12 +24,12 @@
   }
   .title{flex:1;text-align:center;font-size:20px;font-weight:900;letter-spacing:1px;}
   .wrap{max-width:520px;margin:0 auto;padding:20px 18px 40px;}
-  .karat-tabs{display:flex;gap:8px;margin-bottom:18px;}
-  .karat-tab{
+  .city-tabs{display:flex;gap:8px;margin-bottom:18px;}
+  .city-tab{
     flex:1;text-align:center;padding:10px;border-radius:10px;border:1px solid #3a3a3c;
     background:#1c1c1e;color:#ffffff;cursor:pointer;font-weight:700;font-size:13px;
   }
-  .karat-tab.active{background:#ffffff;color:#000000;border-color:transparent;}
+  .city-tab.active{background:#ffffff;color:#000000;border-color:transparent;}
   .row{
     display:flex;justify-content:space-between;align-items:center;
     padding:14px;border-bottom:1px solid rgba(255,255,255,.08);font-family:"IBM Plex Mono",monospace;
@@ -37,7 +37,6 @@
   .row:last-child{border-bottom:none;}
   .row .time{font-size:11px;opacity:.7;}
   .row .iqd{font-weight:700;font-size:16px;}
-  .row .usd{font-size:12px;opacity:.85;min-width:60px;text-align:right;}
   .card{background:#1c1c1e;border:1px solid #3a3a3c;border-radius:16px;overflow:hidden;}
   .empty{padding:30px;text-align:center;opacity:.7;font-size:13px;}
 </style>
@@ -46,16 +45,14 @@
 
 <div class="topbar">
   <a href="index.html" class="back-btn" aria-label="Back">←</a>
-  <div class="title">Gold Price History</div>
+  <div class="title">Rate History</div>
   <div style="width:44px;"></div>
 </div>
 
 <div class="wrap">
-  <div class="karat-tabs" id="karatTabs">
-    <div class="karat-tab" data-k="18">18K</div>
-    <div class="karat-tab" data-k="21">21K</div>
-    <div class="karat-tab" data-k="22">22K</div>
-    <div class="karat-tab active" data-k="24">24K</div>
+  <div class="city-tabs" id="cityTabs">
+    <div class="city-tab active" data-city="erbil">Erbil</div>
+    <div class="city-tab" data-city="baghdad">Baghdad</div>
   </div>
   <div class="card">
     <div id="list" class="empty">Loading…</div>
@@ -64,7 +61,6 @@
 
 <script>
   var WORKER_URL = "https://dinar-rate-worker.dollersdaner.workers.dev";
-  var currentK = 24;
 
   function fmt(n){ return n==null ? "—" : Math.round(n).toLocaleString("en-US"); }
 
@@ -73,15 +69,14 @@
     return d.toLocaleString("en-US", { month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });
   }
 
-  function loadHistory(k){
-    currentK = k;
-    document.querySelectorAll(".karat-tab").forEach(function(t){
-      t.classList.toggle("active", parseInt(t.getAttribute("data-k"),10) === k);
+  function loadHistory(city){
+    document.querySelectorAll(".city-tab").forEach(function(t){
+      t.classList.toggle("active", t.getAttribute("data-city") === city);
     });
     var list = document.getElementById("list");
     list.className = "empty";
     list.textContent = "Loading…";
-    fetch(WORKER_URL+"/gold/history?k="+k+"&limit=100")
+    fetch(WORKER_URL+"/rate/history?city="+city+"&limit=100")
       .then(function(r){ return r.json(); })
       .then(function(d){
         if(!d.history || !d.history.length){
@@ -94,8 +89,7 @@
         d.history.forEach(function(item){
           html += '<div class="row">'+
             '<span class="time">'+formatTime(item.recorded_at)+'</span>'+
-            '<span class="iqd">'+fmt(item.iqd)+' IQD</span>'+
-            '<span class="usd">$'+fmt(item.usd)+'</span>'+
+            '<span class="iqd">'+fmt(item.rate)+' IQD</span>'+
             '</div>';
         });
         list.innerHTML = html;
@@ -106,13 +100,13 @@
       });
   }
 
-  document.getElementById("karatTabs").addEventListener("click", function(e){
-    var tab = e.target.closest(".karat-tab");
+  document.getElementById("cityTabs").addEventListener("click", function(e){
+    var tab = e.target.closest(".city-tab");
     if(!tab) return;
-    loadHistory(parseInt(tab.getAttribute("data-k"), 10));
+    loadHistory(tab.getAttribute("data-city"));
   });
 
-  loadHistory(24);
+  loadHistory("erbil");
 </script>
 
 </body>
