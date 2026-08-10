@@ -25,7 +25,7 @@
   @keyframes splashOut{to{opacity:0;visibility:hidden}}
   #splash{
     position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
-    background:radial-gradient(circle at 50% 45%, rgba(0,212,255,.12), transparent 60%), var(--dark);
+    background:radial-gradient(circle at 50% 45%, rgba(0,212,255,.12), transparent 60%), #8a6d00;
     animation:splashOut .6s ease-in 1.9s forwards;
   }
   #splash .splash-logo{
@@ -52,7 +52,7 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html{-webkit-text-size-adjust:100%;height:100%;overflow:hidden}
   body{
-    background:var(--dark);
+    background:#8a6d00;
     color:var(--paper);
     font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;
     line-height:1.5;
@@ -85,7 +85,7 @@
     background:radial-gradient(circle at 20% 50%, rgba(0,212,255,.15) 0%, transparent 50%),
                 radial-gradient(circle at 80% 30%, rgba(0,255,255,.1) 0%, transparent 50%),
                 radial-gradient(circle at 30% 80%, rgba(0,200,255,.08) 0%, transparent 50%),
-                var(--dark);
+                #8a6d00;
     background-size:400% 400%;
     animation:spaceDrift 15s ease-in-out infinite, fadeIn 1.5s ease-out;
   }
