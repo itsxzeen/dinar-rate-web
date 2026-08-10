@@ -291,20 +291,20 @@
   .mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
 
   .hero{
-    background:linear-gradient(135deg, rgba(255,255,255,.1), rgba(0,255,136,.05));
-    border:1px solid var(--purple);
-    border-radius:24px;
-    padding:28px;
+    background:transparent;
+    border:none;
+    border-radius:0;
+    padding:8px 0 20px;
     position:relative;
     overflow:hidden;
-    box-shadow:0 8px 32px rgba(0,0,0,.4);
+    box-shadow:none;
     animation:slideIn .6s ease-out;
   }
   .hero::before{
     content:"";
     position:absolute;
     inset:0;
-    background:radial-gradient(circle at 100% 0%, rgba(255,255,255,.1), transparent);
+    background:none;
     pointer-events:none;
   }
 
