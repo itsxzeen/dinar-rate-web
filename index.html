@@ -840,7 +840,7 @@
     var dateStr = (now.getMonth()+1)+"/"+now.getDate();
     var direction = prevRate==null ? "same" : (rate > prevRate ? "up" : "down");
     priceHistory.unshift({city:city, rate:rate, direction:direction, time:timeStr, date:dateStr});
-    if(priceHistory.length > 20) priceHistory = priceHistory.slice(0,20);
+    if(priceHistory.length > 10) priceHistory = priceHistory.slice(0,10);
     saveHistory(priceHistory);
     renderHistory();
   }
@@ -854,7 +854,7 @@
 
   function renderHistory(){
     var html = "";
-    priceHistory.forEach(function(item){
+    priceHistory.slice(0,10).forEach(function(item){
       var arrow = item.direction==="up" ? "↑" : "↓";
       var arrowClass = item.direction==="up" ? "up" : "down";
       html += '<div class="history-item">'+
