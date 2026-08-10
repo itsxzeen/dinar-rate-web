@@ -715,6 +715,8 @@
 
   // ---- Language toggle (English / Arabic) ----
   var LANG_KEY = "lang_v1";
+  var LANG_ORDER = ["en", "ar", "ku"];
+  var LANG_LABELS = { en:"EN", ar:"AR", ku:"KU" };
   var I18N = {
     en: {
       market:"Market", sell:"Sell", erbil:"Erbil", baghdad:"Baghdad",
@@ -741,6 +743,19 @@
       comingSoon:"📊 قريباً", otherCurrencies:"عملات أخرى",
       notifications:"الإشعارات", rateAlerts:"🔔 تنبيهات السعر",
       footerBy:"بواسطة", footerStatus:"جميع الأسعار مباشرة، ما زلنا نعمل عليه",
+    },
+    ku: {
+      market:"بازار", sell:"فرۆشتن", erbil:"هەولێر", baghdad:"بەغدا",
+      updating:"نوێکردنەوە...", refresh:"نوێکردنەوە", convert:"گۆڕین",
+      goldPerGram:"زێڕ · بۆ هەر گرام", goldPerMithqal:"زێڕ · بۆ هەر مسقاڵ", liveSpot:"نرخی ڕاستەوخۆ", karat:"عەیار",
+      loading:"بارکردن...", ounceGoldSilver:"ئۆنس · زێڕ و زیو",
+      goldWord:"🥇 زێڕ", silverWord:"🥈 زیو", priceHistory:"مێژووی نرخ",
+      noHistory:"هیچ مێژوویەک نییە", updatedPrefix:"نوێکراوەتەوە",
+      ounceBuy:"کڕینی ئۆنس", ounceSell:"فرۆشتنی ئۆنس", metal:"کانزا",
+      admin:"بەڕێوەبەری", adminLogin:"🔒 چوونەژوورەوەی بەڕێوەبەر", otherRates:"نرخەکانی تر",
+      comingSoon:"📊 بەم زووانە", otherCurrencies:"دراوی تر",
+      notifications:"ئاگادارکردنەوەکان", rateAlerts:"🔔 ئاگاداری نرخ",
+      footerBy:"لەلایەن", footerStatus:"هەموو نرخەکان ڕاستەوخۆن، هێشتا کارمان لەسەری دەکەین",
     },
   };
   var currentLang = localStorage.getItem(LANG_KEY) || "en";
@@ -783,7 +798,7 @@
       if (dict[key] != null) el.textContent = dict[key];
     });
     var langBtn = document.getElementById("langBtn");
-    if (langBtn) langBtn.textContent = lang === "en" ? "AR" : "EN";
+    if (langBtn) langBtn.textContent = LANG_LABELS[LANG_ORDER[(LANG_ORDER.indexOf(lang)+1) % LANG_ORDER.length]];
     stamp();
     renderHistory();
     if (lastGoldData) renderGold(lastGoldData);
@@ -1131,7 +1146,7 @@
 
   var langBtn = document.getElementById("langBtn");
   if (langBtn) langBtn.addEventListener("click", function(){
-    applyLang(currentLang === "en" ? "ar" : "en");
+    applyLang(LANG_ORDER[(LANG_ORDER.indexOf(currentLang)+1) % LANG_ORDER.length]);
   });
   applyLang(currentLang);
 
