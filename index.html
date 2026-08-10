@@ -185,6 +185,24 @@
     text-align:center;
     transition:all .3s;
   }
+  .sidebar-toggle-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px;background:var(--dark-3);border:1px solid var(--purple);
+    border-radius:10px;font-size:13px;color:var(--paper);
+  }
+  .switch{position:relative;display:inline-block;width:42px;height:24px;flex-shrink:0}
+  .switch input{opacity:0;width:0;height:0}
+  .switch-track{
+    position:absolute;cursor:pointer;inset:0;background:var(--dark-2);
+    border:1px solid var(--purple);border-radius:999px;transition:all .25s;
+  }
+  .switch-track::before{
+    content:"";position:absolute;height:16px;width:16px;left:3px;top:2px;
+    background:var(--paper);border-radius:50%;transition:all .25s;
+  }
+  .switch input:checked + .switch-track{background:var(--purple)}
+  .switch input:checked + .switch-track::before{transform:translateX(18px)}
+  .switch input:disabled + .switch-track{opacity:.4;cursor:not-allowed}
   .sidebar-item:hover{
     background:var(--purple);
     color:var(--dark);
@@ -517,6 +535,17 @@
     <div class="sidebar-item">£ GBP</div>
     <div class="sidebar-item">₺ TRY</div>
   </div>
+
+  <div class="sidebar-section" id="notifSection" style="display:none">
+    <div class="sidebar-title">Notifications</div>
+    <label class="sidebar-toggle-row" for="notifToggle">
+      🔔 Rate Alerts
+      <span class="switch">
+        <input type="checkbox" id="notifToggle">
+        <span class="switch-track"></span>
+      </span>
+    </label>
+  </div>
 </div>
 
 <!-- ADMIN PANEL -->
@@ -640,6 +669,74 @@
   var WORKER_URL = "https://dinar-rate-worker.dollersdaner.workers.dev";
   var CACHE_KEY = "dinarRates_v2";
   var HISTORY_KEY = "priceHistory_v1";
+
+  // Push notifications (iOS app only — this whole block is a no-op on the
+  // website, since window.Capacitor doesn't exist there). Controlled by the
+  // "Rate Alerts" toggle in the sidebar, which only that native app shows.
+  var NOTIF_KEY = "notifEnabled_v1";
+  var TOKEN_KEY = "pushToken_v1";
+
+  function isNativeApp(){
+    return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  }
+  function getPush(){
+    return isNativeApp() && window.Capacitor.Plugins ? window.Capacitor.Plugins.PushNotifications : null;
+  }
+  function enablePush(){
+    var Push = getPush();
+    if (!Push) return;
+    Push.requestPermissions().then(function(res){
+      if (res.receive === "granted") {
+        Push.register();
+        localStorage.setItem(NOTIF_KEY, "1");
+      } else {
+        localStorage.setItem(NOTIF_KEY, "0");
+        if (notifToggle) notifToggle.checked = false;
+      }
+    });
+  }
+  function disablePush(){
+    localStorage.setItem(NOTIF_KEY, "0");
+    var token = localStorage.getItem(TOKEN_KEY);
+    if (token) {
+      fetch(WORKER_URL + "/push/unregister", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: token }),
+      }).catch(function(){});
+    }
+  }
+
+  var notifSection = document.getElementById("notifSection");
+  var notifToggle = document.getElementById("notifToggle");
+
+  if (isNativeApp()) {
+    if (notifSection) notifSection.style.display = "";
+
+    var Push = getPush();
+    if (Push) {
+      Push.addListener("registration", function(token){
+        localStorage.setItem(TOKEN_KEY, token.value);
+        fetch(WORKER_URL + "/push/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: token.value, platform: "ios" }),
+        }).catch(function(){});
+      });
+      Push.addListener("registrationError", function(err){
+        console.error("push registration error", err);
+      });
+    }
+
+    if (notifToggle) {
+      var wasEnabled = localStorage.getItem(NOTIF_KEY) === "1";
+      notifToggle.checked = wasEnabled;
+      if (wasEnabled) enablePush(); // re-register on each launch, as Apple recommends
+      notifToggle.addEventListener("change", function(){
+        if (this.checked) enablePush(); else disablePush();
+      });
+    }
+  }
 
   var erbilSell = null;
   var baghdadSell = null;
