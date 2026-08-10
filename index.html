@@ -690,6 +690,7 @@
       loading:"Loading…", ounceGoldSilver:"Ounce · Gold & Silver",
       goldWord:"🥇 Gold", silverWord:"🥈 Silver", priceHistory:"Price History",
       noHistory:"No history yet", updatedPrefix:"updated",
+      ounceBuy:"Ounce Buy", ounceSell:"Ounce Sell",
       admin:"Admin", adminLogin:"🔒 Admin Login", otherRates:"Other Rates",
       comingSoon:"📊 Coming Soon", otherCurrencies:"Other Currencies",
       notifications:"Notifications", rateAlerts:"🔔 Rate Alerts",
@@ -702,6 +703,7 @@
       loading:"جاري التحميل…", ounceGoldSilver:"الأونصة · الذهب والفضة",
       goldWord:"🥇 الذهب", silverWord:"🥈 الفضة", priceHistory:"سجل الأسعار",
       noHistory:"لا يوجد سجل بعد", updatedPrefix:"تحديث",
+      ounceBuy:"شراء الأونصة", ounceSell:"بيع الأونصة",
       admin:"الإدارة", adminLogin:"🔒 دخول الإدارة", otherRates:"أسعار أخرى",
       comingSoon:"📊 قريباً", otherCurrencies:"عملات أخرى",
       notifications:"الإشعارات", rateAlerts:"🔔 تنبيهات السعر",
@@ -709,6 +711,7 @@
     },
   };
   var currentLang = localStorage.getItem(LANG_KEY) || "en";
+  var lastGoldData = null;
 
   function applyLang(lang){
     currentLang = lang;
@@ -723,6 +726,7 @@
     if (langBtn) langBtn.textContent = lang === "en" ? "AR" : "EN";
     stamp();
     renderHistory();
+    if (lastGoldData) renderGold(lastGoldData);
   }
 
   // Push notifications (iOS app only — this whole block is a no-op on the
@@ -920,8 +924,8 @@
     list.innerHTML = html;
     if(gold.ounce && (gold.ounce.sell || gold.ounce.buy)){
       var oz = "";
-      if(gold.ounce.buy) oz += '<div class="oz-box">Ounce Buy<span class="oz-val">'+fmt(gold.ounce.buy.iqd)+'</span></div>';
-      if(gold.ounce.sell) oz += '<div class="oz-box">Ounce Sell<span class="oz-val">'+fmt(gold.ounce.sell.iqd)+'</span></div>';
+      if(gold.ounce.buy) oz += '<div class="oz-box">'+I18N[currentLang].ounceBuy+'<span class="oz-val">'+fmt(gold.ounce.buy.iqd)+'</span></div>';
+      if(gold.ounce.sell) oz += '<div class="oz-box">'+I18N[currentLang].ounceSell+'<span class="oz-val">'+fmt(gold.ounce.sell.iqd)+'</span></div>';
       ounce.innerHTML = oz;
     } else { ounce.innerHTML = ""; }
   }
@@ -960,6 +964,7 @@
 
         if(res.data.erbil) erbilSell = res.data.erbil.rate;
         if(res.data.baghdad) baghdadSell = res.data.baghdad.rate;
+        lastGoldData = res.data.gold;
         renderGold(res.data.gold);
         renderSpot(res.data.goldSpot);
         renderOunceGoldSilver(res.data.ounceGoldSilver);
