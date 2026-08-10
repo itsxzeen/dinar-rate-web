@@ -405,6 +405,12 @@
   .field .cur{font-family:"IBM Plex Mono";font-weight:700;font-size:14px;color:var(--paper);min-width:42px}
   .field input{flex:1;background:none;border:none;outline:none;color:var(--paper);font-family:"IBM Plex Mono";font-weight:600;font-size:22px;width:100%;text-align:right}
   .field input::placeholder{color:var(--muted)}
+  .swap-btn{
+    display:block;margin:-4px auto 8px;width:36px;height:36px;
+    background:var(--dark-3);border:1px solid var(--purple);border-radius:50%;
+    color:var(--paper);font-size:16px;cursor:pointer;transition:all .3s;
+  }
+  .swap-btn:hover{background:var(--purple);color:var(--dark);transform:rotate(180deg);}
 
   .history{
     margin-top:28px;padding:20px;background:linear-gradient(135deg, rgba(0,212,255,.08), transparent);
@@ -624,12 +630,13 @@
         <div class="conv-tab" id="tabBaghdad" data-city="baghdad" data-i18n="baghdad">Baghdad</div>
       </div>
       <div class="field">
-        <span class="cur">USD</span>
-        <input id="usd" type="text" inputmode="decimal" placeholder="100" value="100" />
+        <span class="cur" id="fieldTopCur">USD</span>
+        <input id="fieldTop" type="text" inputmode="decimal" placeholder="100" value="100" />
       </div>
+      <button type="button" id="swapDirBtn" class="swap-btn" aria-label="Swap direction">⇅</button>
       <div class="field">
-        <span class="cur">IQD</span>
-        <input id="iqd" type="text" inputmode="decimal" placeholder="0" readonly />
+        <span class="cur" id="fieldBotCur">IQD</span>
+        <input id="fieldBot" type="text" inputmode="decimal" placeholder="0" readonly />
       </div>
     </div>
   </section>
@@ -655,8 +662,9 @@
   <section>
     <div class="h2 gold" data-i18n="ounceGoldSilver">Ounce · Gold &amp; Silver</div>
     <div class="card">
-      <div class="gold-row"><span class="gold-karat" data-i18n="goldWord">🥇 Gold</span><span class="gold-iqd mono" id="ounceGoldVal">—</span></div>
-      <div class="gold-row"><span class="gold-karat" data-i18n="silverWord">🥈 Silver</span><span class="gold-iqd mono" id="ounceSilverVal">—</span></div>
+      <div class="gold-head"><span data-i18n="metal">Metal</span><span>IQD /oz</span><span>USD /oz</span></div>
+      <div class="gold-row"><span class="gold-karat" data-i18n="goldWord">🥇 Gold</span><span class="gold-iqd mono" id="ounceGoldIqd">—</span><span class="gold-usd mono" id="ounceGoldUsd">—</span></div>
+      <div class="gold-row"><span class="gold-karat" data-i18n="silverWord">🥈 Silver</span><span class="gold-iqd mono" id="ounceSilverIqd">—</span><span class="gold-usd mono" id="ounceSilverUsd">—</span></div>
     </div>
   </section>
 
@@ -690,7 +698,7 @@
       loading:"Loading…", ounceGoldSilver:"Ounce · Gold & Silver",
       goldWord:"🥇 Gold", silverWord:"🥈 Silver", priceHistory:"Price History",
       noHistory:"No history yet", updatedPrefix:"updated",
-      ounceBuy:"Ounce Buy", ounceSell:"Ounce Sell",
+      ounceBuy:"Ounce Buy", ounceSell:"Ounce Sell", metal:"Metal",
       admin:"Admin", adminLogin:"🔒 Admin Login", otherRates:"Other Rates",
       comingSoon:"📊 Coming Soon", otherCurrencies:"Other Currencies",
       notifications:"Notifications", rateAlerts:"🔔 Rate Alerts",
@@ -703,7 +711,7 @@
       loading:"جاري التحميل…", ounceGoldSilver:"الأونصة · الذهب والفضة",
       goldWord:"🥇 الذهب", silverWord:"🥈 الفضة", priceHistory:"سجل الأسعار",
       noHistory:"لا يوجد سجل بعد", updatedPrefix:"تحديث",
-      ounceBuy:"شراء الأونصة", ounceSell:"بيع الأونصة",
+      ounceBuy:"شراء الأونصة", ounceSell:"بيع الأونصة", metal:"المعدن",
       admin:"الإدارة", adminLogin:"🔒 دخول الإدارة", otherRates:"أسعار أخرى",
       comingSoon:"📊 قريباً", otherCurrencies:"عملات أخرى",
       notifications:"الإشعارات", rateAlerts:"🔔 تنبيهات السعر",
@@ -894,11 +902,16 @@
   }
 
   function renderOunceGoldSilver(o){
-    var goldEl = document.getElementById("ounceGoldVal");
-    var silverEl = document.getElementById("ounceSilverVal");
-    if(!goldEl || !silverEl) return;
-    goldEl.textContent = (o && o.gold!=null) ? "$"+fmt(o.gold)+" /oz" : "—";
-    silverEl.textContent = (o && o.silver!=null) ? "$"+fmt(o.silver)+" /oz" : "—";
+    var goldIqdEl = document.getElementById("ounceGoldIqd");
+    var goldUsdEl = document.getElementById("ounceGoldUsd");
+    var silverIqdEl = document.getElementById("ounceSilverIqd");
+    var silverUsdEl = document.getElementById("ounceSilverUsd");
+    if(!goldIqdEl) return;
+    var per1Usd = baghdadSell!=null ? baghdadSell/100 : null; // rate is quoted per 100 USD
+    goldUsdEl.textContent = (o && o.gold!=null) ? "$"+fmt(o.gold) : "—";
+    silverUsdEl.textContent = (o && o.silver!=null) ? "$"+fmt(o.silver) : "—";
+    goldIqdEl.textContent = (o && o.gold!=null && per1Usd!=null) ? fmt(o.gold*per1Usd) : "—";
+    silverIqdEl.textContent = (o && o.silver!=null && per1Usd!=null) ? fmt(o.silver*per1Usd) : "—";
   }
   function fetchOunceLive(){
     fetch(WORKER_URL+"/ounce").then(function(r){ return r.json(); })
@@ -930,14 +943,30 @@
     } else { ounce.innerHTML = ""; }
   }
 
+  // The rate (erbilSell/baghdadSell) is quoted per 100 USD, not per 1 USD —
+  // e.g. a "SELL" of 152,850 means 100 USD = 152,850 IQD.
+  var convDir = "usd2iqd"; // or "iqd2usd"
+
   function convertUsd(){
-    var v=parseFloat((document.getElementById("usd").value||"").replace(/,/g,""));
+    var top = document.getElementById("fieldTop");
+    var bot = document.getElementById("fieldBot");
+    var v = parseFloat((top.value||"").replace(/,/g,""));
     var r = currentRate();
-    if(isNaN(v)||v<0||r==null){ document.getElementById("iqd").value=""; return; }
-    document.getElementById("iqd").value = fmt(v*r);
+    if(isNaN(v)||v<0||r==null){ bot.value=""; return; }
+    bot.value = convDir==="usd2iqd" ? fmt(v/100*r) : fmt(v/r*100);
   }
 
-  document.getElementById("usd").addEventListener("input", convertUsd);
+  document.getElementById("fieldTop").addEventListener("input", convertUsd);
+
+  document.getElementById("swapDirBtn").addEventListener("click", function(){
+    convDir = convDir==="usd2iqd" ? "iqd2usd" : "usd2iqd";
+    var topCur = document.getElementById("fieldTopCur");
+    var botCur = document.getElementById("fieldBotCur");
+    var top = document.getElementById("fieldTop");
+    if(convDir==="usd2iqd"){ topCur.textContent="USD"; botCur.textContent="IQD"; top.placeholder="100"; top.value="100"; }
+    else { topCur.textContent="IQD"; botCur.textContent="USD"; top.placeholder="0"; top.value=""; }
+    convertUsd();
+  });
 
   document.getElementById("tabErbil").addEventListener("click", function(){
     convCity = "erbil";
