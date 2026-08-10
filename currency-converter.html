@@ -64,6 +64,8 @@
     font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:700;outline:none;min-width:0;
   }
   .rate-info{text-align:center;font-size:12px;color:#98989d;margin-top:14px;}
+  .cur.toggle{cursor:pointer;display:flex;align-items:center;gap:4px;user-select:none;}
+  .cur.toggle .swap-ic{font-size:10px;opacity:.6;}
   .swap-btn{
     display:flex;align-items:center;justify-content:center;width:40px;height:40px;
     margin:-3px auto 11px;border-radius:50%;border:1px solid #0a84ff;background:#1c1c1e;
@@ -122,7 +124,7 @@
     </div>
     <button type="button" id="swapBtn" class="swap-btn" aria-label="Swap direction">⇅</button>
     <div class="field">
-      <span class="cur">IQD</span>
+      <span class="cur toggle" id="fieldBotCur">IQD <span class="swap-ic">⇄</span></span>
       <input id="fieldBot" type="text" inputmode="decimal" placeholder="0" />
     </div>
     <div class="rate-info" id="rateInfo"></div>
@@ -147,10 +149,13 @@
   var topInput = document.getElementById("fieldTop");
   var bot = document.getElementById("fieldBot");
   var topCur = document.getElementById("fieldTopCur");
+  var botCur = document.getElementById("fieldBotCur");
   var info = document.getElementById("rateInfo");
   var swapBtn = document.getElementById("swapBtn");
   var selected = null;
   var convDir = "cur2iqd"; // or "iqd2cur"
+  var botUnit = "IQD"; // or "USD"
+  var baghdadRate = null; // IQD per 100 USD, from the main /rates feed
 
   function renderSelect(){
     if(!currencies.length){
@@ -165,6 +170,14 @@
     select.disabled = false;
   }
 
+  // How much of botUnit equals 1 unit of the selected currency.
+  function botPer1(){
+    if(!selected || selected.iqdPer1==null) return null;
+    if(botUnit === "IQD") return selected.iqdPer1;
+    if(baghdadRate==null) return null;
+    return selected.iqdPer1 / (baghdadRate/100); // USD per 1 currency unit
+  }
+
   function selectCurrency(c){
     selected = c;
     topCur.textContent = flagFor(c.code) + " " + c.code;
@@ -173,20 +186,23 @@
   }
 
   function updateRateInfo(){
-    info.textContent = selected && selected.iqdPer1!=null
-      ? "1 " + flagFor(selected.code) + " " + selected.code + " = " + fmt(selected.iqdPer1) + " IQD"
+    var rate = botPer1();
+    info.textContent = selected && rate!=null
+      ? "1 " + flagFor(selected.code) + " " + selected.code + " = " + fmt2(rate) + " " + botUnit
       : "";
   }
+  function fmt2(n){ return n < 10 ? Number(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}) : fmt(n); }
 
   function convert(){
     updateRateInfo();
-    if(!selected || selected.iqdPer1==null){ bot.value=""; return; }
+    var rate = botPer1();
+    if(!selected || rate==null){ if(convDir==="cur2iqd") bot.value=""; else topInput.value=""; return; }
     if(convDir === "cur2iqd"){
       var v = parseFloat((topInput.value||"").replace(/,/g,""));
-      bot.value = (isNaN(v) || v<0) ? "" : fmt(v * selected.iqdPer1);
+      bot.value = (isNaN(v) || v<0) ? "" : fmt2(v * rate);
     } else {
-      var iqd = parseFloat((bot.value||"").replace(/,/g,""));
-      topInput.value = (isNaN(iqd) || iqd<0) ? "" : fmt(iqd / selected.iqdPer1);
+      var amt = parseFloat((bot.value||"").replace(/,/g,""));
+      topInput.value = (isNaN(amt) || amt<0) ? "" : fmt(amt / rate);
     }
   }
 
@@ -207,10 +223,17 @@
     convert();
   });
 
+  botCur.addEventListener("click", function(){
+    botUnit = botUnit === "IQD" ? "USD" : "IQD";
+    botCur.innerHTML = botUnit + ' <span class="swap-ic">⇄</span>';
+    convert();
+  });
+
   fetch(WORKER_URL)
     .then(function(r){ return r.json(); })
     .then(function(d){
       currencies = d.extra || [];
+      baghdadRate = d.baghdad ? d.baghdad.rate : null;
       renderSelect();
     })
     .catch(function(){
