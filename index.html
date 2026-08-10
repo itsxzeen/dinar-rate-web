@@ -17,26 +17,6 @@
   @keyframes slideIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-  /* --- Splash screen (comes & goes on load) --- */
-  @keyframes splashLogoIn{
-    0%{opacity:0;transform:scale(.7) translateY(14px);filter:blur(6px)}
-    60%{opacity:1;transform:scale(1.06) translateY(0);filter:blur(0)}
-    100%{opacity:1;transform:scale(1)}
-  }
-  @keyframes splashGlow{0%,100%{text-shadow:0 0 18px rgba(0,212,255,.5)}50%{text-shadow:0 0 34px rgba(0,255,255,.9)}}
-  @keyframes splashOut{to{opacity:0;visibility:hidden}}
-  #splash{
-    position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
-    background:radial-gradient(circle at 50% 45%, rgba(0,212,255,.12), transparent 60%), var(--dark);
-    animation:splashOut .6s ease-in 1.9s forwards;
-  }
-  #splash .splash-logo{
-    font-size:42px;font-weight:900;letter-spacing:2px;
-    color:var(--paper);
-    animation:splashLogoIn .9s cubic-bezier(.2,.8,.2,1) both, splashGlow 1.6s ease-in-out .9s infinite;
-  }
-  #splash.hidden{display:none}
-
   :root{
     --dark:#0a0814;
     --dark-2:#0d1220;
@@ -426,6 +406,21 @@
   .icon-btn.spinning{animation:spin .6s linear;}
   @keyframes spin{to{transform:rotate(360deg);}}
 
+  .ticker-bar{
+    overflow:hidden;background:var(--dark-2);border-bottom:1px solid rgba(0,212,255,.2);
+    padding:5px 0;white-space:nowrap;flex-shrink:0;
+  }
+  .ticker-track{display:inline-flex;animation:tickerScroll 22s linear infinite;}
+  .ticker-item{
+    display:inline-flex;align-items:center;gap:4px;padding:0 14px;
+    font-size:10px;font-family:"IBM Plex Mono",monospace;color:var(--paper);
+    border-right:1px solid rgba(0,212,255,.15);white-space:nowrap;
+  }
+  .ticker-item b{font-weight:700;}
+  .ticker-item .arrow-up{color:#00ff88;}
+  .ticker-item .arrow-down{color:#ff5c7c;}
+  @keyframes tickerScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
   .history{
     margin-top:28px;padding:20px;background:linear-gradient(135deg, rgba(0,212,255,.08), transparent);
     border:1px solid var(--purple);border-radius:18px;
@@ -530,7 +525,6 @@
 </style>
 </head>
 <body>
-<div id="splash"><div class="splash-logo">Se3rForIQD</div></div>
 <canvas id="spaceBg"></canvas>
 
 
@@ -599,6 +593,11 @@
     <div class="brand-text">Se3rForIQD</div>
   </div>
   <button class="menu-btn" id="langBtn" style="font-size:13px;font-weight:700;">AR</button>
+</div>
+
+<!-- GOLD TICKER -->
+<div class="ticker-bar" id="tickerBar">
+  <div class="ticker-track" id="tickerTrack"></div>
 </div>
 
 <!-- MAIN CONTENT -->
@@ -752,6 +751,33 @@
   };
   var currentLang = localStorage.getItem(LANG_KEY) || "en";
   var lastGoldData = null;
+  var lastOunceData = null;
+  var tickerPrev = {};
+
+  function tickerArrow(key, val){
+    if(val==null) return "";
+    var prev = tickerPrev[key];
+    tickerPrev[key] = val;
+    if(prev==null || val===prev) return "";
+    return val > prev ? '<span class="arrow-up">▲</span>' : '<span class="arrow-down">▼</span>';
+  }
+
+  function buildTicker(){
+    var track = document.getElementById("tickerTrack");
+    if(!track) return;
+    var items = [];
+    if(lastGoldData && lastGoldData.gram){
+      lastGoldData.gram.forEach(function(g){
+        items.push('<span class="ticker-item">'+g.k+'K/g '+tickerArrow("g"+g.k, g.iqd)+' <b>'+fmt(g.iqd)+'</b> IQD · $'+fmt2(g.usd)+'</span>');
+      });
+    }
+    if(lastOunceData){
+      if(lastOunceData.gold!=null) items.push('<span class="ticker-item">🥇 oz '+tickerArrow("ozGold", lastOunceData.gold)+' <b>$'+fmt2(lastOunceData.gold)+'</b></span>');
+      if(lastOunceData.silver!=null) items.push('<span class="ticker-item">🥈 oz '+tickerArrow("ozSilver", lastOunceData.silver)+' <b>$'+fmt2(lastOunceData.silver)+'</b></span>');
+    }
+    if(!items.length) return;
+    track.innerHTML = items.join("") + items.join(""); // duplicated for seamless loop
+  }
 
   function applyLang(lang){
     currentLang = lang;
@@ -853,6 +879,7 @@
 
 
   function fmt(n){ return Math.round(n).toLocaleString("en-US"); }
+  function fmt2(n){ return n==null ? "—" : Number(n).toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2}); }
   function fmtFull(n){ return Math.round(n).toString(); }
   function pad(n){ return n<10?"0"+n:""+n; }
   function currentRate(){ return convCity==="baghdad" ? baghdadSell : erbilSell; }
@@ -915,7 +942,7 @@
     if(!spot || spot.usdPerOz==null) return;
     var priceEl = document.getElementById("spotPrice");
     var changeEl = document.getElementById("spotChange");
-    var newTxt = "$"+fmt(spot.usdPerOz);
+    var newTxt = "$"+fmt2(spot.usdPerOz);
     if(priceEl.textContent !== newTxt && lastSpot!=null){
       priceEl.classList.add("flash");
       setTimeout(function(){ priceEl.classList.remove("flash"); }, 300);
@@ -940,10 +967,12 @@
     var silverUsdEl = document.getElementById("ounceSilverUsd");
     if(!goldIqdEl) return;
     var per1Usd = baghdadSell!=null ? baghdadSell/100 : null; // rate is quoted per 100 USD
-    goldUsdEl.textContent = (o && o.gold!=null) ? "$"+fmt(o.gold) : "—";
-    silverUsdEl.textContent = (o && o.silver!=null) ? "$"+fmt(o.silver) : "—";
+    goldUsdEl.textContent = (o && o.gold!=null) ? "$"+fmt2(o.gold) : "—";
+    silverUsdEl.textContent = (o && o.silver!=null) ? "$"+fmt2(o.silver) : "—";
     goldIqdEl.textContent = (o && o.gold!=null && per1Usd!=null) ? fmt(o.gold*per1Usd) : "—";
     silverIqdEl.textContent = (o && o.silver!=null && per1Usd!=null) ? fmt(o.silver*per1Usd) : "—";
+    lastOunceData = o;
+    buildTicker();
   }
   function fetchOunceLive(){
     fetch(WORKER_URL+"/ounce").then(function(r){ return r.json(); })
@@ -972,7 +1001,7 @@
       html += '<div class="gold-row">'+
         '<span class="gold-karat">'+g.k+'K</span>'+
         '<span class="gold-iqd">'+fmt(g.iqd)+'</span>'+
-        '<span class="gold-usd">$'+fmt(g.usd)+'</span>'+
+        '<span class="gold-usd">$'+fmt2(g.usd)+'</span>'+
         '</div>';
     });
     list.innerHTML = html;
@@ -991,11 +1020,12 @@
         mHtml += '<div class="gold-row">'+
           '<span class="gold-karat">'+g.k+'K</span>'+
           '<span class="gold-iqd">'+fmt(g.mithqalIqd)+'</span>'+
-          '<span class="gold-usd">$'+fmt(g.mithqalUsd)+'</span>'+
+          '<span class="gold-usd">$'+fmt2(g.mithqalUsd)+'</span>'+
           '</div>';
       });
       mList.innerHTML = mHtml || '<div class="gold-row"><span class="gold-karat">—</span><span class="gold-iqd">Unavailable</span><span class="gold-usd"></span></div>';
     }
+    buildTicker();
   }
 
   // The rate (erbilSell/baghdadSell) is quoted per 100 USD, not per 1 USD —
@@ -1080,12 +1110,6 @@
         }
       });
   }
-
-  // Remove the splash overlay after its come-and-go animation finishes.
-  setTimeout(function(){
-    var s = document.getElementById("splash");
-    if(s) s.classList.add("hidden");
-  }, 2600);
 
   priceHistory = loadHistory();
   renderRates();
