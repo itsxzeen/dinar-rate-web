@@ -35,19 +35,23 @@
   .title{flex:1;text-align:center;font-size:20px;font-weight:900;letter-spacing:1px;}
   .wrap{max-width:520px;margin:0 auto;padding:20px 18px 40px;}
 
+  .converter-block{margin-bottom:28px;}
+  .converter-block:last-child{margin-bottom:0;}
+  .converter-label{font-size:12px;font-weight:700;color:#98989d;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+
   .currency-select-wrap{position:relative;}
   .currency-select-wrap .arrow{
     position:absolute;right:16px;top:50%;transform:translateY(-50%);
     color:#98989d;font-size:13px;pointer-events:none;
   }
   select.currency-select{
-    width:100%;padding:14px 40px 14px 16px;border-radius:12px;border:1px solid #3a3a3c;
-    background:#1c1c1e;color:#ffffff;font-weight:700;font-size:15px;font-family:inherit;
+    width:100%;padding:13px 40px 13px 16px;border-radius:12px;border:1px solid #3a3a3c;
+    background:#1c1c1e;color:#ffffff;font-weight:700;font-size:13px;font-family:inherit;
     -webkit-appearance:none;appearance:none;cursor:pointer;
   }
-  select.currency-select option{background:#1c1c1e;color:#ffffff;}
+  select.currency-select option{background:#1c1c1e;color:#ffffff;font-size:13px;}
 
-  .card{background:#1c1c1e;border:1px solid #3a3a3c;border-radius:16px;padding:18px;margin-top:18px;}
+  .card{background:#1c1c1e;border:1px solid #3a3a3c;border-radius:16px;padding:18px;margin-top:12px;}
   .field{
     display:flex;align-items:center;justify-content:space-between;gap:10px;
     background:#000000;border:1px solid #3a3a3c;border-radius:12px;padding:14px 16px;margin-bottom:14px;
@@ -99,30 +103,52 @@
 </div>
 
 <div class="wrap">
-  <div class="currency-select-wrap">
-    <select class="currency-select" id="currencySelect" disabled>
-      <option value="">Loading…</option>
-    </select>
-    <span class="arrow">▾</span>
+  <div class="converter-block">
+    <div class="converter-label">Currency 1</div>
+    <div class="currency-select-wrap">
+      <select class="currency-select" id="currencySelect1" disabled>
+        <option value="">Loading…</option>
+      </select>
+      <span class="arrow">▾</span>
+    </div>
+    <div class="card" id="converterCard1" style="display:none">
+      <div class="field">
+        <span class="cur" id="fieldTopCur1">EUR</span>
+        <input id="fieldTop1" type="text" inputmode="decimal" placeholder="100" value="100" />
+      </div>
+      <div class="field">
+        <span class="cur">IQD</span>
+        <input id="fieldBot1" type="text" readonly />
+      </div>
+      <div class="rate-info" id="rateInfo1"></div>
+    </div>
   </div>
 
-  <div class="card" id="converterCard" style="display:none">
-    <div class="field">
-      <span class="cur" id="fieldTopCur">EUR</span>
-      <input id="fieldTop" type="text" inputmode="decimal" placeholder="100" value="100" />
+  <div class="converter-block">
+    <div class="converter-label">Currency 2</div>
+    <div class="currency-select-wrap">
+      <select class="currency-select" id="currencySelect2" disabled>
+        <option value="">Loading…</option>
+      </select>
+      <span class="arrow">▾</span>
     </div>
-    <div class="field">
-      <span class="cur">IQD</span>
-      <input id="fieldBot" type="text" readonly />
+    <div class="card" id="converterCard2" style="display:none">
+      <div class="field">
+        <span class="cur" id="fieldTopCur2">GBP</span>
+        <input id="fieldTop2" type="text" inputmode="decimal" placeholder="100" value="100" />
+      </div>
+      <div class="field">
+        <span class="cur">IQD</span>
+        <input id="fieldBot2" type="text" readonly />
+      </div>
+      <div class="rate-info" id="rateInfo2"></div>
     </div>
-    <div class="rate-info" id="rateInfo"></div>
   </div>
 </div>
 
 <script>
   var WORKER_URL = "https://dinar-rate-worker.dollersdaner.workers.dev";
   var currencies = []; // [{code, label, iqdPer1, asOf}]
-  var selected = null;
 
   var CURRENCY_FLAGS = {
     EUR:"🇪🇺", GBP:"🇬🇧", TRY:"🇹🇷", USD:"🇺🇸", AED:"🇦🇪", SAR:"🇸🇦",
@@ -131,57 +157,73 @@
     NOK:"🇳🇴", DKK:"🇩🇰", QAR:"🇶🇦", BHD:"🇧🇭", OMR:"🇴🇲", LBP:"🇱🇧",
   };
   function flagFor(code){ return CURRENCY_FLAGS[code] || "💱"; }
-
   function fmt(n){ return n==null ? "—" : Math.round(n).toLocaleString("en-US"); }
 
-  var select = document.getElementById("currencySelect");
+  function makeConverter(suffix, defaultCode){
+    var select = document.getElementById("currencySelect"+suffix);
+    var card = document.getElementById("converterCard"+suffix);
+    var top = document.getElementById("fieldTop"+suffix);
+    var bot = document.getElementById("fieldBot"+suffix);
+    var topCur = document.getElementById("fieldTopCur"+suffix);
+    var info = document.getElementById("rateInfo"+suffix);
+    var selected = null;
 
-  function renderSelect(){
-    if(!currencies.length){
-      select.innerHTML = '<option value="">No other currencies configured yet</option>';
-      select.disabled = true;
-      return;
+    function renderSelect(){
+      if(!currencies.length){
+        select.innerHTML = '<option value="">No other currencies configured yet</option>';
+        select.disabled = true;
+        return;
+      }
+      select.innerHTML = '<option value="">Choose currency</option>' + currencies.map(function(c){
+        return '<option value="'+c.code+'">'+flagFor(c.code)+' '+c.code+' · '+c.label+
+          (c.iqdPer1!=null ? ' — '+fmt(c.iqdPer1)+' IQD' : '')+'</option>';
+      }).join("");
+      select.disabled = false;
+      if(defaultCode && currencies.some(function(c){ return c.code===defaultCode; })){
+        select.value = defaultCode;
+        selectCurrency(currencies.filter(function(c){ return c.code===defaultCode; })[0]);
+      }
     }
-    select.innerHTML = '<option value="">Choose currency</option>' + currencies.map(function(c){
-      return '<option value="'+c.code+'">'+flagFor(c.code)+' '+c.code+' · '+c.label+
-        (c.iqdPer1!=null ? ' — '+fmt(c.iqdPer1)+' IQD' : '')+'</option>';
-    }).join("");
-    select.disabled = false;
+
+    function selectCurrency(c){
+      selected = c;
+      topCur.textContent = flagFor(c.code) + " " + c.code;
+      card.style.display = c.iqdPer1!=null ? "" : "none";
+      convert();
+    }
+
+    function convert(){
+      if(!selected || selected.iqdPer1==null){ bot.value=""; info.textContent=""; return; }
+      var v = parseFloat((top.value||"").replace(/,/g,""));
+      if(isNaN(v) || v<0){ bot.value=""; return; }
+      bot.value = fmt(v * selected.iqdPer1);
+      info.textContent = "1 " + flagFor(selected.code) + " " + selected.code + " = " + fmt(selected.iqdPer1) + " IQD";
+    }
+
+    select.addEventListener("change", function(){
+      var c = currencies.filter(function(x){ return x.code === select.value; })[0];
+      if(!c){ card.style.display = "none"; return; }
+      selectCurrency(c);
+    });
+    top.addEventListener("input", convert);
+
+    return { renderSelect: renderSelect };
   }
 
-  select.addEventListener("change", function(){
-    var c = currencies.filter(function(x){ return x.code === select.value; })[0];
-    if(!c){ document.getElementById("converterCard").style.display = "none"; return; }
-    selectCurrency(c);
-  });
-
-  function selectCurrency(c){
-    selected = c;
-    document.getElementById("fieldTopCur").textContent = flagFor(c.code) + " " + c.code;
-    document.getElementById("converterCard").style.display = c.iqdPer1!=null ? "" : "none";
-    convert();
-  }
-
-  function convert(){
-    var top = document.getElementById("fieldTop");
-    var bot = document.getElementById("fieldBot");
-    var info = document.getElementById("rateInfo");
-    if(!selected || selected.iqdPer1==null){ bot.value=""; info.textContent=""; return; }
-    var v = parseFloat((top.value||"").replace(/,/g,""));
-    if(isNaN(v) || v<0){ bot.value=""; return; }
-    bot.value = fmt(v * selected.iqdPer1);
-    info.textContent = "1 " + flagFor(selected.code) + " " + selected.code + " = " + fmt(selected.iqdPer1) + " IQD";
-  }
-  document.getElementById("fieldTop").addEventListener("input", convert);
+  var converter1 = makeConverter("1", "EUR");
+  var converter2 = makeConverter("2", "GBP");
 
   fetch(WORKER_URL)
     .then(function(r){ return r.json(); })
     .then(function(d){
       currencies = d.extra || [];
-      renderSelect();
+      converter1.renderSelect();
+      converter2.renderSelect();
     })
     .catch(function(){
-      select.innerHTML = '<option value="">Couldn\'t load currencies</option>';
+      ["1","2"].forEach(function(s){
+        document.getElementById("currencySelect"+s).innerHTML = '<option value="">Couldn\'t load currencies</option>';
+      });
     });
 </script>
 
