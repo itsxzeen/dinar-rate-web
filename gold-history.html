@@ -8,6 +8,15 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   @view-transition{navigation:auto;}
+  ::view-transition-old(root),::view-transition-new(root){animation-duration:.32s;animation-timing-function:ease-in-out;}
+  html[data-vt-dir="forward"]::view-transition-old(root){animation-name:vt-out-left;}
+  html[data-vt-dir="forward"]::view-transition-new(root){animation-name:vt-in-right;}
+  html[data-vt-dir="back"]::view-transition-old(root){animation-name:vt-out-right;}
+  html[data-vt-dir="back"]::view-transition-new(root){animation-name:vt-in-left;}
+  @keyframes vt-out-left{to{transform:translateX(-25%);}}
+  @keyframes vt-in-right{from{transform:translateX(100%);}to{transform:translateX(0);}}
+  @keyframes vt-out-right{to{transform:translateX(100%);}}
+  @keyframes vt-in-left{from{transform:translateX(-100%);}to{transform:translateX(0);}}
   *{box-sizing:border-box;margin:0;padding:0}
   html{height:100%}
   body{
@@ -15,6 +24,7 @@
     min-height:100%;line-height:1.5;
   }
   .topbar{
+    position:sticky;top:0;z-index:30;
     display:flex;align-items:center;gap:16px;
     padding:max(calc(env(safe-area-inset-top) + 4px), 16px) 18px 14px;
     border-bottom:1px solid rgba(255,255,255,.12);background:#000000;
@@ -42,6 +52,22 @@
   .card{background:#1c1c1e;border:1px solid #3a3a3c;border-radius:16px;overflow:hidden;}
   .empty{padding:30px;text-align:center;opacity:.7;font-size:13px;}
 </style>
+<script>
+  (function(){
+    function markDir(){
+      var dir = "forward";
+      try {
+        if (window.navigation && navigation.activation && navigation.activation.navigationType === "traverse") {
+          var from = navigation.activation.from, entry = navigation.activation.entry;
+          if (from && entry && entry.index < from.index) dir = "back";
+        }
+      } catch(e){}
+      document.documentElement.setAttribute("data-vt-dir", dir);
+    }
+    markDir();
+    document.addEventListener("pagereveal", markDir);
+  })();
+</script>
 </head>
 <body>
 
@@ -82,7 +108,7 @@
     var list = document.getElementById("list");
     list.className = "empty";
     list.textContent = "Loading…";
-    fetch(WORKER_URL+"/gold/history?k="+k+"&limit=100")
+    fetch(WORKER_URL+"/gold/history?k="+k+"&limit=20")
       .then(function(r){ return r.json(); })
       .then(function(d){
         if(!d.history || !d.history.length){

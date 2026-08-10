@@ -12,6 +12,15 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
   @view-transition{navigation:auto;}
+  ::view-transition-old(root),::view-transition-new(root){animation-duration:.32s;animation-timing-function:ease-in-out;}
+  html[data-vt-dir="forward"]::view-transition-old(root){animation-name:vt-out-left;}
+  html[data-vt-dir="forward"]::view-transition-new(root){animation-name:vt-in-right;}
+  html[data-vt-dir="back"]::view-transition-old(root){animation-name:vt-out-right;}
+  html[data-vt-dir="back"]::view-transition-new(root){animation-name:vt-in-left;}
+  @keyframes vt-out-left{to{transform:translateX(-25%);}}
+  @keyframes vt-in-right{from{transform:translateX(100%);}to{transform:translateX(0);}}
+  @keyframes vt-out-right{to{transform:translateX(100%);}}
+  @keyframes vt-in-left{from{transform:translateX(-100%);}to{transform:translateX(0);}}
   @keyframes glow{0%,100%{box-shadow:none}50%{box-shadow:none}}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
   @keyframes float{0%,100%{transform:translateY(0px)}50%{transform:translateY(-10px)}}
@@ -550,6 +559,22 @@
     .wrap > footer{grid-column:1/-1;grid-row:3;}
   }
 </style>
+<script>
+  (function(){
+    function markDir(){
+      var dir = "forward";
+      try {
+        if (window.navigation && navigation.activation && navigation.activation.navigationType === "traverse") {
+          var from = navigation.activation.from, entry = navigation.activation.entry;
+          if (from && entry && entry.index < from.index) dir = "back";
+        }
+      } catch(e){}
+      document.documentElement.setAttribute("data-vt-dir", dir);
+    }
+    markDir();
+    document.addEventListener("pagereveal", markDir);
+  })();
+</script>
 </head>
 <body>
 <canvas id="spaceBg"></canvas>
