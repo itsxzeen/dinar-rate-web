@@ -697,12 +697,6 @@
     </div>
   </section>
 
-  <!-- HISTORY -->
-  <div class="history">
-    <div class="history-title" data-i18n="priceHistory">Price History</div>
-    <div id="historyList"></div>
-  </div>
-
   <footer id="footer">
     <span id="footerNote"><span data-i18n="footerBy">by</span> <b>xzeenwaves.us</b></span>
     <div style="margin-top:4px;opacity:.75" data-i18n="footerStatus">All rates are live, still working on it</div>
@@ -908,6 +902,8 @@
   }
 
   function renderHistory(){
+    var listEl = document.getElementById("historyList");
+    if(!listEl) return;
     var html = "";
     priceHistory.slice(0,10).forEach(function(item){
       var arrow = item.direction==="up" ? "↑" : "↓";
@@ -920,7 +916,7 @@
         '<div class="history-rate mono">'+fmt(item.rate)+'</div>'+
         '</div>';
     });
-    document.getElementById("historyList").innerHTML = html || '<div style="text-align:center;color:var(--paper);padding:16px;font-size:12px;">'+I18N[currentLang].noHistory+'</div>';
+    listEl.innerHTML = html || '<div style="text-align:center;color:var(--paper);padding:16px;font-size:12px;">'+I18N[currentLang].noHistory+'</div>';
   }
 
   function stamp(){
