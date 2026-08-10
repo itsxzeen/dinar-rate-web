@@ -517,6 +517,17 @@
     .card{padding:16px}
     .currency-toggle{width:56px;height:56px;font-size:24px;bottom:24px;left:24px}
   }
+
+  /* Laptop/desktop: frame the app as one centered column instead of
+     full-bleed bars around a narrow floating card. */
+  @media (min-width:640px){
+    html, body{overflow:auto;height:auto;min-height:100%;}
+    body{display:block;}
+    .topbar{max-width:480px;margin:0 auto;border-left:1px solid rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.08);}
+    .ticker-bar{max-width:480px;margin:0 auto;border-left:1px solid rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.08);}
+    .wrap{border-left:1px solid rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.08);overflow-y:visible;height:auto;padding-bottom:40px;}
+    .sidebar{max-width:280px;}
+  }
 </style>
 </head>
 <body>
