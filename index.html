@@ -897,8 +897,8 @@
     var goldEl = document.getElementById("ounceGoldVal");
     var silverEl = document.getElementById("ounceSilverVal");
     if(!goldEl || !silverEl) return;
-    goldEl.textContent = (o && o.gold!=null) ? "$"+fmt(o.gold) : "—";
-    silverEl.textContent = (o && o.silver!=null) ? "$"+fmt(o.silver) : "—";
+    goldEl.textContent = (o && o.gold!=null) ? "$"+fmt(o.gold)+" /oz" : "—";
+    silverEl.textContent = (o && o.silver!=null) ? "$"+fmt(o.silver)+" /oz" : "—";
   }
   function fetchOunceLive(){
     fetch(WORKER_URL+"/ounce").then(function(r){ return r.json(); })
@@ -924,8 +924,8 @@
     list.innerHTML = html;
     if(gold.ounce && (gold.ounce.sell || gold.ounce.buy)){
       var oz = "";
-      if(gold.ounce.buy) oz += '<div class="oz-box">'+I18N[currentLang].ounceBuy+'<span class="oz-val">'+fmt(gold.ounce.buy.iqd)+'</span></div>';
-      if(gold.ounce.sell) oz += '<div class="oz-box">'+I18N[currentLang].ounceSell+'<span class="oz-val">'+fmt(gold.ounce.sell.iqd)+'</span></div>';
+      if(gold.ounce.buy) oz += '<div class="oz-box">'+I18N[currentLang].ounceBuy+' (/oz)<span class="oz-val">'+fmt(gold.ounce.buy.iqd)+'</span></div>';
+      if(gold.ounce.sell) oz += '<div class="oz-box">'+I18N[currentLang].ounceSell+' (/oz)<span class="oz-val">'+fmt(gold.ounce.sell.iqd)+'</span></div>';
       ounce.innerHTML = oz;
     } else { ounce.innerHTML = ""; }
   }
