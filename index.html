@@ -520,26 +520,26 @@
   <button class="sidebar-close" id="sidebarClose">✕</button>
 
   <div class="sidebar-section">
-    <div class="sidebar-title">Admin</div>
-    <div class="sidebar-item" id="adminOpen">🔒 Admin Login</div>
+    <div class="sidebar-title" data-i18n="admin">Admin</div>
+    <div class="sidebar-item" id="adminOpen" data-i18n="adminLogin">🔒 Admin Login</div>
   </div>
 
   <div class="sidebar-section">
-    <div class="sidebar-title">Other Rates</div>
-    <div class="sidebar-item">📊 Coming Soon</div>
+    <div class="sidebar-title" data-i18n="otherRates">Other Rates</div>
+    <div class="sidebar-item" data-i18n="comingSoon">📊 Coming Soon</div>
   </div>
 
   <div class="sidebar-section">
-    <div class="sidebar-title">Other Currencies</div>
+    <div class="sidebar-title" data-i18n="otherCurrencies">Other Currencies</div>
     <div class="sidebar-item">💶 EUR</div>
     <div class="sidebar-item">£ GBP</div>
     <div class="sidebar-item">₺ TRY</div>
   </div>
 
   <div class="sidebar-section" id="notifSection" style="display:none">
-    <div class="sidebar-title">Notifications</div>
+    <div class="sidebar-title" data-i18n="notifications">Notifications</div>
     <label class="sidebar-toggle-row" for="notifToggle">
-      🔔 Rate Alerts
+      <span data-i18n="rateAlerts">🔔 Rate Alerts</span>
       <span class="switch">
         <input type="checkbox" id="notifToggle">
         <span class="switch-track"></span>
@@ -578,7 +578,7 @@
   <div class="brand">
     <div class="brand-text">Se3rForIQD</div>
   </div>
-  <div style="width:44px;"></div>
+  <button class="menu-btn" id="langBtn" style="font-size:13px;font-weight:700;">AR</button>
 </div>
 
 <!-- MAIN CONTENT -->
@@ -589,17 +589,17 @@
     <table>
       <thead>
         <tr>
-          <th>Market</th>
-          <th>Sell</th>
+          <th data-i18n="market">Market</th>
+          <th data-i18n="sell">Sell</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>Erbil</td>
+          <td data-i18n="erbil">Erbil</td>
           <td><div class="rate-val mono" id="erbilSell">—</div></td>
         </tr>
         <tr>
-          <td>Baghdad</td>
+          <td data-i18n="baghdad">Baghdad</td>
           <td><div class="rate-val mono" id="baghdadSell">—</div></td>
         </tr>
       </tbody>
@@ -607,21 +607,21 @@
 
     <div class="refresh">
       <div class="cd">
-        <span id="cd">Updating...</span>
+        <span id="cd" data-i18n="updating">Updating...</span>
       </div>
       <button id="refreshBtn" type="button" aria-label="Refresh now">
-        <span class="ic">↻</span><span>Refresh</span>
+        <span class="ic">↻</span><span data-i18n="refresh">Refresh</span>
       </button>
     </div>
   </div>
 
   <!-- CONVERTER -->
   <section>
-    <div class="h2">Convert</div>
+    <div class="h2" data-i18n="convert">Convert</div>
     <div class="card">
       <div class="conv-tabs">
-        <div class="conv-tab active" id="tabErbil" data-city="erbil">Erbil</div>
-        <div class="conv-tab" id="tabBaghdad" data-city="baghdad">Baghdad</div>
+        <div class="conv-tab active" id="tabErbil" data-city="erbil" data-i18n="erbil">Erbil</div>
+        <div class="conv-tab" id="tabBaghdad" data-city="baghdad" data-i18n="baghdad">Baghdad</div>
       </div>
       <div class="field">
         <span class="cur">USD</span>
@@ -636,16 +636,16 @@
 
   <!-- GOLD -->
   <section>
-    <div class="h2 gold">Gold · per gram</div>
+    <div class="h2 gold" data-i18n="goldPerGram">Gold · per gram</div>
     <div class="card">
       <div class="gold-spot" id="goldSpotBox">
-        <span class="spot-live"><span class="live-dot"></span>Live Spot</span>
+        <span class="spot-live"><span class="live-dot"></span><span data-i18n="liveSpot">Live Spot</span></span>
         <span><span class="spot-price mono" id="spotPrice">—</span> <span class="spot-sub">/oz</span></span>
         <span class="spot-change" id="spotChange"></span>
       </div>
-      <div class="gold-head"><span>Karat</span><span>IQD</span><span>USD</span></div>
+      <div class="gold-head"><span data-i18n="karat">Karat</span><span>IQD</span><span>USD</span></div>
       <div id="goldList">
-        <div class="gold-row"><span class="gold-karat">—</span><span class="gold-iqd">Loading…</span><span class="gold-usd"></span></div>
+        <div class="gold-row"><span class="gold-karat">—</span><span class="gold-iqd" data-i18n="loading">Loading…</span><span class="gold-usd"></span></div>
       </div>
       <div class="gold-ounce" id="goldOunce"></div>
     </div>
@@ -653,24 +653,24 @@
 
   <!-- OUNCE GOLD & SILVER -->
   <section>
-    <div class="h2 gold">Ounce · Gold &amp; Silver</div>
+    <div class="h2 gold" data-i18n="ounceGoldSilver">Ounce · Gold &amp; Silver</div>
     <div class="card">
-      <div class="gold-row"><span class="gold-karat">🥇 Gold</span><span class="gold-iqd mono" id="ounceGoldVal">—</span></div>
-      <div class="gold-row"><span class="gold-karat">🥈 Silver</span><span class="gold-iqd mono" id="ounceSilverVal">—</span></div>
+      <div class="gold-row"><span class="gold-karat" data-i18n="goldWord">🥇 Gold</span><span class="gold-iqd mono" id="ounceGoldVal">—</span></div>
+      <div class="gold-row"><span class="gold-karat" data-i18n="silverWord">🥈 Silver</span><span class="gold-iqd mono" id="ounceSilverVal">—</span></div>
     </div>
   </section>
 
   <!-- HISTORY -->
   <div class="history">
-    <div class="history-title">Price History</div>
+    <div class="history-title" data-i18n="priceHistory">Price History</div>
     <div id="historyList"></div>
   </div>
 
 </div>
 
 <footer id="footer">
-  <span id="footerNote">by <b>xzeenwaves.us</b></span>
-  <div style="margin-top:4px;opacity:.75">All rates are live, still working on it</div>
+  <span id="footerNote"><span data-i18n="footerBy">by</span> <b>xzeenwaves.us</b></span>
+  <div style="margin-top:4px;opacity:.75" data-i18n="footerStatus">All rates are live, still working on it</div>
 </footer>
 
 <script>
@@ -679,6 +679,51 @@
   var WORKER_URL = "https://dinar-rate-worker.dollersdaner.workers.dev";
   var CACHE_KEY = "dinarRates_v2";
   var HISTORY_KEY = "priceHistory_v1";
+
+  // ---- Language toggle (English / Arabic) ----
+  var LANG_KEY = "lang_v1";
+  var I18N = {
+    en: {
+      market:"Market", sell:"Sell", erbil:"Erbil", baghdad:"Baghdad",
+      updating:"Updating...", refresh:"Refresh", convert:"Convert",
+      goldPerGram:"Gold · per gram", liveSpot:"Live Spot", karat:"Karat",
+      loading:"Loading…", ounceGoldSilver:"Ounce · Gold & Silver",
+      goldWord:"🥇 Gold", silverWord:"🥈 Silver", priceHistory:"Price History",
+      noHistory:"No history yet", updatedPrefix:"updated",
+      admin:"Admin", adminLogin:"🔒 Admin Login", otherRates:"Other Rates",
+      comingSoon:"📊 Coming Soon", otherCurrencies:"Other Currencies",
+      notifications:"Notifications", rateAlerts:"🔔 Rate Alerts",
+      footerBy:"by", footerStatus:"All rates are live, still working on it",
+    },
+    ar: {
+      market:"السوق", sell:"البيع", erbil:"أربيل", baghdad:"بغداد",
+      updating:"جاري التحديث...", refresh:"تحديث", convert:"تحويل",
+      goldPerGram:"الذهب · لكل غرام", liveSpot:"السعر الفوري", karat:"العيار",
+      loading:"جاري التحميل…", ounceGoldSilver:"الأونصة · الذهب والفضة",
+      goldWord:"🥇 الذهب", silverWord:"🥈 الفضة", priceHistory:"سجل الأسعار",
+      noHistory:"لا يوجد سجل بعد", updatedPrefix:"تحديث",
+      admin:"الإدارة", adminLogin:"🔒 دخول الإدارة", otherRates:"أسعار أخرى",
+      comingSoon:"📊 قريباً", otherCurrencies:"عملات أخرى",
+      notifications:"الإشعارات", rateAlerts:"🔔 تنبيهات السعر",
+      footerBy:"بواسطة", footerStatus:"جميع الأسعار مباشرة، ما زلنا نعمل عليه",
+    },
+  };
+  var currentLang = localStorage.getItem(LANG_KEY) || "en";
+
+  function applyLang(lang){
+    currentLang = lang;
+    localStorage.setItem(LANG_KEY, lang);
+    document.documentElement.lang = lang;
+    var dict = I18N[lang];
+    document.querySelectorAll("[data-i18n]").forEach(function(el){
+      var key = el.getAttribute("data-i18n");
+      if (dict[key] != null) el.textContent = dict[key];
+    });
+    var langBtn = document.getElementById("langBtn");
+    if (langBtn) langBtn.textContent = lang === "en" ? "AR" : "EN";
+    stamp();
+    renderHistory();
+  }
 
   // Push notifications (iOS app only — this whole block is a no-op on the
   // website, since window.Capacitor doesn't exist there). Controlled by the
@@ -786,6 +831,13 @@
     renderHistory();
   }
 
+  function cityLabel(city){
+    var dict = I18N[currentLang];
+    if (city === "Erbil") return dict.erbil;
+    if (city === "Baghdad") return dict.baghdad;
+    return city;
+  }
+
   function renderHistory(){
     var html = "";
     priceHistory.forEach(function(item){
@@ -794,18 +846,18 @@
       html += '<div class="history-item">'+
         '<div class="history-left">'+
         '<span class="history-arrow '+arrowClass+'">'+arrow+'</span>'+
-        '<div><div style="font-weight:600">'+item.city+'</div><div class="history-time">'+item.date+' '+item.time+'</div></div>'+
+        '<div><div style="font-weight:600">'+cityLabel(item.city)+'</div><div class="history-time">'+item.date+' '+item.time+'</div></div>'+
         '</div>'+
         '<div class="history-rate mono">'+fmt(item.rate)+'</div>'+
         '</div>';
     });
-    document.getElementById("historyList").innerHTML = html || '<div style="text-align:center;color:var(--paper);padding:16px;font-size:12px;">No history yet</div>';
+    document.getElementById("historyList").innerHTML = html || '<div style="text-align:center;color:var(--paper);padding:16px;font-size:12px;">'+I18N[currentLang].noHistory+'</div>';
   }
 
   function stamp(){
     var n=new Date(), h=n.getHours(), m=pad(n.getMinutes()), s=pad(n.getSeconds());
     var ap=h>=12?"PM":"AM", h12=((h+11)%12)+1;
-    document.getElementById("cd").textContent="updated "+h12+":"+m+":"+s+" "+ap;
+    document.getElementById("cd").textContent=I18N[currentLang].updatedPrefix+" "+h12+":"+m+":"+s+" "+ap;
   }
 
   function renderRates(){
@@ -959,6 +1011,12 @@
   setInterval(fetchGoldSpotLive, 12000);
   fetchOunceLive();
   setInterval(fetchOunceLive, 12000);
+
+  var langBtn = document.getElementById("langBtn");
+  if (langBtn) langBtn.addEventListener("click", function(){
+    applyLang(currentLang === "en" ? "ar" : "en");
+  });
+  applyLang(currentLang);
 
   /* ---------- Visitor analytics ---------- */
   function getVisitorId(){
