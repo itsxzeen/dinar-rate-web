@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#000000" />
+<title>Currency Converter · Se3rForIQD</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  @view-transition{navigation:auto;}
+  ::view-transition-old(root),::view-transition-new(root){animation-duration:.32s;animation-timing-function:ease-in-out;}
+  html[data-vt-dir="forward"]::view-transition-old(root){animation-name:vt-out-left;}
+  html[data-vt-dir="forward"]::view-transition-new(root){animation-name:vt-in-right;}
+  html[data-vt-dir="back"]::view-transition-old(root){animation-name:vt-out-right;}
+  html[data-vt-dir="back"]::view-transition-new(root){animation-name:vt-in-left;}
+  @keyframes vt-out-left{to{transform:translateX(-25%);}}
+  @keyframes vt-in-right{from{transform:translateX(100%);}to{transform:translateX(0);}}
+  @keyframes vt-out-right{to{transform:translateX(100%);}}
+  @keyframes vt-in-left{from{transform:translateX(-100%);}to{transform:translateX(0);}}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{height:100%}
+  body{
+    background:#000000;color:#ffffff;font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;
+    min-height:100%;line-height:1.5;
+  }
+  .topbar{
+    position:sticky;top:0;z-index:30;
+    display:flex;align-items:center;gap:16px;
+    padding:max(calc(env(safe-area-inset-top) + 4px), 16px) 18px 14px;
+    border-bottom:1px solid rgba(255,255,255,.12);background:#000000;
+  }
+  .back-btn{
+    width:44px;height:44px;background:#1c1c1e;border:1px solid #3a3a3c;border-radius:14px;
+    color:#ffffff;font-size:20px;text-decoration:none;display:flex;align-items:center;justify-content:center;
+  }
+  .title{flex:1;text-align:center;font-size:20px;font-weight:900;letter-spacing:1px;}
+  .wrap{max-width:520px;margin:0 auto;padding:20px 18px 40px;}
+
+  .currency-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 16px;border-radius:12px;border:1px solid #3a3a3c;background:#1c1c1e;
+    font-weight:700;font-size:15px;cursor:pointer;margin-bottom:2px;
+  }
+  .currency-bar .arrow{color:#98989d;font-size:13px;transition:transform .2s;}
+  .currency-bar.open .arrow{transform:rotate(180deg);}
+
+  .currency-list{
+    max-height:0;overflow:hidden;border-radius:12px;
+    background:#1c1c1e;border:1px solid #3a3a3c;border-top:none;
+    transition:max-height .25s ease;margin-top:-1px;
+  }
+  .currency-list.open{max-height:260px;overflow-y:auto;}
+  .currency-option{
+    padding:13px 16px;font-size:14px;border-bottom:1px solid rgba(255,255,255,.08);
+    display:flex;justify-content:space-between;cursor:pointer;
+  }
+  .currency-option:last-child{border-bottom:none;}
+  .currency-option:active{background:#2c2c2e;}
+  .currency-option .code{font-weight:700;}
+  .currency-option .rate{font-family:"IBM Plex Mono",monospace;color:#98989d;font-size:12px;}
+
+  .card{background:#1c1c1e;border:1px solid #3a3a3c;border-radius:16px;padding:18px;margin-top:18px;}
+  .field{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:#000000;border:1px solid #3a3a3c;border-radius:12px;padding:14px 16px;margin-bottom:14px;
+  }
+  .field:last-child{margin-bottom:0}
+  .field .cur{font-size:13px;font-weight:700;color:#98989d;}
+  .field input{
+    flex:1;text-align:right;background:none;border:none;color:#ffffff;
+    font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:700;outline:none;min-width:0;
+  }
+  .rate-info{text-align:center;font-size:12px;color:#98989d;margin-top:14px;}
+  .empty{padding:30px;text-align:center;opacity:.7;font-size:13px;}
+</style>
+<script>
+  (function(){
+    function markDir(){
+      var dir = "forward";
+      try {
+        if (window.navigation && navigation.activation && navigation.activation.navigationType === "traverse") {
+          var from = navigation.activation.from, entry = navigation.activation.entry;
+          if (from && entry && entry.index < from.index) dir = "back";
+        }
+      } catch(e){}
+      document.documentElement.setAttribute("data-vt-dir", dir);
+    }
+    markDir();
+    document.addEventListener("pagereveal", markDir);
+  })();
+</script>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="back-btn" aria-label="Back">←</a>
+  <div class="title">Convert Other Currency</div>
+  <div style="width:44px;"></div>
+</div>
+
+<div class="wrap">
+  <div class="currency-bar" id="currencyBar">
+    <span id="currencyBarLabel">Choose currency</span>
+    <span class="arrow">▾</span>
+  </div>
+  <div class="currency-list" id="currencyList">
+    <div class="empty">Loading…</div>
+  </div>
+
+  <div class="card" id="converterCard" style="display:none">
+    <div class="field">
+      <span class="cur" id="fieldTopCur">EUR</span>
+      <input id="fieldTop" type="text" inputmode="decimal" placeholder="100" value="100" />
+    </div>
+    <div class="field">
+      <span class="cur">IQD</span>
+      <input id="fieldBot" type="text" readonly />
+    </div>
+    <div class="rate-info" id="rateInfo"></div>
+  </div>
+</div>
+
+<script>
+  var WORKER_URL = "https://dinar-rate-worker.dollersdaner.workers.dev";
+  var currencies = []; // [{code, label, iqdPer1, asOf}]
+  var selected = null;
+
+  var CURRENCY_FLAGS = {
+    EUR:"🇪🇺", GBP:"🇬🇧", TRY:"🇹🇷", USD:"🇺🇸", AED:"🇦🇪", SAR:"🇸🇦",
+    KWD:"🇰🇼", JOD:"🇯🇴", EGP:"🇪🇬", IRR:"🇮🇷", JPY:"🇯🇵", CNY:"🇨🇳",
+    INR:"🇮🇳", CAD:"🇨🇦", AUD:"🇦🇺", CHF:"🇨🇭", RUB:"🇷🇺", SEK:"🇸🇪",
+    NOK:"🇳🇴", DKK:"🇩🇰", QAR:"🇶🇦", BHD:"🇧🇭", OMR:"🇴🇲", LBP:"🇱🇧",
+  };
+  function flagFor(code){ return CURRENCY_FLAGS[code] || "💱"; }
+
+  function fmt(n){ return n==null ? "—" : Math.round(n).toLocaleString("en-US"); }
+
+  var bar = document.getElementById("currencyBar");
+  var list = document.getElementById("currencyList");
+
+  bar.addEventListener("click", function(){
+    bar.classList.toggle("open");
+    list.classList.toggle("open");
+  });
+
+  function renderList(){
+    if(!currencies.length){
+      list.innerHTML = '<div class="empty">No other currencies configured yet.</div>';
+      return;
+    }
+    list.innerHTML = "";
+    currencies.forEach(function(c){
+      var opt = document.createElement("div");
+      opt.className = "currency-option";
+      opt.innerHTML = "<span class='code'>"+flagFor(c.code)+" "+c.code+" · "+c.label+"</span>" +
+        "<span class='rate'>"+(c.iqdPer1!=null ? fmt(c.iqdPer1)+" IQD" : "—")+"</span>";
+      opt.addEventListener("click", function(){ selectCurrency(c); });
+      list.appendChild(opt);
+    });
+  }
+
+  function selectCurrency(c){
+    selected = c;
+    document.getElementById("currencyBarLabel").textContent = flagFor(c.code) + " " + c.code + " · " + c.label;
+    document.getElementById("fieldTopCur").textContent = flagFor(c.code) + " " + c.code;
+    bar.classList.remove("open");
+    list.classList.remove("open");
+    document.getElementById("converterCard").style.display = c.iqdPer1!=null ? "" : "none";
+    convert();
+  }
+
+  function convert(){
+    var top = document.getElementById("fieldTop");
+    var bot = document.getElementById("fieldBot");
+    var info = document.getElementById("rateInfo");
+    if(!selected || selected.iqdPer1==null){ bot.value=""; info.textContent=""; return; }
+    var v = parseFloat((top.value||"").replace(/,/g,""));
+    if(isNaN(v) || v<0){ bot.value=""; return; }
+    bot.value = fmt(v * selected.iqdPer1);
+    info.textContent = "1 " + flagFor(selected.code) + " " + selected.code + " = " + fmt(selected.iqdPer1) + " IQD";
+  }
+  document.getElementById("fieldTop").addEventListener("input", convert);
+
+  fetch(WORKER_URL)
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      currencies = d.extra || [];
+      renderList();
+    })
+    .catch(function(){
+      list.innerHTML = '<div class="empty">Couldn\'t load currencies right now.</div>';
+    });
+</script>
+
+</body>
+</html>

@@ -199,6 +199,12 @@
     background:var(--purple);
     color:var(--dark);
   }
+  .sidebar-city-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px;background:var(--dark-3);border:1px solid var(--purple);
+    border-radius:10px;margin-bottom:8px;font-size:13px;color:var(--paper);
+  }
+  .sidebar-city-row .rate{font-family:"IBM Plex Mono",monospace;font-weight:700}
 
   .overlay{
     position:fixed;
@@ -559,14 +565,13 @@
 
   <div class="sidebar-section">
     <div class="sidebar-title" data-i18n="otherRates">Other Rates</div>
-    <div class="sidebar-item" data-i18n="comingSoon">📊 Coming Soon</div>
+    <div id="otherCitiesList"><div class="sidebar-item" data-i18n="loading">Loading…</div></div>
   </div>
 
   <div class="sidebar-section">
     <div class="sidebar-title" data-i18n="otherCurrencies">Other Currencies</div>
-    <div class="sidebar-item">💶 EUR</div>
-    <div class="sidebar-item">£ GBP</div>
-    <div class="sidebar-item">₺ TRY</div>
+    <div id="otherCurrenciesList"><div class="sidebar-item" data-i18n="loading">Loading…</div></div>
+    <a class="sidebar-item" href="currency-converter.html" data-i18n="convertOther" style="display:block;text-decoration:none;color:inherit">🔁 Convert Other Currency</a>
   </div>
 
   <div class="sidebar-section" id="notifSection" style="display:none">
@@ -626,6 +631,7 @@
         <span id="cd" data-i18n="updating">Updating...</span>
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
+        <button id="shareBtn" type="button" class="icon-btn" aria-label="Share today's rate">📤</button>
         <a href="rate-history.html" class="icon-btn" aria-label="Rate history">📈</a>
         <button id="refreshBtn" type="button" aria-label="Refresh now">
           <span class="ic">↻</span><span data-i18n="refresh">Refresh</span>
@@ -638,7 +644,7 @@
   <section>
     <div class="h2" data-i18n="convert">Convert</div>
     <div class="card">
-      <div class="conv-tabs">
+      <div class="conv-tabs" id="cityTabs">
         <div class="conv-tab active" id="tabErbil" data-city="erbil" data-i18n="erbil">Erbil</div>
         <div class="conv-tab" id="tabBaghdad" data-city="baghdad" data-i18n="baghdad">Baghdad</div>
       </div>
@@ -727,7 +733,7 @@
       noHistory:"No history yet", updatedPrefix:"updated",
       ounceBuy:"Ounce Buy", ounceSell:"Ounce Sell", metal:"Metal",
       admin:"Admin", adminLogin:"🔒 Admin Login", otherRates:"Other Rates",
-      comingSoon:"📊 Coming Soon", otherCurrencies:"Other Currencies",
+      comingSoon:"📊 Coming Soon", otherCurrencies:"Other Currencies", convertOther:"🔁 Convert Other Currency",
       notifications:"Notifications", rateAlerts:"🔔 Rate Alerts",
       footerBy:"by", footerStatus:"All rates are live, still working on it",
     },
@@ -740,7 +746,7 @@
       noHistory:"لا يوجد سجل بعد", updatedPrefix:"تحديث",
       ounceBuy:"شراء الأونصة", ounceSell:"بيع الأونصة", metal:"المعدن",
       admin:"الإدارة", adminLogin:"🔒 دخول الإدارة", otherRates:"أسعار أخرى",
-      comingSoon:"📊 قريباً", otherCurrencies:"عملات أخرى",
+      comingSoon:"📊 قريباً", otherCurrencies:"عملات أخرى", convertOther:"🔁 تحويل عملة أخرى",
       notifications:"الإشعارات", rateAlerts:"🔔 تنبيهات السعر",
       footerBy:"بواسطة", footerStatus:"جميع الأسعار مباشرة، ما زلنا نعمل عليه",
     },
@@ -753,12 +759,28 @@
       noHistory:"هیچ مێژوویەک نییە", updatedPrefix:"نوێکراوەتەوە",
       ounceBuy:"کڕینی ئۆنس", ounceSell:"فرۆشتنی ئۆنس", metal:"کانزا",
       admin:"بەڕێوەبەری", adminLogin:"🔒 چوونەژوورەوەی بەڕێوەبەر", otherRates:"نرخەکانی تر",
-      comingSoon:"📊 بەم زووانە", otherCurrencies:"دراوی تر",
+      comingSoon:"📊 بەم زووانە", otherCurrencies:"دراوی تر", convertOther:"🔁 گۆڕینی دراوی تر",
       notifications:"ئاگادارکردنەوەکان", rateAlerts:"🔔 ئاگاداری نرخ",
       footerBy:"لەلایەن", footerStatus:"هەموو نرخەکان ڕاستەوخۆن، هێشتا کارمان لەسەری دەکەین",
     },
   };
   var currentLang = localStorage.getItem(LANG_KEY) || "en";
+  var CITY_LABELS = {
+    sulaymaniyah: { en:"Sulaymaniyah", ar:"السليمانية", ku:"سلێمانی" },
+    karbala:      { en:"Karbala",      ar:"كربلاء",     ku:"کەربەلا" },
+    najaf:        { en:"Najaf",        ar:"النجف",      ku:"نەجەف" },
+    basra:        { en:"Basra",        ar:"البصرة",     ku:"بەسرە" },
+    kirkuk:       { en:"Kirkuk",       ar:"كركوك",      ku:"کەرکووک" },
+    mosul:        { en:"Mosul",        ar:"الموصل",     ku:"مووسڵ" },
+    duhok:        { en:"Duhok",        ar:"دهوك",       ku:"دهۆک" },
+  };
+  var CURRENCY_FLAGS = {
+    EUR:"🇪🇺", GBP:"🇬🇧", TRY:"🇹🇷", USD:"🇺🇸", AED:"🇦🇪", SAR:"🇸🇦",
+    KWD:"🇰🇼", JOD:"🇯🇴", EGP:"🇪🇬", IRR:"🇮🇷", JPY:"🇯🇵", CNY:"🇨🇳",
+    INR:"🇮🇳", CAD:"🇨🇦", AUD:"🇦🇺", CHF:"🇨🇭", RUB:"🇷🇺", SEK:"🇸🇪",
+    NOK:"🇳🇴", DKK:"🇩🇰", QAR:"🇶🇦", BHD:"🇧🇭", OMR:"🇴🇲", LBP:"🇱🇧",
+  };
+  function flagFor(code){ return CURRENCY_FLAGS[code] || "💱"; }
   var lastGoldData = null;
   var lastOunceData = null;
   var tickerPrev = {};
@@ -802,6 +824,7 @@
     stamp();
     renderHistory();
     if (lastGoldData) renderGold(lastGoldData);
+    renderOtherCities();
   }
 
   // Push notifications (iOS app only — this whole block is a no-op on the
@@ -875,6 +898,8 @@
   var erbilSell = null;
   var baghdadSell = null;
   var convCity = "erbil";
+  var extraCurrencies = []; // [{code, label, iqdPer1, asOf}]
+  var otherCities = []; // [{city, label, rate}]
   var priceHistory = [];
 
   var menuBtn = document.getElementById("menuBtn");
@@ -946,6 +971,33 @@
     document.getElementById("erbilSell").textContent = erbilSell ? fmt(erbilSell) : "—";
     document.getElementById("baghdadSell").textContent = baghdadSell ? fmt(baghdadSell) : "—";
     stamp();
+  }
+
+  function renderOtherCities(){
+    var wrap = document.getElementById("otherCitiesList");
+    if(!wrap) return;
+    if(!otherCities.length){ wrap.innerHTML = ""; return; }
+    wrap.innerHTML = "";
+    otherCities.forEach(function(c){
+      var row = document.createElement("div");
+      row.className = "sidebar-city-row";
+      var label = (CITY_LABELS[c.city] && CITY_LABELS[c.city][currentLang]) || c.label;
+      row.innerHTML = "<span>"+label+"</span><span class='rate'>"+fmt(c.rate)+"</span>";
+      wrap.appendChild(row);
+    });
+  }
+
+  function renderOtherCurrenciesList(){
+    var wrap = document.getElementById("otherCurrenciesList");
+    if(!wrap) return;
+    if(!extraCurrencies.length){ wrap.innerHTML = ""; return; }
+    wrap.innerHTML = "";
+    extraCurrencies.forEach(function(c){
+      var row = document.createElement("div");
+      row.className = "sidebar-city-row";
+      row.innerHTML = "<span>"+flagFor(c.code)+" "+c.code+" · "+c.label+"</span><span class='rate'>"+(c.iqdPer1!=null?fmt(c.iqdPer1):"—")+"</span>";
+      wrap.appendChild(row);
+    });
   }
 
   var lastSpot = null;
@@ -1101,6 +1153,10 @@
         renderGold(res.data.gold);
         renderSpot(res.data.goldSpot);
         renderOunceGoldSilver(res.data.ounceGoldSilver);
+        extraCurrencies = res.data.extra || [];
+        renderOtherCurrenciesList();
+        otherCities = res.data.otherCities || [];
+        renderOtherCities();
 
         if(erbilSell && (prevErbil==null || erbilSell !== prevErbil)) addToHistory("Erbil", erbilSell, prevErbil);
         if(baghdadSell && (prevBaghdad==null || baghdadSell !== prevBaghdad)) addToHistory("Baghdad", baghdadSell, prevBaghdad);
@@ -1136,6 +1192,22 @@
         document.getElementById("refreshBtn").disabled = false;
       }, 300);
     });
+  });
+
+  document.getElementById("shareBtn").addEventListener("click", function(){
+    var lines = ["💵 "+I18N[currentLang].baghdad+": "+(baghdadSell?fmt(baghdadSell):"—")+" IQD",
+                 "💵 "+I18N[currentLang].erbil+": "+(erbilSell?fmt(erbilSell):"—")+" IQD"];
+    var text = lines.join("\n") + "\nse3rforiqd.xyz";
+    if(navigator.share){
+      navigator.share({ title: "Se3rForIQD", text: text }).catch(function(){});
+    } else if(navigator.clipboard){
+      navigator.clipboard.writeText(text).then(function(){
+        var btn = document.getElementById("shareBtn");
+        var prev = btn.textContent;
+        btn.textContent = "✅";
+        setTimeout(function(){ btn.textContent = prev; }, 1500);
+      }).catch(function(){});
+    }
   });
 
   setInterval(fetchLive, 30000);
