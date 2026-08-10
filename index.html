@@ -520,13 +520,30 @@
 
   /* Laptop/desktop: frame the app as one centered column instead of
      full-bleed bars around a narrow floating card. */
-  @media (min-width:640px){
-    html, body{overflow:auto;height:auto;min-height:100%;}
-    body{display:block;}
-    .topbar{max-width:480px;margin:0 auto;border-left:1px solid rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.08);}
-    .ticker-bar{max-width:480px;margin:0 auto;border-left:1px solid rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.08);}
-    .wrap{border-left:1px solid rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.08);overflow-y:visible;height:auto;padding-bottom:40px;}
-    .sidebar{max-width:280px;}
+  /* Laptop/desktop: a multi-column dashboard that fits on one screen,
+     no vertical scrolling needed. */
+  @media (min-width:900px) and (min-height:700px){
+    html, body{overflow:hidden;height:100%;}
+    body{display:flex;}
+    .topbar{max-width:960px;width:100%;margin:0 auto;padding-top:14px;padding-bottom:10px;}
+    .menu-btn{width:52px;height:52px;font-size:24px;border-radius:16px;}
+    #langBtn{font-size:15px !important;}
+    .ticker-bar{max-width:960px;margin:0 auto;width:100%;}
+    .wrap{
+      max-width:960px;padding:16px 18px 12px;
+      display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;
+      align-content:start;overflow:visible;height:auto;flex:1 1 auto;
+    }
+    .wrap > .hero{grid-column:1;grid-row:1;padding:0;}
+    .wrap > section:nth-of-type(1){grid-column:2;grid-row:1;}
+    .wrap > section:nth-of-type(2){grid-column:1;grid-row:2;}
+    .wrap > section:nth-of-type(3){grid-column:2;grid-row:2;}
+    .wrap > section:nth-of-type(4){grid-column:1;grid-row:3;}
+    .wrap > footer{grid-column:1/-1;grid-row:4;}
+    .h2{margin-bottom:8px;font-size:12px;}
+    .card{padding:14px;}
+    .hero table td, .hero table th{padding:10px 6px;}
+    .gold-row{padding:9px 4px;}
   }
 </style>
 </head>
