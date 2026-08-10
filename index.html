@@ -651,6 +651,15 @@
     </div>
   </section>
 
+  <!-- OUNCE GOLD & SILVER -->
+  <section>
+    <div class="h2 gold">Ounce · Gold &amp; Silver</div>
+    <div class="card">
+      <div class="gold-row"><span class="gold-karat">🥇 Gold</span><span class="gold-iqd mono" id="ounceGoldVal">—</span></div>
+      <div class="gold-row"><span class="gold-karat">🥈 Silver</span><span class="gold-iqd mono" id="ounceSilverVal">—</span></div>
+    </div>
+  </section>
+
   <!-- HISTORY -->
   <div class="history">
     <div class="history-title">Price History</div>
@@ -828,6 +837,18 @@
       .then(function(d){ renderSpot(d.goldSpot); }).catch(function(){});
   }
 
+  function renderOunceGoldSilver(o){
+    var goldEl = document.getElementById("ounceGoldVal");
+    var silverEl = document.getElementById("ounceSilverVal");
+    if(!goldEl || !silverEl) return;
+    goldEl.textContent = (o && o.gold!=null) ? "$"+fmt(o.gold) : "—";
+    silverEl.textContent = (o && o.silver!=null) ? "$"+fmt(o.silver) : "—";
+  }
+  function fetchOunceLive(){
+    fetch(WORKER_URL+"/ounce").then(function(r){ return r.json(); })
+      .then(function(d){ renderOunceGoldSilver(d.ounceGoldSilver); }).catch(function(){});
+  }
+
   function renderGold(gold){
     var list = document.getElementById("goldList");
     var ounce = document.getElementById("goldOunce");
@@ -889,6 +910,7 @@
         if(res.data.baghdad) baghdadSell = res.data.baghdad.rate;
         renderGold(res.data.gold);
         renderSpot(res.data.goldSpot);
+        renderOunceGoldSilver(res.data.ounceGoldSilver);
 
         if(erbilSell && (prevErbil==null || erbilSell !== prevErbil)) addToHistory("Erbil", erbilSell, prevErbil);
         if(baghdadSell && (prevBaghdad==null || baghdadSell !== prevBaghdad)) addToHistory("Baghdad", baghdadSell, prevBaghdad);
@@ -935,6 +957,8 @@
   setInterval(fetchLive, 30000);
   fetchGoldSpotLive();
   setInterval(fetchGoldSpotLive, 12000);
+  fetchOunceLive();
+  setInterval(fetchOunceLive, 12000);
 
   /* ---------- Visitor analytics ---------- */
   function getVisitorId(){
