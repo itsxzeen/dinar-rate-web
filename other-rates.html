@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#000000" />
+<title>Other Rates · Se3rForIQD</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  @view-transition{navigation:auto;}
+  ::view-transition-old(root),::view-transition-new(root){animation-duration:.32s;animation-timing-function:ease-in-out;}
+  html[data-vt-dir="forward"]::view-transition-old(root){animation-name:vt-out-left;}
+  html[data-vt-dir="forward"]::view-transition-new(root){animation-name:vt-in-right;}
+  html[data-vt-dir="back"]::view-transition-old(root){animation-name:vt-out-right;}
+  html[data-vt-dir="back"]::view-transition-new(root){animation-name:vt-in-left;}
+  @keyframes vt-out-left{to{transform:translateX(-25%);}}
+  @keyframes vt-in-right{from{transform:translateX(100%);}to{transform:translateX(0);}}
+  @keyframes vt-out-right{to{transform:translateX(100%);}}
+  @keyframes vt-in-left{from{transform:translateX(-100%);}to{transform:translateX(0);}}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{height:100%}
+  body{
+    background:#000000;color:#ffffff;font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;
+    min-height:100%;line-height:1.5;
+  }
+  .topbar{
+    position:sticky;top:0;z-index:30;
+    display:flex;align-items:center;gap:16px;
+    padding:max(calc(env(safe-area-inset-top) + 4px), 16px) 18px 14px;
+    border-bottom:1px solid rgba(255,255,255,.12);background:#000000;
+  }
+  .back-btn{
+    width:44px;height:44px;background:#1c1c1e;border:1px solid #3a3a3c;border-radius:14px;
+    color:#ffffff;font-size:20px;text-decoration:none;display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .title{flex:1;text-align:center;font-size:17px;font-weight:900;letter-spacing:.5px;}
+  .refresh-btn{
+    width:44px;height:44px;background:#1c1c1e;border:1px solid #3a3a3c;border-radius:14px;
+    color:#ffffff;font-size:18px;cursor:pointer;flex-shrink:0;
+  }
+  .wrap{max-width:520px;margin:0 auto;padding:20px 18px 40px;}
+  .updated{text-align:center;font-size:12px;color:#98989d;margin-bottom:14px;}
+
+  .card{background:#1c1c1e;border:1px solid #3a3a3c;border-radius:16px;overflow:hidden;}
+  .row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:16px;border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .row:last-child{border-bottom:none;}
+  .row .city{font-weight:700;font-size:15px;}
+  .row .vals{text-align:right;font-family:"IBM Plex Mono",monospace;}
+  .row .iqd{font-weight:700;font-size:16px;}
+  .row .usd{font-size:12px;color:#98989d;margin-top:2px;}
+  .empty{padding:30px;text-align:center;opacity:.7;font-size:13px;}
+</style>
+<script>
+  (function(){
+    function markDir(){
+      var dir = "forward";
+      try {
+        if (window.navigation && navigation.activation && navigation.activation.navigationType === "traverse") {
+          var from = navigation.activation.from, entry = navigation.activation.entry;
+          if (from && entry && entry.index < from.index) dir = "back";
+        }
+      } catch(e){}
+      document.documentElement.setAttribute("data-vt-dir", dir);
+    }
+    markDir();
+    document.addEventListener("pagereveal", markDir);
+  })();
+</script>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="back-btn" aria-label="Back">←</a>
+  <div class="title">Iraq Rates · IQD to USD</div>
+  <button class="refresh-btn" id="refreshBtn" type="button" aria-label="Refresh">↻</button>
+</div>
+
+<div class="wrap">
+  <div class="updated" id="updated"></div>
+  <div class="card">
+    <div id="list" class="empty">Loading…</div>
+  </div>
+</div>
+
+<script>
+  var WORKER_URL = "https://dinar-rate-worker.dollersdaner.workers.dev";
+
+  var CITY_ORDER = ["baghdad","erbil","sulaymaniyah","karbala","najaf","basra","kirkuk","mosul","duhok"];
+  var CITY_LABELS = {
+    baghdad:"Baghdad", erbil:"Erbil", sulaymaniyah:"Sulaymaniyah", karbala:"Karbala",
+    najaf:"Najaf", basra:"Basra", kirkuk:"Kirkuk", mosul:"Mosul", duhok:"Duhok",
+  };
+
+  function fmt(n){ return n==null ? "—" : Math.round(n).toLocaleString("en-US"); }
+  function fmt2(n){ return n==null ? "—" : Number(n).toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2}); }
+
+  function render(cities){
+    var list = document.getElementById("list");
+    if(!cities.length){
+      list.className = "empty";
+      list.textContent = "No rates available right now.";
+      return;
+    }
+    list.className = "";
+    var html = "";
+    cities.forEach(function(c){
+      var usdPer1000 = c.rate ? (1000 / c.rate) * 100 : null; // $ per 1000 IQD
+      html += '<div class="row">' +
+        '<span class="city">'+c.label+'</span>' +
+        '<span class="vals">' +
+          '<div class="iqd">'+fmt(c.rate)+' IQD</div>' +
+          '<div class="usd">1,000 IQD = $'+fmt2(usdPer1000)+'</div>' +
+        '</span>' +
+      '</div>';
+    });
+    list.innerHTML = html;
+  }
+
+  function load(){
+    var list = document.getElementById("list");
+    list.className = "empty";
+    list.textContent = "Loading…";
+    fetch(WORKER_URL)
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        var cities = [];
+        if(d.baghdad) cities.push({ city:"baghdad", label:CITY_LABELS.baghdad, rate:d.baghdad.rate });
+        if(d.erbil) cities.push({ city:"erbil", label:CITY_LABELS.erbil, rate:d.erbil.rate });
+        (d.otherCities||[]).forEach(function(c){
+          cities.push({ city:c.city, label:CITY_LABELS[c.city] || c.label, rate:c.rate });
+        });
+        cities.sort(function(a,b){ return CITY_ORDER.indexOf(a.city) - CITY_ORDER.indexOf(b.city); });
+        render(cities);
+        document.getElementById("updated").textContent = "Updated " + new Date().toLocaleTimeString("en-US");
+      })
+      .catch(function(){
+        list.className = "empty";
+        list.textContent = "Couldn't load rates right now.";
+      });
+  }
+
+  document.getElementById("refreshBtn").addEventListener("click", load);
+  load();
+  setInterval(load, 30000);
+</script>
+
+</body>
+</html>

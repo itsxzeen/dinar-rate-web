@@ -565,7 +565,7 @@
 
   <div class="sidebar-section">
     <div class="sidebar-title" data-i18n="otherRates">Other Rates</div>
-    <div id="otherCitiesList"><div class="sidebar-item" data-i18n="loading">Loading…</div></div>
+    <a class="sidebar-item" href="other-rates.html" data-i18n="otherRatesBtn" style="display:block;text-decoration:none;color:inherit">🌍 Other Rates for Iraq IQD to USD</a>
   </div>
 
   <div class="sidebar-section">
@@ -733,6 +733,7 @@
       noHistory:"No history yet", updatedPrefix:"updated",
       ounceBuy:"Ounce Buy", ounceSell:"Ounce Sell", metal:"Metal",
       admin:"Admin", adminLogin:"🔒 Admin Login", otherRates:"Other Rates",
+      otherRatesBtn:"🌍 Other Rates for Iraq IQD to USD",
       comingSoon:"📊 Coming Soon", otherCurrencies:"Other Currencies", convertOther:"🔁 Convert Other Currency",
       notifications:"Notifications", rateAlerts:"🔔 Rate Alerts",
       footerBy:"by", footerStatus:"All rates are live, still working on it",
@@ -746,6 +747,7 @@
       noHistory:"لا يوجد سجل بعد", updatedPrefix:"تحديث",
       ounceBuy:"شراء الأونصة", ounceSell:"بيع الأونصة", metal:"المعدن",
       admin:"الإدارة", adminLogin:"🔒 دخول الإدارة", otherRates:"أسعار أخرى",
+      otherRatesBtn:"🌍 أسعار المحافظات العراقية دينار/دولار",
       comingSoon:"📊 قريباً", otherCurrencies:"عملات أخرى", convertOther:"🔁 تحويل عملة أخرى",
       notifications:"الإشعارات", rateAlerts:"🔔 تنبيهات السعر",
       footerBy:"بواسطة", footerStatus:"جميع الأسعار مباشرة، ما زلنا نعمل عليه",
@@ -759,21 +761,13 @@
       noHistory:"هیچ مێژوویەک نییە", updatedPrefix:"نوێکراوەتەوە",
       ounceBuy:"کڕینی ئۆنس", ounceSell:"فرۆشتنی ئۆنس", metal:"کانزا",
       admin:"بەڕێوەبەری", adminLogin:"🔒 چوونەژوورەوەی بەڕێوەبەر", otherRates:"نرخەکانی تر",
+      otherRatesBtn:"🌍 نرخی شارەکانی عێراق دینار بۆ دۆلار",
       comingSoon:"📊 بەم زووانە", otherCurrencies:"دراوی تر", convertOther:"🔁 گۆڕینی دراوی تر",
       notifications:"ئاگادارکردنەوەکان", rateAlerts:"🔔 ئاگاداری نرخ",
       footerBy:"لەلایەن", footerStatus:"هەموو نرخەکان ڕاستەوخۆن، هێشتا کارمان لەسەری دەکەین",
     },
   };
   var currentLang = localStorage.getItem(LANG_KEY) || "en";
-  var CITY_LABELS = {
-    sulaymaniyah: { en:"Sulaymaniyah", ar:"السليمانية", ku:"سلێمانی" },
-    karbala:      { en:"Karbala",      ar:"كربلاء",     ku:"کەربەلا" },
-    najaf:        { en:"Najaf",        ar:"النجف",      ku:"نەجەف" },
-    basra:        { en:"Basra",        ar:"البصرة",     ku:"بەسرە" },
-    kirkuk:       { en:"Kirkuk",       ar:"كركوك",      ku:"کەرکووک" },
-    mosul:        { en:"Mosul",        ar:"الموصل",     ku:"مووسڵ" },
-    duhok:        { en:"Duhok",        ar:"دهوك",       ku:"دهۆک" },
-  };
   var CURRENCY_FLAGS = {
     EUR:"🇪🇺", GBP:"🇬🇧", TRY:"🇹🇷", USD:"🇺🇸", AED:"🇦🇪", SAR:"🇸🇦",
     KWD:"🇰🇼", JOD:"🇯🇴", EGP:"🇪🇬", IRR:"🇮🇷", JPY:"🇯🇵", CNY:"🇨🇳",
@@ -824,7 +818,6 @@
     stamp();
     renderHistory();
     if (lastGoldData) renderGold(lastGoldData);
-    renderOtherCities();
   }
 
   // Push notifications (iOS app only — this whole block is a no-op on the
@@ -899,7 +892,6 @@
   var baghdadSell = null;
   var convCity = "erbil";
   var extraCurrencies = []; // [{code, label, iqdPer1, asOf}]
-  var otherCities = []; // [{city, label, rate}]
   var priceHistory = [];
 
   var menuBtn = document.getElementById("menuBtn");
@@ -971,20 +963,6 @@
     document.getElementById("erbilSell").textContent = erbilSell ? fmt(erbilSell) : "—";
     document.getElementById("baghdadSell").textContent = baghdadSell ? fmt(baghdadSell) : "—";
     stamp();
-  }
-
-  function renderOtherCities(){
-    var wrap = document.getElementById("otherCitiesList");
-    if(!wrap) return;
-    if(!otherCities.length){ wrap.innerHTML = ""; return; }
-    wrap.innerHTML = "";
-    otherCities.forEach(function(c){
-      var row = document.createElement("div");
-      row.className = "sidebar-city-row";
-      var label = (CITY_LABELS[c.city] && CITY_LABELS[c.city][currentLang]) || c.label;
-      row.innerHTML = "<span>"+label+"</span><span class='rate'>"+fmt(c.rate)+"</span>";
-      wrap.appendChild(row);
-    });
   }
 
   function renderOtherCurrenciesList(){
@@ -1155,8 +1133,6 @@
         renderOunceGoldSilver(res.data.ounceGoldSilver);
         extraCurrencies = res.data.extra || [];
         renderOtherCurrenciesList();
-        otherCities = res.data.otherCities || [];
-        renderOtherCities();
 
         if(erbilSell && (prevErbil==null || erbilSell !== prevErbil)) addToHistory("Erbil", erbilSell, prevErbil);
         if(baghdadSell && (prevBaghdad==null || baghdadSell !== prevBaghdad)) addToHistory("Baghdad", baghdadSell, prevBaghdad);
