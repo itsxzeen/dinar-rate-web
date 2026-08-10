@@ -488,39 +488,6 @@
   .gold-spot .spot-change.up{color:var(--paper);}
   .gold-spot .spot-change.down{color:var(--paper);}
 
-  /* --- Admin panel --- */
-  .admin-overlay{
-    position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;
-    opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(6px);
-  }
-  .admin-overlay.open{opacity:1;pointer-events:auto}
-  .admin-panel{
-    position:fixed;top:50%;left:50%;transform:translate(-50%,-46%) scale(.96);
-    width:min(360px,92vw);max-height:86vh;overflow-y:auto;z-index:201;
-    background:linear-gradient(160deg,var(--dark-2),var(--dark));
-    border:1px solid var(--purple);border-radius:22px;padding:24px 20px;
-    box-shadow:0 20px 60px rgba(0,0,0,.4);
-    opacity:0;pointer-events:none;transition:opacity .3s, transform .3s;
-  }
-  .admin-panel.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
-  .admin-close{position:absolute;top:14px;right:14px;width:30px;height:30px;background:none;border:none;color:var(--paper);font-size:22px;cursor:pointer}
-  .admin-title{font-size:20px;font-weight:900;letter-spacing:1px;margin-bottom:18px;
-    color:var(--paper);}
-  .admin-input{width:100%;background:var(--dark-3);border:1px solid var(--purple);border-radius:12px;
-    padding:13px 14px;color:var(--paper);font-size:15px;margin-bottom:12px;outline:none;font-family:inherit;}
-  .admin-input:focus{border-color:var(--purple-light);box-shadow:none}
-  .admin-btn{width:100%;background:var(--purple-light);color:#fff;
-    border:none;border-radius:12px;padding:13px;font-weight:800;font-size:15px;cursor:pointer;letter-spacing:.03em;}
-  .admin-btn:active{transform:scale(.98)}
-  .admin-btn.ghost{background:var(--dark-3);color:var(--paper);border:1px solid var(--purple);margin-top:10px}
-  .admin-msg{font-size:12px;color:var(--paper);margin-top:10px;min-height:16px;text-align:center}
-  .admin-link{display:block;text-align:center;color:var(--paper);font-size:12px;margin-top:14px;cursor:pointer;text-decoration:underline}
-  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-  .stat{background:var(--dark-3);border:1px solid rgba(255,255,255,.35);border-radius:14px;padding:16px 12px;text-align:center}
-  .stat.live{border-color:var(--accent);box-shadow:none}
-  .stat-num{font-family:"IBM Plex Mono",monospace;font-size:26px;font-weight:700;color:var(--paper)}
-  .stat.live .stat-num{color:var(--paper)}
-  .stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--paper);margin-top:6px}
   .live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);
     box-shadow:0 0 8px var(--accent);margin-right:5px;animation:pulse 1.6s ease-in-out infinite;vertical-align:middle}
 
@@ -587,7 +554,7 @@
 
   <div class="sidebar-section">
     <div class="sidebar-title" data-i18n="admin">Admin</div>
-    <div class="sidebar-item" id="adminOpen" data-i18n="adminLogin">🔒 Admin Login</div>
+    <a class="sidebar-item" id="adminOpen" href="admin.html" data-i18n="adminLogin" style="display:block;text-decoration:none;color:inherit">🔒 Admin Login</a>
   </div>
 
   <div class="sidebar-section">
@@ -611,30 +578,6 @@
         <span class="switch-track"></span>
       </span>
     </label>
-  </div>
-</div>
-
-<!-- ADMIN PANEL -->
-<div class="admin-overlay" id="adminOverlay"></div>
-<div class="admin-panel" id="adminPanel">
-  <button class="admin-close" id="adminClose">✕</button>
-  <div class="admin-title">ADMIN</div>
-
-  <div id="adminLogin">
-    <input class="admin-input" id="admPass" type="password" inputmode="numeric" placeholder="Passcode" autocomplete="off" />
-    <button class="admin-btn" id="admLoginBtn">Enter</button>
-    <div class="admin-msg" id="admMsg"></div>
-    <span class="admin-link" id="admSetupLink">First time? Set this passcode</span>
-  </div>
-
-  <div id="adminStats" style="display:none">
-    <div class="stat-grid">
-      <div class="stat live"><div class="stat-num" id="stOnline">—</div><div class="stat-lbl"><span class="live-dot"></span>Online now</div></div>
-      <div class="stat"><div class="stat-num" id="stTotal">—</div><div class="stat-lbl">Total views</div></div>
-      <div class="stat"><div class="stat-num" id="stUnique">—</div><div class="stat-lbl">Unique visitors</div></div>
-      <div class="stat"><div class="stat-num" id="stToday">—</div><div class="stat-lbl">Views today</div></div>
-    </div>
-    <button class="admin-btn ghost" id="admLogout">Log out</button>
   </div>
 </div>
 
@@ -1207,84 +1150,15 @@
   var VISITOR_ID = getVisitorId();
   function track(){
     fetch(WORKER_URL+"/track",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({visitorId:VISITOR_ID, path:location.pathname})}).catch(function(){});
+      body:JSON.stringify({visitorId:VISITOR_ID, path:location.pathname, platform: isNativeApp() ? "ios-app" : "web"})}).catch(function(){});
   }
   function ping(){
     fetch(WORKER_URL+"/ping",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({visitorId:VISITOR_ID})}).catch(function(){});
+      body:JSON.stringify({visitorId:VISITOR_ID, platform: isNativeApp() ? "ios-app" : "web"})}).catch(function(){});
   }
   track();
   setInterval(ping, 25000);
   document.addEventListener("visibilitychange", function(){ if(!document.hidden) ping(); });
-
-  /* ---------- Admin panel ---------- */
-  var TOKEN_KEY="adminToken_v1";
-  var adminPanel=document.getElementById("adminPanel");
-  var adminOverlay=document.getElementById("adminOverlay");
-  var admMsg=document.getElementById("admMsg");
-  var statsTimer=null;
-
-  function admShow(which){
-    document.getElementById("adminLogin").style.display = which==="login" ? "" : "none";
-    document.getElementById("adminStats").style.display = which==="stats" ? "" : "none";
-  }
-  function admOpen(){
-    adminPanel.classList.add("open"); adminOverlay.classList.add("open");
-    sidebar.classList.remove("open"); overlay.classList.remove("open");
-    admMsg.textContent="";
-    if(localStorage.getItem(TOKEN_KEY)){ admShow("stats"); startStats(); }
-    else { admShow("login"); }
-  }
-  function admClose(){
-    adminPanel.classList.remove("open"); adminOverlay.classList.remove("open");
-    if(statsTimer){ clearInterval(statsTimer); statsTimer=null; }
-  }
-  function startStats(){ loadStats(); if(statsTimer) clearInterval(statsTimer); statsTimer=setInterval(loadStats,10000); }
-
-  function loadStats(){
-    var token=localStorage.getItem(TOKEN_KEY);
-    if(!token) return;
-    fetch(WORKER_URL+"/admin/stats",{headers:{"Authorization":"Bearer "+token}})
-      .then(function(r){ if(r.status===401){ localStorage.removeItem(TOKEN_KEY); admShow("login"); admMsg.textContent="Session expired, log in again."; if(statsTimer){clearInterval(statsTimer);statsTimer=null;} throw new Error("401"); } return r.json(); })
-      .then(function(d){
-        document.getElementById("stOnline").textContent = d.onlineNow!=null ? d.onlineNow : "—";
-        document.getElementById("stTotal").textContent = d.totalViews!=null ? Number(d.totalViews).toLocaleString("en-US") : "—";
-        document.getElementById("stUnique").textContent = d.uniqueVisitors!=null ? Number(d.uniqueVisitors).toLocaleString("en-US") : "—";
-        document.getElementById("stToday").textContent = d.today!=null ? Number(d.today).toLocaleString("en-US") : "—";
-      })
-      .catch(function(){});
-  }
-
-  var ADMIN_USER="itsxzeen";
-  function admLogin(isSignup){
-    var pass=document.getElementById("admPass").value||"";
-    if(pass.length<8){ admMsg.textContent="Passcode must be at least 8 characters."; return; }
-    var path=isSignup ? "/auth/signup" : "/auth/login";
-    admMsg.textContent = isSignup ? "Setting passcode..." : "Checking...";
-    fetch(WORKER_URL+path,{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({email:ADMIN_USER,password:pass})})
-      .then(function(r){ return r.json().then(function(d){ return {ok:r.ok,d:d}; }); })
-      .then(function(res){
-        if(!res.ok){ admMsg.textContent=res.d.error||"Failed."; return; }
-        if(res.d.ok && isSignup){ admMsg.textContent="Account created — logging in..."; admLogin(false); return; }
-        if(res.d.token){ localStorage.setItem(TOKEN_KEY,res.d.token); admMsg.textContent=""; admShow("stats"); startStats(); }
-        else { admMsg.textContent="Unexpected response."; }
-      })
-      .catch(function(){ admMsg.textContent="Network error."; });
-  }
-
-  document.getElementById("adminOpen").addEventListener("click", admOpen);
-  document.getElementById("adminClose").addEventListener("click", admClose);
-  adminOverlay.addEventListener("click", admClose);
-  document.getElementById("admLoginBtn").addEventListener("click", function(){ admLogin(false); });
-  document.getElementById("admSetupLink").addEventListener("click", function(){ admLogin(true); });
-  document.getElementById("admLogout").addEventListener("click", function(){
-    localStorage.removeItem(TOKEN_KEY);
-    if(statsTimer){ clearInterval(statsTimer); statsTimer=null; }
-    admShow("login"); admMsg.textContent="";
-    document.getElementById("admPass").value="";
-  });
-  document.getElementById("admPass").addEventListener("keydown", function(e){ if(e.key==="Enter") admLogin(false); });
 })();
 </script>
 </body>
