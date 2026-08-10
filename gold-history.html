@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0108" />
+<title>Gold Price History · Se3rForIQD</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{height:100%}
+  body{
+    background:#0a0814;color:#e0f7ff;font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;
+    min-height:100%;line-height:1.5;
+  }
+  .topbar{
+    display:flex;align-items:center;gap:16px;
+    padding:max(calc(env(safe-area-inset-top) + 4px), 16px) 18px 14px;
+    border-bottom:1px solid rgba(0,212,255,.2);background:#0a0814;
+  }
+  .back-btn{
+    width:44px;height:44px;background:#0d1220;border:1px solid #00d4ff;border-radius:14px;
+    color:#e0f7ff;font-size:20px;text-decoration:none;display:flex;align-items:center;justify-content:center;
+  }
+  .title{flex:1;text-align:center;font-size:20px;font-weight:900;letter-spacing:1px;}
+  .wrap{max-width:520px;margin:0 auto;padding:20px 18px 40px;}
+  .karat-tabs{display:flex;gap:8px;margin-bottom:18px;}
+  .karat-tab{
+    flex:1;text-align:center;padding:10px;border-radius:10px;border:1px solid #00d4ff;
+    background:#0f1a2e;color:#e0f7ff;cursor:pointer;font-weight:700;font-size:13px;
+  }
+  .karat-tab.active{background:linear-gradient(135deg,#00d4ff,#00ff88);color:#0a0814;}
+  .row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px;border-bottom:1px solid rgba(0,212,255,.14);font-family:"IBM Plex Mono",monospace;
+  }
+  .row:last-child{border-bottom:none;}
+  .row .time{font-size:11px;opacity:.7;}
+  .row .iqd{font-weight:700;font-size:16px;}
+  .row .usd{font-size:12px;opacity:.85;min-width:60px;text-align:right;}
+  .card{background:#0d1220;border:1px solid #00d4ff;border-radius:16px;overflow:hidden;}
+  .empty{padding:30px;text-align:center;opacity:.7;font-size:13px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="back-btn" aria-label="Back">←</a>
+  <div class="title">Gold Price History</div>
+  <div style="width:44px;"></div>
+</div>
+
+<div class="wrap">
+  <div class="karat-tabs" id="karatTabs">
+    <div class="karat-tab" data-k="18">18K</div>
+    <div class="karat-tab" data-k="21">21K</div>
+    <div class="karat-tab" data-k="22">22K</div>
+    <div class="karat-tab active" data-k="24">24K</div>
+  </div>
+  <div class="card">
+    <div id="list" class="empty">Loading…</div>
+  </div>
+</div>
+
+<script>
+  var WORKER_URL = "https://dinar-rate-worker.dollersdaner.workers.dev";
+  var currentK = 24;
+
+  function fmt(n){ return n==null ? "—" : Math.round(n).toLocaleString("en-US"); }
+
+  function formatTime(iso){
+    var d = new Date(iso.replace(" ", "T")+"Z");
+    return d.toLocaleString("en-US", { month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });
+  }
+
+  function loadHistory(k){
+    currentK = k;
+    document.querySelectorAll(".karat-tab").forEach(function(t){
+      t.classList.toggle("active", parseInt(t.getAttribute("data-k"),10) === k);
+    });
+    var list = document.getElementById("list");
+    list.className = "empty";
+    list.textContent = "Loading…";
+    fetch(WORKER_URL+"/gold/history?k="+k+"&limit=100")
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(!d.history || !d.history.length){
+          list.className = "empty";
+          list.textContent = "No history yet — check back after the next update.";
+          return;
+        }
+        list.className = "";
+        var html = "";
+        d.history.forEach(function(item){
+          html += '<div class="row">'+
+            '<span class="time">'+formatTime(item.recorded_at)+'</span>'+
+            '<span class="iqd">'+fmt(item.iqd)+' IQD</span>'+
+            '<span class="usd">$'+fmt(item.usd)+'</span>'+
+            '</div>';
+        });
+        list.innerHTML = html;
+      })
+      .catch(function(){
+        list.className = "empty";
+        list.textContent = "Couldn't load history right now.";
+      });
+  }
+
+  document.getElementById("karatTabs").addEventListener("click", function(e){
+    var tab = e.target.closest(".karat-tab");
+    if(!tab) return;
+    loadHistory(parseInt(tab.getAttribute("data-k"), 10));
+  });
+
+  loadHistory(24);
+</script>
+
+</body>
+</html>

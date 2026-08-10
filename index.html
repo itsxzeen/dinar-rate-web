@@ -413,6 +413,18 @@
     color:var(--purple-light);font-size:17px;font-weight:700;cursor:pointer;transition:all .3s;
   }
   .swap-btn:hover{background:var(--purple-light);color:var(--dark);transform:rotate(180deg);}
+  .rate-info{text-align:center;font-size:12px;color:var(--paper);opacity:.7;margin-top:2px;}
+  .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .section-actions{display:flex;gap:8px;}
+  .icon-btn{
+    display:flex;align-items:center;justify-content:center;
+    width:30px;height:30px;background:var(--dark-3);border:1px solid var(--purple);
+    border-radius:8px;color:var(--paper);font-size:14px;text-decoration:none;
+    cursor:pointer;transition:all .3s;
+  }
+  .icon-btn:hover{background:var(--purple);color:var(--dark);}
+  .icon-btn.spinning{animation:spin .6s linear;}
+  @keyframes spin{to{transform:rotate(360deg);}}
 
   .history{
     margin-top:28px;padding:20px;background:linear-gradient(135deg, rgba(0,212,255,.08), transparent);
@@ -640,12 +652,19 @@
         <span class="cur" id="fieldBotCur">IQD</span>
         <input id="fieldBot" type="text" inputmode="decimal" placeholder="0" readonly />
       </div>
+      <div class="rate-info" id="rateInfo"></div>
     </div>
   </section>
 
   <!-- GOLD -->
   <section>
-    <div class="h2 gold" data-i18n="goldPerGram">Gold · per gram</div>
+    <div class="section-head">
+      <div class="h2 gold" data-i18n="goldPerGram" style="margin-bottom:0">Gold · per gram</div>
+      <div class="section-actions">
+        <button type="button" id="goldRefreshBtn" class="icon-btn" aria-label="Refresh gold rates">↻</button>
+        <a href="gold-history.html" class="icon-btn" aria-label="Gold price history">📈</a>
+      </div>
+    </div>
     <div class="card">
       <div class="gold-spot" id="goldSpotBox">
         <span class="spot-live"><span class="live-dot"></span><span data-i18n="liveSpot">Live Spot</span></span>
@@ -657,6 +676,17 @@
         <div class="gold-row"><span class="gold-karat">—</span><span class="gold-iqd" data-i18n="loading">Loading…</span><span class="gold-usd"></span></div>
       </div>
       <div class="gold-ounce" id="goldOunce"></div>
+    </div>
+  </section>
+
+  <!-- GOLD PER MITHQAL -->
+  <section>
+    <div class="h2 gold" data-i18n="goldPerMithqal">Gold · per mithqal</div>
+    <div class="card">
+      <div class="gold-head"><span data-i18n="karat">Karat</span><span>IQD</span><span>USD</span></div>
+      <div id="mithqalList">
+        <div class="gold-row"><span class="gold-karat">—</span><span class="gold-iqd" data-i18n="loading">Loading…</span><span class="gold-usd"></span></div>
+      </div>
     </div>
   </section>
 
@@ -696,7 +726,7 @@
     en: {
       market:"Market", sell:"Sell", erbil:"Erbil", baghdad:"Baghdad",
       updating:"Updating...", refresh:"Refresh", convert:"Convert",
-      goldPerGram:"Gold · per gram", liveSpot:"Live Spot", karat:"Karat",
+      goldPerGram:"Gold · per gram", goldPerMithqal:"Gold · per mithqal", liveSpot:"Live Spot", karat:"Karat",
       loading:"Loading…", ounceGoldSilver:"Ounce · Gold & Silver",
       goldWord:"🥇 Gold", silverWord:"🥈 Silver", priceHistory:"Price History",
       noHistory:"No history yet", updatedPrefix:"updated",
@@ -709,7 +739,7 @@
     ar: {
       market:"السوق", sell:"البيع", erbil:"أربيل", baghdad:"بغداد",
       updating:"جاري التحديث...", refresh:"تحديث", convert:"تحويل",
-      goldPerGram:"الذهب · لكل غرام", liveSpot:"السعر الفوري", karat:"العيار",
+      goldPerGram:"الذهب · لكل غرام", goldPerMithqal:"الذهب · لكل مثقال", liveSpot:"السعر الفوري", karat:"العيار",
       loading:"جاري التحميل…", ounceGoldSilver:"الأونصة · الذهب والفضة",
       goldWord:"🥇 الذهب", silverWord:"🥈 الفضة", priceHistory:"سجل الأسعار",
       noHistory:"لا يوجد سجل بعد", updatedPrefix:"تحديث",
@@ -920,6 +950,15 @@
       .then(function(d){ renderOunceGoldSilver(d.ounceGoldSilver); }).catch(function(){});
   }
 
+  function fetchGoldOnly(){
+    var btn = document.getElementById("goldRefreshBtn");
+    if(btn) btn.classList.add("spinning");
+    fetch(WORKER_URL+"/gold").then(function(r){ return r.json(); })
+      .then(function(d){ lastGoldData = d.gold; renderGold(d.gold); })
+      .catch(function(){})
+      .finally(function(){ if(btn) setTimeout(function(){ btn.classList.remove("spinning"); }, 600); });
+  }
+
   function renderGold(gold){
     var list = document.getElementById("goldList");
     var ounce = document.getElementById("goldOunce");
@@ -943,17 +982,39 @@
       if(gold.ounce.sell) oz += '<div class="oz-box">'+I18N[currentLang].ounceSell+' (/oz)<span class="oz-val">'+fmt(gold.ounce.sell.iqd)+'</span></div>';
       ounce.innerHTML = oz;
     } else { ounce.innerHTML = ""; }
+
+    var mList = document.getElementById("mithqalList");
+    if(mList){
+      var mHtml = "";
+      gold.gram.forEach(function(g){
+        if(g.mithqalIqd==null) return;
+        mHtml += '<div class="gold-row">'+
+          '<span class="gold-karat">'+g.k+'K</span>'+
+          '<span class="gold-iqd">'+fmt(g.mithqalIqd)+'</span>'+
+          '<span class="gold-usd">$'+fmt(g.mithqalUsd)+'</span>'+
+          '</div>';
+      });
+      mList.innerHTML = mHtml || '<div class="gold-row"><span class="gold-karat">—</span><span class="gold-iqd">Unavailable</span><span class="gold-usd"></span></div>';
+    }
   }
 
   // The rate (erbilSell/baghdadSell) is quoted per 100 USD, not per 1 USD —
   // e.g. a "SELL" of 152,850 means 100 USD = 152,850 IQD.
   var convDir = "usd2iqd"; // or "iqd2usd"
 
+  function updateRateInfo(){
+    var el = document.getElementById("rateInfo");
+    if(!el) return;
+    var r = currentRate();
+    el.textContent = r!=null ? ("100 USD = "+fmt(r)+" IQD") : "";
+  }
+
   function convertUsd(){
     var top = document.getElementById("fieldTop");
     var bot = document.getElementById("fieldBot");
     var v = parseFloat((top.value||"").replace(/,/g,""));
     var r = currentRate();
+    updateRateInfo();
     if(isNaN(v)||v<0||r==null){ bot.value=""; return; }
     bot.value = convDir==="usd2iqd" ? fmt(v/100*r) : fmt(v/r*100);
   }
@@ -1053,6 +1114,9 @@
     applyLang(currentLang === "en" ? "ar" : "en");
   });
   applyLang(currentLang);
+
+  var goldRefreshBtn = document.getElementById("goldRefreshBtn");
+  if (goldRefreshBtn) goldRefreshBtn.addEventListener("click", fetchGoldOnly);
 
   /* ---------- Visitor analytics ---------- */
   function getVisitorId(){
