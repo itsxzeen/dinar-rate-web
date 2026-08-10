@@ -522,17 +522,17 @@
      full-bleed bars around a narrow floating card. */
   /* Laptop/desktop: a multi-column dashboard that fits on one screen,
      no vertical scrolling needed. */
-  @media (min-width:900px) and (min-height:700px){
-    html, body{overflow:hidden;height:100%;}
-    body{display:flex;}
-    .topbar{max-width:1040px;width:100%;margin:0 auto;padding-top:10px;padding-bottom:6px;}
-    .menu-btn{width:48px;height:48px;font-size:22px;border-radius:14px;}
-    #langBtn{font-size:14px !important;}
-    .ticker-bar{max-width:1040px;margin:0 auto;width:100%;padding:3px 0;}
+  @media (min-width:900px){
+    html, body{overflow-y:auto;height:auto;min-height:100%;}
+    body{display:block;}
+    .topbar{max-width:1280px;width:100%;margin:0 auto;padding-top:14px;padding-bottom:10px;}
+    .menu-btn{width:52px;height:52px;font-size:24px;border-radius:16px;}
+    #langBtn{font-size:15px !important;}
+    .ticker-bar{max-width:1280px;margin:0 auto;width:100%;}
     .wrap{
-      max-width:1040px;padding:10px 16px 8px;min-height:0;
-      display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px 16px;
-      align-content:start;overflow-y:auto;height:auto;flex:1 1 auto;
+      max-width:1280px;padding:20px 24px 40px;
+      display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px 22px;
+      align-content:start;overflow:visible;height:auto;
     }
     .wrap > .hero{grid-column:1/3;grid-row:1;padding:0;}
     .wrap > section:nth-of-type(1){grid-column:3;grid-row:1;}
@@ -540,12 +540,6 @@
     .wrap > section:nth-of-type(3){grid-column:2;grid-row:2;}
     .wrap > section:nth-of-type(4){grid-column:3;grid-row:2;}
     .wrap > footer{grid-column:1/-1;grid-row:3;}
-    .h2{margin-bottom:6px;font-size:11px;}
-    .card{padding:12px;}
-    .hero table td, .hero table th{padding:7px 6px;}
-    .gold-row{padding:7px 4px;}
-    .gold-spot{margin-bottom:8px;padding-bottom:8px;}
-    .refresh{margin-top:12px;padding-top:12px;}
   }
 </style>
 </head>
