@@ -204,13 +204,6 @@
     background:var(--purple);
     color:var(--dark);
   }
-  .sidebar-city-row{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:12px;background:var(--dark-3);border:1px solid var(--purple);
-    border-radius:10px;margin-bottom:8px;font-size:13px;color:var(--paper);
-  }
-  .sidebar-city-row .rate{font-family:"IBM Plex Mono",monospace;font-weight:700}
-
   .overlay{
     position:fixed;
     inset:0;
@@ -582,7 +575,6 @@
 
   <div class="sidebar-section">
     <div class="sidebar-title" data-i18n="otherCurrencies">Other Currencies</div>
-    <div id="otherCurrenciesList"><div class="sidebar-item" data-i18n="loading">Loading…</div></div>
     <a class="sidebar-item" href="currency-converter.html" data-i18n="convertOther" style="display:block;text-decoration:none;color:inherit">🔁 Convert Other Currency</a>
   </div>
 
@@ -780,13 +772,6 @@
     },
   };
   var currentLang = localStorage.getItem(LANG_KEY) || "en";
-  var CURRENCY_FLAGS = {
-    EUR:"🇪🇺", GBP:"🇬🇧", TRY:"🇹🇷", USD:"🇺🇸", AED:"🇦🇪", SAR:"🇸🇦",
-    KWD:"🇰🇼", JOD:"🇯🇴", EGP:"🇪🇬", IRR:"🇮🇷", JPY:"🇯🇵", CNY:"🇨🇳",
-    INR:"🇮🇳", CAD:"🇨🇦", AUD:"🇦🇺", CHF:"🇨🇭", RUB:"🇷🇺", SEK:"🇸🇪",
-    NOK:"🇳🇴", DKK:"🇩🇰", QAR:"🇶🇦", BHD:"🇧🇭", OMR:"🇴🇲", LBP:"🇱🇧",
-  };
-  function flagFor(code){ return CURRENCY_FLAGS[code] || "💱"; }
   var lastGoldData = null;
   var lastOunceData = null;
   var tickerPrev = {};
@@ -903,7 +888,6 @@
   var erbilSell = null;
   var baghdadSell = null;
   var convCity = "erbil";
-  var extraCurrencies = []; // [{code, label, iqdPer1, asOf}]
   var priceHistory = [];
 
   var menuBtn = document.getElementById("menuBtn");
@@ -975,19 +959,6 @@
     document.getElementById("erbilSell").textContent = erbilSell ? fmt(erbilSell) : "—";
     document.getElementById("baghdadSell").textContent = baghdadSell ? fmt(baghdadSell) : "—";
     stamp();
-  }
-
-  function renderOtherCurrenciesList(){
-    var wrap = document.getElementById("otherCurrenciesList");
-    if(!wrap) return;
-    if(!extraCurrencies.length){ wrap.innerHTML = ""; return; }
-    wrap.innerHTML = "";
-    extraCurrencies.forEach(function(c){
-      var row = document.createElement("div");
-      row.className = "sidebar-city-row";
-      row.innerHTML = "<span>"+flagFor(c.code)+" "+c.code+" · "+c.label+"</span><span class='rate'>"+(c.iqdPer1!=null?fmt(c.iqdPer1):"—")+"</span>";
-      wrap.appendChild(row);
-    });
   }
 
   var lastSpot = null;
@@ -1143,8 +1114,6 @@
         renderGold(res.data.gold);
         renderSpot(res.data.goldSpot);
         renderOunceGoldSilver(res.data.ounceGoldSilver);
-        extraCurrencies = res.data.extra || [];
-        renderOtherCurrenciesList();
 
         if(erbilSell && (prevErbil==null || erbilSell !== prevErbil)) addToHistory("Erbil", erbilSell, prevErbil);
         if(baghdadSell && (prevBaghdad==null || baghdadSell !== prevBaghdad)) addToHistory("Baghdad", baghdadSell, prevBaghdad);
