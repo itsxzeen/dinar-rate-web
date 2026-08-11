@@ -228,96 +228,6 @@
   }
   .overlay.open{opacity:1;pointer-events:auto}
 
-  .currency-drawer{
-    position:fixed;
-    left:0;
-    top:0;
-    width:280px;
-    height:100vh;
-    background:var(--dark-2);
-    border-right:1px solid var(--purple);
-    z-index:101;
-    transform:translateX(-100%);
-    transition:transform .4s cubic-bezier(.4,0,.2,1);
-    padding:60px 16px 16px;
-    overflow-y:auto;
-  }
-  .currency-drawer.open{transform:translateX(0)}
-  .currency-drawer-close{
-    position:absolute;
-    top:16px;
-    right:16px;
-    width:32px;
-    height:32px;
-    background:none;
-    border:none;
-    color:var(--paper);
-    font-size:24px;
-    cursor:pointer;
-  }
-  .currency-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-  }
-  .currency-item{
-    background:var(--dark-3);
-    border:1px solid var(--purple);
-    border-radius:12px;
-    padding:16px;
-    text-align:center;
-    cursor:pointer;
-    transition:all .3s;
-    position:relative;
-    animation:slideIn .5s ease-out backwards;
-  }
-  .currency-item:nth-child(1){animation-delay:.1s}
-  .currency-item:nth-child(2){animation-delay:.2s}
-  .currency-item:nth-child(3){animation-delay:.3s}
-  .currency-item:nth-child(4){animation-delay:.4s}
-  .currency-item:hover{
-    background:var(--purple);
-    color:var(--dark);
-    box-shadow:none;
-  }
-  .currency-item:active{transform:scale(.95)}
-  .currency-item .icon{
-    font-size:32px;
-    margin-bottom:8px;
-    animation:float 3s ease-in-out infinite;
-  }
-  .currency-item .name{
-    font-size:14px;
-    font-weight:600;
-    color:var(--paper);
-    margin-bottom:6px;
-  }
-  .currency-item .badge{
-    position:absolute;
-    top:-8px;
-    right:-8px;
-    background:var(--accent);
-    color:white;
-    font-size:10px;
-    padding:3px 6px;
-    border-radius:4px;
-    font-weight:700;
-    animation:pulse 2s ease-in-out infinite;
-  }
-
-
-  .currency-overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.6);
-    z-index:100;
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .3s;
-    backdrop-filter:blur(4px);
-  }
-  .currency-overlay.open{opacity:1;pointer-events:auto}
-
   .wrap{position:relative;z-index:1;flex:1 1 auto;width:100%;max-width:480px;margin:0 auto;padding:24px 18px 32px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none;}
   .wrap::-webkit-scrollbar{display:none;width:0;height:0;}
 
@@ -449,30 +359,6 @@
   .ticker-item .arrow-down{color:#ff5c7c;}
   @keyframes tickerScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
 
-  .history{
-    margin-top:28px;padding:20px;background:linear-gradient(135deg, rgba(255,255,255,.08), transparent);
-    border:1px solid var(--purple);border-radius:18px;
-    animation:slideIn .7s ease-out;
-  }
-  .history-title{
-    font-size:13px;letter-spacing:.08em;text-transform:uppercase;
-    color:var(--paper);margin-bottom:14px;display:flex;align-items:center;gap:8px;font-weight:700;
-  }
-  .history-title::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:pulse 2s ease-in-out infinite}
-  .history-item{
-    display:flex;align-items:center;justify-content:space-between;padding:12px 0;
-    border-bottom:1px solid rgba(255,255,255,.08);font-size:12px;
-    animation:slideIn .5s ease-out backwards;
-  }
-  .history-item:nth-child(odd){animation-delay:.1s}
-  .history-item:nth-child(even){animation-delay:.2s}
-  .history-item:last-child{border-bottom:none;}
-  .history-left{display:flex;align-items:center;gap:10px;}
-  .history-arrow{font-size:16px;font-weight:700;}
-  .history-arrow.up{color:var(--paper);animation:float 2s ease-in-out infinite}
-  .history-arrow.down{color:var(--paper)}
-  .history-time{color:var(--paper);font-size:10px;}
-  .history-rate{font-family:"IBM Plex Mono";font-weight:600;color:var(--paper);}
 
   footer{
     flex-shrink:0;font-size:11px;color:var(--paper);line-height:1.6;
@@ -515,7 +401,6 @@
     .wrap{padding:18px 14px 24px}
     .hero{padding:20px}
     .card{padding:16px}
-    .currency-toggle{width:56px;height:56px;font-size:24px;bottom:24px;left:24px}
   }
 
   /* Laptop/desktop: frame the app as one centered column instead of
@@ -734,7 +619,6 @@
   "use strict";
   var WORKER_URL = "https://dinar-rate-worker.dollersdaner.workers.dev";
   var CACHE_KEY = "dinarRates_v2";
-  var HISTORY_KEY = "priceHistory_v1";
 
   // ---- Language toggle (English / Arabic) ----
   var LANG_KEY = "lang_v1";
@@ -746,12 +630,12 @@
       updating:"Updating...", refresh:"Refresh", convert:"Convert",
       goldPerGram:"Gold · per gram", goldPerMithqal:"Gold · per mithqal", liveSpot:"Live Spot", karat:"Karat",
       loading:"Loading…", ounceGoldSilver:"Ounce · Gold & Silver",
-      goldWord:"🥇 Gold", silverWord:"🥈 Silver", priceHistory:"Price History",
-      noHistory:"No history yet", updatedPrefix:"updated",
+      goldWord:"🥇 Gold", silverWord:"🥈 Silver",
+      updatedPrefix:"updated",
       ounceBuy:"Ounce Buy", ounceSell:"Ounce Sell", metal:"Metal",
       admin:"Admin", adminLogin:"🔒 Admin Login", otherRates:"Other Rates",
       otherRatesBtn:"🌍 Other Rates for Iraq IQD to USD",
-      comingSoon:"📊 Coming Soon", otherCurrencies:"Other Currencies", convertOther:"🔁 Convert Other Currency",
+      otherCurrencies:"Other Currencies", convertOther:"🔁 Convert Other Currency",
       notifications:"Notifications", rateAlerts:"🔔 Rate Alerts",
       footerBy:"by", footerStatus:"All rates are live, still working on it",
     },
@@ -760,12 +644,12 @@
       updating:"جاري التحديث...", refresh:"تحديث", convert:"تحويل",
       goldPerGram:"الذهب · لكل غرام", goldPerMithqal:"الذهب · لكل مثقال", liveSpot:"السعر الفوري", karat:"العيار",
       loading:"جاري التحميل…", ounceGoldSilver:"الأونصة · الذهب والفضة",
-      goldWord:"🥇 الذهب", silverWord:"🥈 الفضة", priceHistory:"سجل الأسعار",
-      noHistory:"لا يوجد سجل بعد", updatedPrefix:"تحديث",
+      goldWord:"🥇 الذهب", silverWord:"🥈 الفضة",
+      updatedPrefix:"تحديث",
       ounceBuy:"شراء الأونصة", ounceSell:"بيع الأونصة", metal:"المعدن",
       admin:"الإدارة", adminLogin:"🔒 دخول الإدارة", otherRates:"أسعار أخرى",
       otherRatesBtn:"🌍 أسعار المحافظات العراقية دينار/دولار",
-      comingSoon:"📊 قريباً", otherCurrencies:"عملات أخرى", convertOther:"🔁 تحويل عملة أخرى",
+      otherCurrencies:"عملات أخرى", convertOther:"🔁 تحويل عملة أخرى",
       notifications:"الإشعارات", rateAlerts:"🔔 تنبيهات السعر",
       footerBy:"بواسطة", footerStatus:"جميع الأسعار مباشرة، ما زلنا نعمل عليه",
     },
@@ -774,12 +658,12 @@
       updating:"نوێکردنەوە...", refresh:"نوێکردنەوە", convert:"گۆڕین",
       goldPerGram:"زێڕ · بۆ هەر گرام", goldPerMithqal:"زێڕ · بۆ هەر مسقاڵ", liveSpot:"نرخی ڕاستەوخۆ", karat:"عەیار",
       loading:"بارکردن...", ounceGoldSilver:"ئۆنس · زێڕ و زیو",
-      goldWord:"🥇 زێڕ", silverWord:"🥈 زیو", priceHistory:"مێژووی نرخ",
-      noHistory:"هیچ مێژوویەک نییە", updatedPrefix:"نوێکراوەتەوە",
+      goldWord:"🥇 زێڕ", silverWord:"🥈 زیو",
+      updatedPrefix:"نوێکراوەتەوە",
       ounceBuy:"کڕینی ئۆنس", ounceSell:"فرۆشتنی ئۆنس", metal:"کانزا",
       admin:"بەڕێوەبەری", adminLogin:"🔒 چوونەژوورەوەی بەڕێوەبەر", otherRates:"نرخەکانی تر",
       otherRatesBtn:"🌍 نرخی شارەکانی عێراق دینار بۆ دۆلار",
-      comingSoon:"📊 بەم زووانە", otherCurrencies:"دراوی تر", convertOther:"🔁 گۆڕینی دراوی تر",
+      otherCurrencies:"دراوی تر", convertOther:"🔁 گۆڕینی دراوی تر",
       notifications:"ئاگادارکردنەوەکان", rateAlerts:"🔔 ئاگاداری نرخ",
       footerBy:"لەلایەن", footerStatus:"هەموو نرخەکان ڕاستەوخۆن، هێشتا کارمان لەسەری دەکەین",
     },
@@ -826,7 +710,6 @@
     var langBtn = document.getElementById("langBtn");
     if (langBtn) langBtn.textContent = LANG_LABELS[LANG_ORDER[(LANG_ORDER.indexOf(lang)+1) % LANG_ORDER.length]];
     stamp();
-    renderHistory();
     if (lastGoldData) renderGold(lastGoldData);
   }
 
@@ -901,7 +784,6 @@
   var erbilSell = null;
   var baghdadSell = null;
   var convCity = "erbil";
-  var priceHistory = [];
 
   var menuBtn = document.getElementById("menuBtn");
   var sidebar = document.getElementById("sidebar");
@@ -915,52 +797,11 @@
 
   function fmt(n){ return Math.round(n).toLocaleString("en-US"); }
   function fmt2(n){ return n==null ? "—" : Number(n).toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2}); }
-  function fmtFull(n){ return Math.round(n).toString(); }
   function pad(n){ return n<10?"0"+n:""+n; }
   function currentRate(){ return convCity==="baghdad" ? baghdadSell : erbilSell; }
 
   function loadCache(){ try{ return JSON.parse(localStorage.getItem(CACHE_KEY)); }catch(e){ return null; } }
   function saveCache(o){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify(o)); }catch(e){} }
-
-  function loadHistory(){ try{ return JSON.parse(localStorage.getItem(HISTORY_KEY))||[]; }catch(e){ return []; } }
-  function saveHistory(h){ try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); }catch(e){} }
-
-  function addToHistory(city, rate, prevRate){
-    priceHistory = loadHistory();
-    var now = new Date();
-    var timeStr = pad(now.getHours())+":"+pad(now.getMinutes())+":"+pad(now.getSeconds());
-    var dateStr = (now.getMonth()+1)+"/"+now.getDate();
-    var direction = prevRate==null ? "same" : (rate > prevRate ? "up" : "down");
-    priceHistory.unshift({city:city, rate:rate, direction:direction, time:timeStr, date:dateStr});
-    if(priceHistory.length > 10) priceHistory = priceHistory.slice(0,10);
-    saveHistory(priceHistory);
-    renderHistory();
-  }
-
-  function cityLabel(city){
-    var dict = I18N[currentLang];
-    if (city === "Erbil") return dict.erbil;
-    if (city === "Baghdad") return dict.baghdad;
-    return city;
-  }
-
-  function renderHistory(){
-    var listEl = document.getElementById("historyList");
-    if(!listEl) return;
-    var html = "";
-    priceHistory.slice(0,10).forEach(function(item){
-      var arrow = item.direction==="up" ? "↑" : "↓";
-      var arrowClass = item.direction==="up" ? "up" : "down";
-      html += '<div class="history-item">'+
-        '<div class="history-left">'+
-        '<span class="history-arrow '+arrowClass+'">'+arrow+'</span>'+
-        '<div><div style="font-weight:600">'+cityLabel(item.city)+'</div><div class="history-time">'+item.date+' '+item.time+'</div></div>'+
-        '</div>'+
-        '<div class="history-rate mono">'+fmt(item.rate)+'</div>'+
-        '</div>';
-    });
-    listEl.innerHTML = html || '<div style="text-align:center;color:var(--paper);padding:16px;font-size:12px;">'+I18N[currentLang].noHistory+'</div>';
-  }
 
   function stamp(){
     var n=new Date(), h=n.getHours(), m=pad(n.getMinutes()), s=pad(n.getSeconds());
@@ -1118,9 +959,6 @@
       .then(function(res){
         if(!res.ok || res.data.error) throw new Error(res.data.error || "Error");
 
-        var prevErbil = erbilSell;
-        var prevBaghdad = baghdadSell;
-
         if(res.data.erbil) erbilSell = res.data.erbil.rate;
         if(res.data.baghdad) baghdadSell = res.data.baghdad.rate;
         lastGoldData = res.data.gold;
@@ -1128,13 +966,9 @@
         renderSpot(res.data.goldSpot);
         renderOunceGoldSilver(res.data.ounceGoldSilver);
 
-        if(erbilSell && (prevErbil==null || erbilSell !== prevErbil)) addToHistory("Erbil", erbilSell, prevErbil);
-        if(baghdadSell && (prevBaghdad==null || baghdadSell !== prevBaghdad)) addToHistory("Baghdad", baghdadSell, prevBaghdad);
-
         saveCache({erbilSell, baghdadSell, fetchedAt: new Date().toISOString()});
         renderRates();
         convertUsd();
-        renderHistory();
       })
       .catch(function(err){
         console.error(err);
@@ -1148,9 +982,7 @@
       });
   }
 
-  priceHistory = loadHistory();
   renderRates();
-  renderHistory();
   fetchLive();
 
   document.getElementById("refreshBtn").addEventListener("click", function(){
