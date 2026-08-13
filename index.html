@@ -473,45 +473,52 @@
 <!-- SIDEBAR -->
 <div class="overlay" id="overlay"></div>
 <div class="sidebar" id="sidebar">
-  <button class="sidebar-close" id="sidebarClose">✕</button>
+  <button class="sidebar-close" id="sidebarClose"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
 
   <div class="sidebar-section">
     <div class="sidebar-title" data-i18n="navigate">Navigate</div>
-    <a class="sidebar-item" href="rate-history.html" data-i18n="rateHistoryBtn" style="display:block;text-decoration:none;color:inherit">📈 Rate History</a>
-    <a class="sidebar-item" href="gold-history.html" data-i18n="goldRatesBtn" style="display:block;text-decoration:none;color:inherit">🥇 Gold Rates</a>
+    <a class="sidebar-item" id="navRateHistory" href="rate-history.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg> <span data-i18n="rateHistoryBtn">Rate History</span></a>
+    <a class="sidebar-item" id="navGoldRates" href="gold-history.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#e8b923" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><path d="M8.5 13.5 6 21l6-3 6 3-2.5-7.5"/></svg> <span data-i18n="goldRatesBtn">Gold Rates</span></a>
   </div>
 
   <div class="sidebar-section">
     <div class="sidebar-title" data-i18n="admin">Admin</div>
-    <a class="sidebar-item" id="adminOpen" href="admin.html" data-i18n="adminLogin" style="display:block;text-decoration:none;color:inherit">🔒 Admin Login</a>
+    <a class="sidebar-item" id="adminOpen" href="admin.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> <span data-i18n="adminLogin">Admin Login</span></a>
   </div>
 
   <div class="sidebar-section">
     <div class="sidebar-title" data-i18n="otherRates">Other Rates</div>
-    <a class="sidebar-item" href="other-rates.html" data-i18n="otherRatesBtn" style="display:block;text-decoration:none;color:inherit">🌍 Other Rates for Iraq IQD to USD</a>
+    <a class="sidebar-item" id="navOtherRates" href="other-rates.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.3 2.5 3.5 6 3.5 9s-1.2 6.5-3.5 9c-2.3-2.5-3.5-6-3.5-9s1.2-6.5 3.5-9Z"/></svg> <span data-i18n="otherRatesBtn">Other Rates for Iraq IQD to USD</span></a>
   </div>
 
   <div class="sidebar-section">
     <div class="sidebar-title" data-i18n="otherCurrencies">Other Currencies</div>
-    <a class="sidebar-item" href="currency-converter.html" data-i18n="convertOther" style="display:block;text-decoration:none;color:inherit">🔁 Convert Other Currency</a>
+    <a class="sidebar-item" id="navConvertOther" href="currency-converter.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg> <span data-i18n="convertOther">Convert Other Currency</span></a>
   </div>
 
   <div class="sidebar-section" id="notifSection" style="display:none">
     <div class="sidebar-title" data-i18n="notifications">Notifications</div>
     <label class="sidebar-toggle-row" for="notifToggle">
-      <span data-i18n="rateAlerts">🔔 Rate Alerts</span>
+      <span style="display:flex;align-items:center;gap:8px;"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 20a2 2 0 0 0 4 0"/></svg> <span data-i18n="rateAlerts">Rate Alerts</span></span>
       <span class="switch">
         <input type="checkbox" id="notifToggle">
         <span class="switch-track"></span>
       </span>
     </label>
   </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-title" data-i18n="aboutSection">About</div>
+    <a class="sidebar-item" href="about.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg> <span data-i18n="aboutBtn">About</span></a>
+    <a class="sidebar-item" href="contact.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg> <span data-i18n="contactBtn">Contact</span></a>
+    <a class="sidebar-item" href="privacy.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3Z"/></svg> <span data-i18n="privacyBtn">Privacy Policy</span></a>
+  </div>
 </div>
 
 <div class="app-header">
   <!-- TOPBAR -->
   <div class="topbar">
-    <button class="menu-btn" id="menuBtn">☰</button>
+    <button class="menu-btn" id="menuBtn"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
     <div class="brand">
       <div class="brand-text">Se3rForIQD</div>
       <div class="brand-tagline">The dinar, the dollar and the gold souk — in one place.</div>
@@ -556,10 +563,10 @@
         <span id="cd" data-i18n="updating">Updating...</span>
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <button id="shareBtn" type="button" class="icon-btn" aria-label="Share today's rate">📤</button>
-        <a href="rate-history.html" class="icon-btn" aria-label="Rate history">📈</a>
+        <button id="shareBtn" type="button" class="icon-btn" aria-label="Share today's rate"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button>
+        <a href="rate-history.html" class="icon-btn" aria-label="Rate history"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></a>
         <button id="refreshBtn" type="button" aria-label="Refresh now">
-          <span class="ic">↻</span><span data-i18n="refresh">Refresh</span>
+          <span class="ic"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></span><span data-i18n="refresh">Refresh</span>
         </button>
       </div>
     </div>
@@ -577,7 +584,7 @@
         <span class="cur" id="fieldTopCur">USD</span>
         <input id="fieldTop" type="text" inputmode="decimal" placeholder="100" value="100" />
       </div>
-      <button type="button" id="swapDirBtn" class="swap-btn" aria-label="Swap direction">⇅</button>
+      <button type="button" id="swapDirBtn" class="swap-btn" aria-label="Swap direction"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4 4 7M7 4l3 3"/><path d="M17 8v12M17 20l3-3M17 20l-3-3"/></svg></button>
       <div class="field">
         <span class="cur" id="fieldBotCur">IQD</span>
         <input id="fieldBot" type="text" inputmode="decimal" placeholder="0" readonly />
@@ -591,8 +598,8 @@
     <div class="section-head">
       <div class="h2 gold" data-i18n="goldPerGram" style="margin-bottom:0">Gold · per gram</div>
       <div class="section-actions">
-        <button type="button" id="goldRefreshBtn" class="icon-btn" aria-label="Refresh gold rates">↻</button>
-        <a href="gold-history.html" class="icon-btn" aria-label="Gold price history">📈</a>
+        <button type="button" id="goldRefreshBtn" class="icon-btn" aria-label="Refresh gold rates"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button>
+        <a href="gold-history.html" class="icon-btn" aria-label="Gold price history"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></a>
       </div>
     </div>
     <div class="card">
@@ -625,8 +632,8 @@
     <div class="h2 gold" data-i18n="ounceGoldSilver">Ounce · Gold &amp; Silver</div>
     <div class="card">
       <div class="gold-head"><span data-i18n="metal">Metal</span><span>IQD /oz</span><span>USD /oz</span></div>
-      <div class="gold-row"><span class="gold-karat" data-i18n="goldWord">🥇 Gold</span><span class="gold-iqd mono" id="ounceGoldIqd">—</span><span class="gold-usd mono" id="ounceGoldUsd">—</span></div>
-      <div class="gold-row"><span class="gold-karat" data-i18n="silverWord">🥈 Silver</span><span class="gold-iqd mono" id="ounceSilverIqd">—</span><span class="gold-usd mono" id="ounceSilverUsd">—</span></div>
+      <div class="gold-row"><span class="gold-karat" style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#e8b923" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><path d="M8.5 13.5 6 21l6-3 6 3-2.5-7.5"/></svg><span data-i18n="goldWord">Gold</span></span><span class="gold-iqd mono" id="ounceGoldIqd">—</span><span class="gold-usd mono" id="ounceGoldUsd">—</span></div>
+      <div class="gold-row"><span class="gold-karat" style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#c7ccd1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><path d="M8.5 13.5 6 21l6-3 6 3-2.5-7.5"/></svg><span data-i18n="silverWord">Silver</span></span><span class="gold-iqd mono" id="ounceSilverIqd">—</span><span class="gold-usd mono" id="ounceSilverUsd">—</span></div>
     </div>
   </section>
 
@@ -663,13 +670,15 @@
       updating:"Updating...", refresh:"Refresh", convert:"Convert",
       goldPerGram:"Gold · per gram", goldPerMithqal:"Gold · per mithqal", liveSpot:"Live Spot", karat:"Karat",
       loading:"Loading…", ounceGoldSilver:"Ounce · Gold & Silver",
-      goldWord:"🥇 Gold", silverWord:"🥈 Silver",
+      goldWord:"Gold", silverWord:"Silver",
       updatedPrefix:"updated",
       ounceBuy:"Ounce Buy", ounceSell:"Ounce Sell", metal:"Metal",
-      admin:"Admin", adminLogin:"🔒 Admin Login", otherRates:"Other Rates",
-      otherRatesBtn:"🌍 Other Rates for Iraq IQD to USD",
-      otherCurrencies:"Other Currencies", convertOther:"🔁 Convert Other Currency",
-      notifications:"Notifications", rateAlerts:"🔔 Rate Alerts",
+      admin:"Admin", adminLogin:"Admin Login", otherRates:"Other Rates",
+      otherRatesBtn:"Other Rates for Iraq IQD to USD",
+      otherCurrencies:"Other Currencies", convertOther:"Convert Other Currency",
+      notifications:"Notifications", rateAlerts:"Rate Alerts",
+      rateHistoryBtn:"Rate History", goldRatesBtn:"Gold Rates",
+      aboutSection:"About", aboutBtn:"About", contactBtn:"Contact", privacyBtn:"Privacy Policy",
       footerBy:"by", footerStatus:"All rates are live, still working on it",
     },
     ar: {
@@ -677,13 +686,15 @@
       updating:"جاري التحديث...", refresh:"تحديث", convert:"تحويل",
       goldPerGram:"الذهب · لكل غرام", goldPerMithqal:"الذهب · لكل مثقال", liveSpot:"السعر الفوري", karat:"العيار",
       loading:"جاري التحميل…", ounceGoldSilver:"الأونصة · الذهب والفضة",
-      goldWord:"🥇 الذهب", silverWord:"🥈 الفضة",
+      goldWord:"الذهب", silverWord:"الفضة",
       updatedPrefix:"تحديث",
       ounceBuy:"شراء الأونصة", ounceSell:"بيع الأونصة", metal:"المعدن",
-      admin:"الإدارة", adminLogin:"🔒 دخول الإدارة", otherRates:"أسعار أخرى",
-      otherRatesBtn:"🌍 أسعار المحافظات العراقية دينار/دولار",
-      otherCurrencies:"عملات أخرى", convertOther:"🔁 تحويل عملة أخرى",
-      notifications:"الإشعارات", rateAlerts:"🔔 تنبيهات السعر",
+      admin:"الإدارة", adminLogin:"دخول الإدارة", otherRates:"أسعار أخرى",
+      otherRatesBtn:"أسعار المحافظات العراقية دينار/دولار",
+      otherCurrencies:"عملات أخرى", convertOther:"تحويل عملة أخرى",
+      notifications:"الإشعارات", rateAlerts:"تنبيهات السعر",
+      rateHistoryBtn:"سجل الأسعار", goldRatesBtn:"أسعار الذهب",
+      aboutSection:"حول", aboutBtn:"حول", contactBtn:"تواصل", privacyBtn:"سياسة الخصوصية",
       footerBy:"بواسطة", footerStatus:"جميع الأسعار مباشرة، ما زلنا نعمل عليه",
     },
     ku: {
@@ -691,13 +702,15 @@
       updating:"نوێکردنەوە...", refresh:"نوێکردنەوە", convert:"گۆڕین",
       goldPerGram:"زێڕ · بۆ هەر گرام", goldPerMithqal:"زێڕ · بۆ هەر مسقاڵ", liveSpot:"نرخی ڕاستەوخۆ", karat:"عەیار",
       loading:"بارکردن...", ounceGoldSilver:"ئۆنس · زێڕ و زیو",
-      goldWord:"🥇 زێڕ", silverWord:"🥈 زیو",
+      goldWord:"زێڕ", silverWord:"زیو",
       updatedPrefix:"نوێکراوەتەوە",
       ounceBuy:"کڕینی ئۆنس", ounceSell:"فرۆشتنی ئۆنس", metal:"کانزا",
-      admin:"بەڕێوەبەری", adminLogin:"🔒 چوونەژوورەوەی بەڕێوەبەر", otherRates:"نرخەکانی تر",
-      otherRatesBtn:"🌍 نرخی شارەکانی عێراق دینار بۆ دۆلار",
-      otherCurrencies:"دراوی تر", convertOther:"🔁 گۆڕینی دراوی تر",
-      notifications:"ئاگادارکردنەوەکان", rateAlerts:"🔔 ئاگاداری نرخ",
+      admin:"بەڕێوەبەری", adminLogin:"چوونەژوورەوەی بەڕێوەبەر", otherRates:"نرخەکانی تر",
+      otherRatesBtn:"نرخی شارەکانی عێراق دینار بۆ دۆلار",
+      otherCurrencies:"دراوی تر", convertOther:"گۆڕینی دراوی تر",
+      notifications:"ئاگادارکردنەوەکان", rateAlerts:"ئاگاداری نرخ",
+      rateHistoryBtn:"مێژووی نرخ", goldRatesBtn:"نرخی زێڕ",
+      aboutSection:"دەربارە", aboutBtn:"دەربارە", contactBtn:"پەیوەندی", privacyBtn:"سیاسەتی تایبەتمەندی",
       footerBy:"لەلایەن", footerStatus:"هەموو نرخەکان ڕاستەوخۆن، هێشتا کارمان لەسەری دەکەین",
     },
   };
@@ -724,8 +737,8 @@
       });
     }
     if(lastOunceData){
-      if(lastOunceData.gold!=null) items.push('<span class="ticker-item">🥇 oz '+tickerArrow("ozGold", lastOunceData.gold)+' <b>$'+fmt2(lastOunceData.gold)+'</b></span>');
-      if(lastOunceData.silver!=null) items.push('<span class="ticker-item">🥈 oz '+tickerArrow("ozSilver", lastOunceData.silver)+' <b>$'+fmt2(lastOunceData.silver)+'</b></span>');
+      if(lastOunceData.gold!=null) items.push('<span class="ticker-item"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#e8b923" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><circle cx="12" cy="9" r="5"/><path d="M8.5 13.5 6 21l6-3 6 3-2.5-7.5"/></svg> oz '+tickerArrow("ozGold", lastOunceData.gold)+' <b>$'+fmt2(lastOunceData.gold)+'</b></span>');
+      if(lastOunceData.silver!=null) items.push('<span class="ticker-item"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#c7ccd1" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><circle cx="12" cy="9" r="5"/><path d="M8.5 13.5 6 21l6-3 6 3-2.5-7.5"/></svg> oz '+tickerArrow("ozSilver", lastOunceData.silver)+' <b>$'+fmt2(lastOunceData.silver)+'</b></span>');
     }
     if(!items.length) return;
     track.innerHTML = items.join("") + items.join(""); // duplicated for seamless loop
@@ -1038,6 +1051,22 @@
       });
   }
 
+  /* ---------- feature flags (admin kill-switch) ---------- */
+
+  function applyFlags(flags){
+    var navMap = { page_history:"navRateHistory", page_gold:"navGoldRates", page_other_rates:"navOtherRates", page_convert:"navConvertOther" };
+    Object.keys(navMap).forEach(function(key){
+      var el = document.getElementById(navMap[key]);
+      if(el) el.style.display = flags[key] === false ? "none" : "";
+    });
+    var shareBtn = document.getElementById("shareBtn");
+    if(shareBtn) shareBtn.style.display = flags.btn_share === false ? "none" : "";
+    if(flags.btn_notifications === false && notifSection) notifSection.style.display = "none";
+  }
+
+  fetch(WORKER_URL + "/flags").then(function(r){ return r.json(); })
+    .then(function(d){ applyFlags(d.flags || {}); }).catch(function(){});
+
   renderRates();
   fetchLive();
 
@@ -1053,17 +1082,17 @@
   });
 
   document.getElementById("shareBtn").addEventListener("click", function(){
-    var lines = ["💵 "+I18N[currentLang].baghdad+": "+(baghdadSell?fmt(baghdadSell):"—")+" IQD",
-                 "💵 "+I18N[currentLang].erbil+": "+(erbilSell?fmt(erbilSell):"—")+" IQD"];
+    var lines = [I18N[currentLang].baghdad+": "+(baghdadSell?fmt(baghdadSell):"—")+" IQD",
+                 I18N[currentLang].erbil+": "+(erbilSell?fmt(erbilSell):"—")+" IQD"];
     var text = lines.join("\n") + "\nse3rforiqd.xyz";
     if(navigator.share){
       navigator.share({ title: "Se3rForIQD", text: text }).catch(function(){});
     } else if(navigator.clipboard){
       navigator.clipboard.writeText(text).then(function(){
         var btn = document.getElementById("shareBtn");
-        var prev = btn.textContent;
-        btn.textContent = "✅";
-        setTimeout(function(){ btn.textContent = prev; }, 1500);
+        var prev = btn.innerHTML;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>';
+        setTimeout(function(){ btn.innerHTML = prev; }, 1500);
       }).catch(function(){});
     }
   });

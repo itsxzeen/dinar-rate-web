@@ -76,13 +76,22 @@
   td{padding:7px 6px;border-bottom:1px solid var(--dark-3);font-family:"IBM Plex Mono",monospace}
   .tag{font-size:10px;padding:2px 6px;border-radius:5px;background:var(--dark-3);color:var(--paper-dim)}
   .empty{color:var(--paper-dim);font-size:13px;text-align:center;padding:14px 0}
+
+  .flag-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--dark-3)}
+  .flag-row:last-child{border-bottom:none}
+  .flag-label{font-size:13px;font-weight:600}
+  .flag-toggle{border:1px solid var(--purple);background:var(--dark-3);color:var(--paper-dim);
+    font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;
+    padding:6px 14px;cursor:pointer;flex-shrink:0;transition:background .2s,color .2s,border-color .2s}
+  .flag-toggle.on{background:var(--accent);border-color:var(--accent);color:#04150a}
+  .flag-toggle.off{background:var(--danger);border-color:var(--danger);color:#fff}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top">
     <div class="brand">Se3r<span>ForIQD</span> Admin</div>
-    <a class="back" href="index.html">← Site</a>
+    <a class="back" href="index.html"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Site</a>
   </div>
 
   <div id="loginCard" class="card">
@@ -97,6 +106,12 @@
       <h2>Rates</h2>
       <div id="rateRows"></div>
       <div class="msg" id="rateMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Controls</h2>
+      <div id="flagRows"></div>
+      <div class="msg" id="flagMsg"></div>
     </div>
 
     <div class="card">
@@ -159,6 +174,7 @@
     dashboard.style.display = "block";
     loadRates();
     loadStats();
+    loadFlags();
     if(statsTimer) clearInterval(statsTimer);
     statsTimer = setInterval(loadStats, 10000);
   }
@@ -282,6 +298,53 @@
     authedFetch("/admin/rate?city="+city, {method:"DELETE"})
       .then(function(){ msg.textContent = "Reverted to live."; loadRates(); })
       .catch(function(){ msg.textContent = "Failed."; });
+  }
+
+  /* ---------- feature flags (kill switch) ---------- */
+
+  var FLAG_LABELS = {
+    page_history: "History Page",
+    page_convert: "Convert Page",
+    page_gold: "Gold Page",
+    page_other_rates: "Other Rates Page",
+    page_profile: "Profile Page (app)",
+    btn_share: "Share Button",
+    btn_notifications: "Notifications Toggle",
+  };
+  var lastFlags = {};
+
+  function renderFlags(flags){
+    lastFlags = flags;
+    var wrap = document.getElementById("flagRows");
+    wrap.innerHTML = "";
+    Object.keys(FLAG_LABELS).forEach(function(key){
+      var on = flags[key] !== false;
+      var row = document.createElement("div");
+      row.className = "flag-row";
+      var label = document.createElement("span");
+      label.className = "flag-label";
+      label.textContent = FLAG_LABELS[key];
+      var btn = document.createElement("button");
+      btn.className = "flag-toggle " + (on ? "on" : "off");
+      btn.textContent = on ? "On" : "Off";
+      btn.addEventListener("click", function(){ setFlag(key, !on); });
+      row.appendChild(label);
+      row.appendChild(btn);
+      wrap.appendChild(row);
+    });
+  }
+
+  function loadFlags(){
+    fetch(WORKER_URL + "/flags").then(function(r){ return r.json(); })
+      .then(function(d){ renderFlags(d.flags || {}); }).catch(function(){});
+  }
+
+  function setFlag(key, enabled){
+    var msg = document.getElementById("flagMsg");
+    msg.textContent = "Saving...";
+    authedFetch("/admin/flag", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({key:key, enabled:enabled})})
+      .then(function(){ msg.textContent = "Saved."; loadFlags(); })
+      .catch(function(){ msg.textContent = "Failed to save."; });
   }
 
   /* ---------- stats ---------- */

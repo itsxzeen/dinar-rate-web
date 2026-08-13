@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#020a1a" />
+<meta name="description" content="Convert between USD, IQD, and other currencies at live rates." />
 <title>Currency Converter · Se3rForIQD</title>
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
@@ -21,7 +22,7 @@
   @keyframes vt-in-right{from{transform:translateX(100%);}to{transform:translateX(0);}}
   @keyframes vt-out-right{to{transform:translateX(100%);}}
   @keyframes vt-in-left{from{transform:translateX(-100%);}to{transform:translateX(0);}}
-  *{box-sizing:border-box;margin:0;padding:0}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   html{height:100%}
   body{
     background:#020a1a;color:#ffffff;font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;
@@ -38,39 +39,42 @@
     color:#ffffff;font-size:20px;text-decoration:none;display:flex;align-items:center;justify-content:center;
   }
   .title{flex:1;text-align:center;font-size:20px;font-weight:900;letter-spacing:1px;}
-  .wrap{max-width:520px;margin:0 auto;padding:20px 18px 40px;}
+  .wrap{max-width:420px;margin:0 auto;padding:40px 18px 40px;}
 
-  .currency-select-wrap{position:relative;}
-  .currency-select-wrap .arrow{
-    position:absolute;right:16px;top:50%;transform:translateY(-50%);
-    color:#98989d;font-size:13px;pointer-events:none;
-  }
-  select.currency-select{
-    width:100%;padding:13px 40px 13px 16px;border-radius:12px;border:1px solid #1a4fa0;
-    background:#071b3d;color:#ffffff;font-weight:700;font-size:13px;font-family:inherit;
-    -webkit-appearance:none;appearance:none;cursor:pointer;
-  }
-  select.currency-select option{background:#071b3d;color:#ffffff;font-size:13px;}
-
-  .card{background:#071b3d;border:1px solid #1a4fa0;border-radius:16px;padding:18px;margin-top:12px;}
+  .card{background:#071b3d;border:1px solid #1a4fa0;border-radius:20px;padding:20px;}
   .field{
     display:flex;align-items:center;justify-content:space-between;gap:10px;
-    background:#020a1a;border:1px solid #1a4fa0;border-radius:12px;padding:14px 16px;margin-bottom:14px;
+    background:#020a1a;border:1px solid #1a4fa0;border-radius:14px;padding:16px;margin-bottom:0;
   }
-  .field:last-child{margin-bottom:0}
-  .field .cur{font-size:13px;font-weight:700;color:#98989d;}
   .field input{
     flex:1;text-align:right;background:none;border:none;color:#ffffff;
-    font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:700;outline:none;min-width:0;
+    font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;outline:none;min-width:0;
   }
-  .rate-info{text-align:center;font-size:12px;color:#98989d;margin-top:14px;}
-  .cur.toggle{cursor:pointer;display:flex;align-items:center;gap:4px;user-select:none;}
-  .cur.toggle .swap-ic{font-size:10px;opacity:.6;}
+  .field input[readonly]{color:#c9d6ff;}
+  .cur-chip{position:relative;display:flex;align-items:center;gap:6px;cursor:pointer;flex-shrink:0;
+    font-size:14px;font-weight:700;color:#ffffff;user-select:none;}
+  .cur-chip::after{content:"▾";font-size:10px;color:#98989d;margin-left:2px;}
+  .cur-popover{
+    position:absolute;top:calc(100% + 8px);left:0;background:#0c2c5c;
+    border:1px solid #1a4fa0;border-radius:12px;overflow:hidden;
+    box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:50;min-width:190px;max-height:280px;overflow-y:auto;display:none;
+  }
+  .cur-popover.open{display:block;}
+  .cur-opt{
+    display:flex;align-items:center;gap:8px;padding:11px 14px;font-size:13px;font-weight:600;
+    color:#ffffff;white-space:nowrap;cursor:pointer;
+  }
+  .cur-opt:hover{background:#1a4fa0;}
+  .cur-opt:not(:last-child){border-bottom:1px solid rgba(255,255,255,.08);}
+
   .swap-btn{
-    display:flex;align-items:center;justify-content:center;width:40px;height:40px;
-    margin:-3px auto 11px;border-radius:50%;border:1px solid #0a84ff;background:#071b3d;
-    color:#0a84ff;font-size:18px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;width:42px;height:42px;
+    margin:-3px auto;border-radius:50%;border:2px solid #020a1a;background:#0a84ff;
+    color:#fff;cursor:pointer;position:relative;z-index:1;transition:transform .2s;
   }
+  .swap-btn:hover{transform:rotate(180deg);}
+  .rate-info{text-align:center;font-size:12px;color:#98989d;margin-top:16px;}
+  .empty-note{text-align:center;font-size:12px;color:#636366;margin-top:14px;}
 </style>
 <script>
   (function(){
@@ -105,140 +109,136 @@
 <body>
 
 <div class="topbar">
-  <a href="index.html" class="back-btn" id="backBtn" aria-label="Back">←</a>
-  <div class="title">Convert Other Currency</div>
+  <a href="index.html" class="back-btn" id="backBtn" aria-label="Back"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>
+  <div class="title">Convert</div>
   <div style="width:44px;"></div>
 </div>
 
 <div class="wrap">
-  <div class="currency-select-wrap">
-    <select class="currency-select" id="currencySelect" disabled>
-      <option value="">Loading…</option>
-    </select>
-    <span class="arrow">▾</span>
-  </div>
-  <div class="card" id="converterCard" style="display:none">
+  <div class="card">
     <div class="field">
-      <span class="cur" id="fieldTopCur">EUR</span>
-      <input id="fieldTop" type="text" inputmode="decimal" placeholder="100" value="100" />
+      <div class="cur-chip" id="fromChip"><span id="fromLabel">USD</span>
+        <div class="cur-popover" id="fromPopover"></div>
+      </div>
+      <input id="fromInput" type="text" inputmode="decimal" placeholder="100" value="100" />
     </div>
-    <button type="button" id="swapBtn" class="swap-btn" aria-label="Swap direction">⇅</button>
+    <button type="button" id="swapBtn" class="swap-btn" aria-label="Swap currencies"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4 4 7M7 4l3 3"/><path d="M17 8v12M17 20l3-3M17 20l-3-3"/></svg></button>
     <div class="field">
-      <span class="cur toggle" id="fieldBotCur">IQD <span class="swap-ic">⇄</span></span>
-      <input id="fieldBot" type="text" inputmode="decimal" placeholder="0" />
+      <div class="cur-chip" id="toChip"><span id="toLabel">IQD</span>
+        <div class="cur-popover" id="toPopover"></div>
+      </div>
+      <input id="toInput" type="text" inputmode="decimal" placeholder="0" readonly />
     </div>
     <div class="rate-info" id="rateInfo"></div>
   </div>
+  <div class="empty-note" id="emptyNote" style="display:none">Only USD/IQD are configured right now — an admin can add more currencies.</div>
 </div>
 
 <script>
   var WORKER_URL = "https://dinar-rate-worker.dollersdaner.workers.dev";
-  var currencies = []; // [{code, label, iqdPer1, asOf}]
 
-  var CURRENCY_FLAGS = {
-    EUR:"🇪🇺", GBP:"🇬🇧", TRY:"🇹🇷", USD:"🇺🇸", AED:"🇦🇪", SAR:"🇸🇦",
-    KWD:"🇰🇼", JOD:"🇯🇴", EGP:"🇪🇬", IRR:"🇮🇷", JPY:"🇯🇵", CNY:"🇨🇳",
-    INR:"🇮🇳", CAD:"🇨🇦", AUD:"🇦🇺", CHF:"🇨🇭", RUB:"🇷🇺", SEK:"🇸🇪",
-    NOK:"🇳🇴", DKK:"🇩🇰", QAR:"🇶🇦", BHD:"🇧🇭", OMR:"🇴🇲", LBP:"🇱🇧",
+  var CURRENCY_META = {
+    USD:{label:"US Dollar", flag:"🇺🇸"}, IQD:{label:"Iraqi Dinar", flag:"🇮🇶"},
+    EUR:{label:"Euro", flag:"🇪🇺"}, GBP:{label:"British Pound", flag:"🇬🇧"}, TRY:{label:"Turkish Lira", flag:"🇹🇷"},
+    AED:{label:"UAE Dirham", flag:"🇦🇪"}, SAR:{label:"Saudi Riyal", flag:"🇸🇦"}, KWD:{label:"Kuwaiti Dinar", flag:"🇰🇼"},
+    JOD:{label:"Jordanian Dinar", flag:"🇯🇴"}, EGP:{label:"Egyptian Pound", flag:"🇪🇬"}, IRR:{label:"Iranian Rial", flag:"🇮🇷"},
+    JPY:{label:"Japanese Yen", flag:"🇯🇵"}, CNY:{label:"Chinese Yuan", flag:"🇨🇳"}, INR:{label:"Indian Rupee", flag:"🇮🇳"},
+    CAD:{label:"Canadian Dollar", flag:"🇨🇦"}, AUD:{label:"Australian Dollar", flag:"🇦🇺"}, CHF:{label:"Swiss Franc", flag:"🇨🇭"},
+    RUB:{label:"Russian Ruble", flag:"🇷🇺"}, SEK:{label:"Swedish Krona", flag:"🇸🇪"}, NOK:{label:"Norwegian Krone", flag:"🇳🇴"},
+    DKK:{label:"Danish Krone", flag:"🇩🇰"}, QAR:{label:"Qatari Riyal", flag:"🇶🇦"}, BHD:{label:"Bahraini Dinar", flag:"🇧🇭"},
+    OMR:{label:"Omani Rial", flag:"🇴🇲"}, LBP:{label:"Lebanese Pound", flag:"🇱🇧"},
   };
-  function flagFor(code){ return CURRENCY_FLAGS[code] || "💱"; }
+  function metaFor(code){ return CURRENCY_META[code] || {label:code, flag:"💱"}; }
   function fmt(n){ return n==null ? "—" : Math.round(n).toLocaleString("en-US"); }
+  function fmt2(n){ return n==null ? "—" : (Math.abs(n) < 10 ? Number(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}) : fmt(n)); }
 
-  var select = document.getElementById("currencySelect");
-  var card = document.getElementById("converterCard");
-  var topInput = document.getElementById("fieldTop");
-  var bot = document.getElementById("fieldBot");
-  var topCur = document.getElementById("fieldTopCur");
-  var botCur = document.getElementById("fieldBotCur");
-  var info = document.getElementById("rateInfo");
-  var swapBtn = document.getElementById("swapBtn");
-  var selected = null;
-  var convDir = "cur2iqd"; // or "iqd2cur"
-  var botUnit = "IQD"; // or "USD"
-  var baghdadRate = null; // IQD per 100 USD, from the main /rates feed
+  var iqdPerUnit = { IQD: 1 }; // how many IQD equal 1 unit of this currency
+  var fromCode = "USD", toCode = "IQD";
+  var fromInput = document.getElementById("fromInput");
+  var toInput = document.getElementById("toInput");
+  var fromLabel = document.getElementById("fromLabel");
+  var toLabel = document.getElementById("toLabel");
+  var rateInfo = document.getElementById("rateInfo");
 
-  function renderSelect(){
-    if(!currencies.length){
-      select.innerHTML = '<option value="">No other currencies configured yet</option>';
-      select.disabled = true;
-      return;
-    }
-    select.innerHTML = '<option value="">Choose currency</option>' + currencies.map(function(c){
-      return '<option value="'+c.code+'">'+flagFor(c.code)+' '+c.code+' · '+c.label+
-        (c.iqdPer1!=null ? ' — '+fmt(c.iqdPer1)+' IQD' : '')+'</option>';
+  function availableCodes(){
+    return Object.keys(iqdPerUnit);
+  }
+
+  function renderPopover(popoverEl, onPick){
+    popoverEl.innerHTML = availableCodes().map(function(code){
+      var m = metaFor(code);
+      return '<div class="cur-opt" data-code="'+code+'">'+m.flag+' '+code+' · '+m.label+'</div>';
     }).join("");
-    select.disabled = false;
+    popoverEl.querySelectorAll(".cur-opt").forEach(function(opt){
+      opt.addEventListener("click", function(e){
+        e.stopPropagation();
+        popoverEl.classList.remove("open");
+        onPick(opt.getAttribute("data-code"));
+      });
+    });
   }
 
-  // How much of botUnit equals 1 unit of the selected currency.
-  function botPer1(){
-    if(!selected || selected.iqdPer1==null) return null;
-    if(botUnit === "IQD") return selected.iqdPer1;
-    if(baghdadRate==null) return null;
-    return selected.iqdPer1 / (baghdadRate/100); // USD per 1 currency unit
+  function wireChip(chipId, popoverId, onPick){
+    var chip = document.getElementById(chipId);
+    var pop = document.getElementById(popoverId);
+    chip.addEventListener("click", function(e){
+      e.stopPropagation();
+      document.querySelectorAll(".cur-popover.open").forEach(function(p){ if(p!==pop) p.classList.remove("open"); });
+      renderPopover(pop, onPick);
+      pop.classList.toggle("open");
+    });
   }
 
-  function selectCurrency(c){
-    selected = c;
-    topCur.textContent = flagFor(c.code) + " " + c.code;
-    card.style.display = c.iqdPer1!=null ? "" : "none";
-    convert();
-  }
-
-  function updateRateInfo(){
-    var rate = botPer1();
-    info.textContent = selected && rate!=null
-      ? "1 " + flagFor(selected.code) + " " + selected.code + " = " + fmt2(rate) + " " + botUnit
-      : "";
-  }
-  function fmt2(n){ return n < 10 ? Number(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}) : fmt(n); }
+  wireChip("fromChip", "fromPopover", function(code){ fromCode = code; fromLabel.textContent = metaFor(code).flag+" "+code; convert(); });
+  wireChip("toChip", "toPopover", function(code){ toCode = code; toLabel.textContent = metaFor(code).flag+" "+code; convert(); });
+  document.addEventListener("click", function(){
+    document.querySelectorAll(".cur-popover.open").forEach(function(p){ p.classList.remove("open"); });
+  });
 
   function convert(){
-    updateRateInfo();
-    var rate = botPer1();
-    if(!selected || rate==null){ if(convDir==="cur2iqd") bot.value=""; else topInput.value=""; return; }
-    if(convDir === "cur2iqd"){
-      var v = parseFloat((topInput.value||"").replace(/,/g,""));
-      bot.value = (isNaN(v) || v<0) ? "" : fmt2(v * rate);
-    } else {
-      var amt = parseFloat((bot.value||"").replace(/,/g,""));
-      topInput.value = (isNaN(amt) || amt<0) ? "" : fmt(amt / rate);
-    }
+    var fromRate = iqdPerUnit[fromCode], toRate = iqdPerUnit[toCode];
+    if(fromRate==null || toRate==null){ toInput.value = ""; rateInfo.textContent = ""; return; }
+    var amt = parseFloat((fromInput.value||"").replace(/,/g,""));
+    if(isNaN(amt) || amt < 0){ toInput.value = ""; rateInfo.textContent = ""; return; }
+    var result = amt * fromRate / toRate;
+    toInput.value = fmt2(result);
+    var unitRate = fromRate / toRate;
+    rateInfo.textContent = "1 " + fromCode + " = " + fmt2(unitRate) + " " + toCode;
   }
 
-  select.addEventListener("change", function(){
-    var c = currencies.filter(function(x){ return x.code === select.value; })[0];
-    if(!c){ card.style.display = "none"; return; }
-    selectCurrency(c);
-  });
-  topInput.addEventListener("input", function(){ if(convDir==="cur2iqd") convert(); });
-  bot.addEventListener("input", function(){ if(convDir==="iqd2cur") convert(); });
+  fromInput.addEventListener("input", convert);
 
-  swapBtn.addEventListener("click", function(){
-    convDir = convDir === "cur2iqd" ? "iqd2cur" : "cur2iqd";
-    topInput.readOnly = convDir === "iqd2cur";
-    bot.readOnly = convDir === "cur2iqd";
-    if(convDir === "cur2iqd"){ topInput.value = "100"; bot.placeholder = "0"; }
-    else { bot.value = "100"; topInput.placeholder = "0"; }
+  document.getElementById("swapBtn").addEventListener("click", function(){
+    var tmp = fromCode; fromCode = toCode; toCode = tmp;
+    fromLabel.textContent = metaFor(fromCode).flag+" "+fromCode;
+    toLabel.textContent = metaFor(toCode).flag+" "+toCode;
+    fromInput.value = toInput.value || fromInput.value;
     convert();
   });
 
-  botCur.addEventListener("click", function(){
-    botUnit = botUnit === "IQD" ? "USD" : "IQD";
-    botCur.innerHTML = botUnit + ' <span class="swap-ic">⇄</span>';
-    convert();
-  });
+  fromLabel.textContent = metaFor(fromCode).flag+" "+fromCode;
+  toLabel.textContent = metaFor(toCode).flag+" "+toCode;
 
   fetch(WORKER_URL)
     .then(function(r){ return r.json(); })
     .then(function(d){
-      currencies = d.extra || [];
-      baghdadRate = d.baghdad ? d.baghdad.rate : null;
-      renderSelect();
+      var baghdadRate = d.baghdad ? d.baghdad.rate : null; // IQD per 100 USD
+      if(baghdadRate!=null) iqdPerUnit.USD = baghdadRate / 100;
+      (d.extra||[]).forEach(function(c){
+        if(c.iqdPer1!=null) iqdPerUnit[c.code] = c.iqdPer1;
+      });
+      document.getElementById("emptyNote").style.display = (d.extra && d.extra.length) ? "none" : "";
+      convert();
     })
     .catch(function(){
-      select.innerHTML = '<option value="">Couldn\'t load currencies</option>';
+      rateInfo.textContent = "Couldn't load rates right now.";
     });
+
+  fetch(WORKER_URL + "/flags").then(function(r){ return r.json(); }).then(function(d){
+    if(d.flags && d.flags.page_convert === false){
+      document.querySelector(".wrap").innerHTML = '<div class="card"><div style="text-align:center;padding:20px;color:#98989d;">This page is temporarily unavailable.</div></div>';
+    }
+  }).catch(function(){});
 </script>
 
 </body>
