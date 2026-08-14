@@ -123,6 +123,16 @@
     </div>
 
     <div class="card">
+      <h2>Live Activity</h2>
+      <p style="font-size:12px;color:var(--paper-dim);margin-bottom:10px">
+        Opens the app and fires a demo Lock Screen / Dynamic Island rate card
+        (Erbil, sample numbers). Requires the app installed on this device.
+      </p>
+      <button class="btn" id="testLiveActivityBtn" aria-label="Test Live Activity">Test Live Activity</button>
+      <div class="msg" id="liveActivityMsg"></div>
+    </div>
+
+    <div class="card">
       <h2>Live</h2>
       <div class="stat-grid">
         <div class="stat live"><div class="stat-num" id="stOnline">—</div><div class="stat-lbl"><span class="live-dot"></span>Online now</div></div>
@@ -369,6 +379,17 @@
     authedFetch("/admin/push", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({title:title, body:body})})
       .then(function(){ msg.textContent = "Sent."; titleEl.value = ""; bodyEl.value = ""; })
       .catch(function(){ msg.textContent = "Failed to send."; });
+  });
+
+  /* ---------- live activity test ---------- */
+
+  document.getElementById("testLiveActivityBtn").addEventListener("click", function(){
+    var msg = document.getElementById("liveActivityMsg");
+    msg.textContent = "Opening app…";
+    window.location.href = "se3rforiqd://test-live-activity";
+    setTimeout(function(){
+      msg.textContent = "If nothing happened, the app isn't installed on this device.";
+    }, 1500);
   });
 
   /* ---------- stats ---------- */
