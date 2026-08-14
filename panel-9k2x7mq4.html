@@ -28,8 +28,8 @@
   }
   .wrap{max-width:880px;margin:0 auto}
   @media(min-width:900px){
-    body{padding:24px 16px 80px}
-    .wrap{max-width:640px}
+    body{padding:24px 24px 80px}
+    .wrap{max-width:1500px}
     .brand{font-size:17px}
     .card{padding:13px 15px;margin-bottom:12px;border-radius:14px}
     .card h2{font-size:11px;margin-bottom:11px}
@@ -44,6 +44,12 @@
     .rate-live{font-size:12px}
     .flag-label{font-size:12px}
     .flag-toggle{font-size:10px;padding:5px 11px}
+    .dcols{column-count:2;column-gap:16px}
+    .dcols > .card, .dcols > .cols2{break-inside:avoid-column}
+    .dcols .cols2{grid-template-columns:1fr}
+  }
+  @media(min-width:1400px){
+    .dcols{column-count:3}
   }
   .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:10px}
   .brand{font-family:"Sora",sans-serif;font-weight:800;font-size:22px;letter-spacing:.3px}
@@ -140,6 +146,7 @@
 
     <br>
 
+    <div class="dcols">
     <div class="card">
       <h2>Rate Control</h2>
       <div id="rateRows"></div>
@@ -199,6 +206,7 @@
         <tbody id="activeRows"></tbody>
       </table>
       <div class="empty" id="activeEmpty" style="display:none">No one online right now.</div>
+    </div>
     </div>
 
     <button class="btn danger" id="dashLogout" aria-label="Log out">Log out</button>
