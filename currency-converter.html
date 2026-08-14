@@ -57,9 +57,16 @@
   .cur-popover{
     position:absolute;top:calc(100% + 8px);left:0;background:#0c2c5c;
     border:1px solid #1a4fa0;border-radius:12px;overflow:hidden;
-    box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:50;min-width:190px;max-height:280px;overflow-y:auto;display:none;
+    box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:50;min-width:190px;display:none;
   }
   .cur-popover.open{display:block;}
+  .cur-search{
+    display:block;width:100%;box-sizing:border-box;padding:10px 14px;border:none;
+    border-bottom:1px solid #1a4fa0;background:#071b3d;color:#ffffff;font-size:13px;
+    font-family:inherit;outline:none;
+  }
+  .cur-search::placeholder{color:#98989d;}
+  .cur-opt-list{max-height:240px;overflow-y:auto;}
   .cur-opt{
     display:flex;align-items:center;gap:8px;padding:11px 14px;font-size:13px;font-weight:600;
     color:#ffffff;white-space:nowrap;cursor:pointer;
@@ -74,6 +81,13 @@
   }
   .swap-btn:hover{transform:rotate(180deg);}
   .rate-info{text-align:center;font-size:12px;color:#98989d;margin-top:16px;}
+  .amount-chips{display:flex;gap:8px;margin-top:14px;justify-content:center;flex-wrap:wrap;}
+  .amount-chip{
+    background:#020a1a;border:1px solid #1a4fa0;color:#c9d6ff;border-radius:999px;
+    font-size:12px;font-weight:700;padding:7px 14px;cursor:pointer;font-family:"IBM Plex Mono",monospace;
+    transition:background .15s,border-color .15s;
+  }
+  .amount-chip:hover{background:#1a4fa0;border-color:#0a84ff;}
   .empty-note{text-align:center;font-size:12px;color:#636366;margin-top:14px;}
 </style>
 <script>
@@ -130,6 +144,12 @@
       <input id="toInput" type="text" inputmode="decimal" placeholder="0" readonly />
     </div>
     <div class="rate-info" id="rateInfo"></div>
+    <div class="amount-chips" id="amountChips">
+      <button type="button" class="amount-chip" data-amt="50">50</button>
+      <button type="button" class="amount-chip" data-amt="100">100</button>
+      <button type="button" class="amount-chip" data-amt="500">500</button>
+      <button type="button" class="amount-chip" data-amt="1000">1,000</button>
+    </div>
   </div>
   <div class="empty-note" id="emptyNote" style="display:none">Only USD/IQD are configured right now — an admin can add more currencies.</div>
 </div>
@@ -153,7 +173,12 @@
   function fmt2(n){ return n==null ? "—" : (Math.abs(n) < 10 ? Number(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}) : fmt(n)); }
 
   var iqdPerUnit = { IQD: 1 }; // how many IQD equal 1 unit of this currency
-  var fromCode = "USD", toCode = "IQD";
+  var PAIR_KEY = "convPair_v1";
+  var savedPair = (function(){ try { return JSON.parse(localStorage.getItem(PAIR_KEY)); } catch(e){ return null; } })();
+  var fromCode = (savedPair && savedPair.from) || "USD", toCode = (savedPair && savedPair.to) || "IQD";
+  function savePair(){
+    try { localStorage.setItem(PAIR_KEY, JSON.stringify({from:fromCode, to:toCode})); } catch(e){}
+  }
   var fromInput = document.getElementById("fromInput");
   var toInput = document.getElementById("toInput");
   var fromLabel = document.getElementById("fromLabel");
@@ -164,17 +189,41 @@
     return Object.keys(iqdPerUnit);
   }
 
-  function renderPopover(popoverEl, onPick){
-    popoverEl.innerHTML = availableCodes().map(function(code){
+  function renderOptions(listEl, codes, onPick, popoverEl){
+    listEl.innerHTML = codes.map(function(code){
       var m = metaFor(code);
       return '<div class="cur-opt" data-code="'+code+'">'+m.flag+' '+code+' · '+m.label+'</div>';
-    }).join("");
-    popoverEl.querySelectorAll(".cur-opt").forEach(function(opt){
+    }).join("") || '<div class="cur-opt" style="cursor:default;opacity:.6;">No matches</div>';
+    listEl.querySelectorAll(".cur-opt[data-code]").forEach(function(opt){
       opt.addEventListener("click", function(e){
         e.stopPropagation();
         popoverEl.classList.remove("open");
         onPick(opt.getAttribute("data-code"));
       });
+    });
+  }
+
+  function renderPopover(popoverEl, onPick){
+    var codes = availableCodes();
+    if(codes.length <= 6){
+      popoverEl.innerHTML = '<div class="cur-opt-list"></div>';
+      renderOptions(popoverEl.querySelector(".cur-opt-list"), codes, onPick, popoverEl);
+      return;
+    }
+    popoverEl.innerHTML =
+      '<input type="text" class="cur-search" placeholder="Search currency…" autocomplete="off" />' +
+      '<div class="cur-opt-list"></div>';
+    var listEl = popoverEl.querySelector(".cur-opt-list");
+    renderOptions(listEl, codes, onPick, popoverEl);
+    var searchEl = popoverEl.querySelector(".cur-search");
+    searchEl.addEventListener("click", function(e){ e.stopPropagation(); });
+    searchEl.addEventListener("input", function(){
+      var q = searchEl.value.trim().toLowerCase();
+      var filtered = !q ? codes : codes.filter(function(code){
+        var m = metaFor(code);
+        return code.toLowerCase().indexOf(q) !== -1 || m.label.toLowerCase().indexOf(q) !== -1;
+      });
+      renderOptions(listEl, filtered, onPick, popoverEl);
     });
   }
 
@@ -186,11 +235,13 @@
       document.querySelectorAll(".cur-popover.open").forEach(function(p){ if(p!==pop) p.classList.remove("open"); });
       renderPopover(pop, onPick);
       pop.classList.toggle("open");
+      var searchEl = pop.querySelector(".cur-search");
+      if(searchEl && pop.classList.contains("open")) setTimeout(function(){ searchEl.focus(); }, 50);
     });
   }
 
-  wireChip("fromChip", "fromPopover", function(code){ fromCode = code; fromLabel.textContent = metaFor(code).flag+" "+code; convert(); });
-  wireChip("toChip", "toPopover", function(code){ toCode = code; toLabel.textContent = metaFor(code).flag+" "+code; convert(); });
+  wireChip("fromChip", "fromPopover", function(code){ fromCode = code; fromLabel.textContent = metaFor(code).flag+" "+code; savePair(); convert(); });
+  wireChip("toChip", "toPopover", function(code){ toCode = code; toLabel.textContent = metaFor(code).flag+" "+code; savePair(); convert(); });
   document.addEventListener("click", function(){
     document.querySelectorAll(".cur-popover.open").forEach(function(p){ p.classList.remove("open"); });
   });
@@ -208,11 +259,19 @@
 
   fromInput.addEventListener("input", convert);
 
+  document.getElementById("amountChips").addEventListener("click", function(e){
+    var chip = e.target.closest(".amount-chip");
+    if(!chip) return;
+    fromInput.value = chip.getAttribute("data-amt");
+    convert();
+  });
+
   document.getElementById("swapBtn").addEventListener("click", function(){
     var tmp = fromCode; fromCode = toCode; toCode = tmp;
     fromLabel.textContent = metaFor(fromCode).flag+" "+fromCode;
     toLabel.textContent = metaFor(toCode).flag+" "+toCode;
     fromInput.value = toInput.value || fromInput.value;
+    savePair();
     convert();
   });
 

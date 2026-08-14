@@ -96,8 +96,8 @@
 
   <div id="loginCard" class="card">
     <h2>Admin Login</h2>
-    <input class="input" id="admPass" type="password" inputmode="numeric" placeholder="Passcode" autocomplete="off" />
-    <button class="btn" id="admLoginBtn">Enter</button>
+    <input class="input" id="admPass" type="password" inputmode="numeric" placeholder="Passcode" autocomplete="off" aria-label="Admin passcode" />
+    <button class="btn" id="admLoginBtn" aria-label="Log in">Enter</button>
     <div class="msg" id="admMsg"></div>
   </div>
 
@@ -112,6 +112,14 @@
       <h2>Controls</h2>
       <div id="flagRows"></div>
       <div class="msg" id="flagMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Send Notification</h2>
+      <input class="input" id="pushTitle" type="text" placeholder="Title" maxlength="60" aria-label="Notification title" />
+      <input class="input" id="pushBody" type="text" placeholder="Message" maxlength="150" style="margin-top:8px" aria-label="Notification message" />
+      <button class="btn" id="pushSendBtn" aria-label="Send notification to all devices">Send to all devices</button>
+      <div class="msg" id="pushMsg"></div>
     </div>
 
     <div class="card">
@@ -143,7 +151,7 @@
       <div class="empty" id="activeEmpty" style="display:none">No one online right now.</div>
     </div>
 
-    <button class="btn danger" id="admLogout">Log out</button>
+    <button class="btn danger" id="admLogout" aria-label="Log out">Log out</button>
   </div>
 </div>
 
@@ -346,6 +354,21 @@
       .then(function(){ msg.textContent = "Saved."; loadFlags(); })
       .catch(function(){ msg.textContent = "Failed to save."; });
   }
+
+  /* ---------- push broadcast ---------- */
+
+  document.getElementById("pushSendBtn").addEventListener("click", function(){
+    var titleEl = document.getElementById("pushTitle");
+    var bodyEl = document.getElementById("pushBody");
+    var msg = document.getElementById("pushMsg");
+    var title = titleEl.value.trim();
+    var body = bodyEl.value.trim();
+    if(!title || !body){ msg.textContent = "Title and message are both required."; return; }
+    msg.textContent = "Sending...";
+    authedFetch("/admin/push", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({title:title, body:body})})
+      .then(function(){ msg.textContent = "Sent."; titleEl.value = ""; bodyEl.value = ""; })
+      .catch(function(){ msg.textContent = "Failed to send."; });
+  });
 
   /* ---------- stats ---------- */
 

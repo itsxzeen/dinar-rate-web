@@ -55,6 +55,10 @@
   .row .usd{font-size:12px;opacity:.85;min-width:60px;text-align:right;}
   .card{background:#071b3d;border:1px solid #1a4fa0;border-radius:16px;overflow:hidden;}
   .empty{padding:30px;text-align:center;opacity:.7;font-size:13px;}
+  .chart-card{margin-bottom:14px;padding:14px 14px 10px;overflow:visible;}
+  .chart-range{display:flex;justify-content:space-between;font-size:11px;color:#98989d;font-family:"IBM Plex Mono",monospace;margin-bottom:6px;}
+  .chart-box{height:100px;}
+  .chart-box svg{width:100%;height:100%;display:block;overflow:visible;}
 </style>
 <script>
   (function(){
@@ -101,6 +105,13 @@
     <div class="karat-tab" data-k="22">22K</div>
     <div class="karat-tab active" data-k="24">24K</div>
   </div>
+  <div class="card chart-card" id="chartCard" style="display:none">
+    <div class="chart-range">
+      <span id="chartMin">—</span>
+      <span id="chartMax">—</span>
+    </div>
+    <div class="chart-box" id="chartBox"></div>
+  </div>
   <div class="card">
     <div id="list" class="empty">Loading…</div>
   </div>
@@ -117,6 +128,31 @@
     return d.toLocaleString("en-US", { month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });
   }
 
+  function renderChart(points){
+    var card = document.getElementById("chartCard");
+    var box = document.getElementById("chartBox");
+    if(!points || points.length < 2){ card.style.display = "none"; return; }
+    card.style.display = "";
+    var w = 480, h = 100, pad = 6;
+    var min = Math.min.apply(null, points), max = Math.max.apply(null, points);
+    var range = (max - min) || 1;
+    var stepX = (w - pad*2) / (points.length - 1);
+    var coords = points.map(function(v, i){
+      var x = pad + i*stepX;
+      var y = pad + (h - pad*2) * (1 - (v - min)/range);
+      return x.toFixed(1) + "," + y.toFixed(1);
+    });
+    var line = coords.join(" ");
+    var area = pad + "," + (h-pad) + " " + line + " " + (w-pad) + "," + (h-pad);
+    box.innerHTML =
+      '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none">' +
+      '<polygon points="' + area + '" fill="rgba(255,207,64,.16)"></polygon>' +
+      '<polyline points="' + line + '" fill="none" stroke="#ffcf40" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></polyline>' +
+      '</svg>';
+    document.getElementById("chartMin").textContent = fmt(min) + " IQD";
+    document.getElementById("chartMax").textContent = fmt(max) + " IQD";
+  }
+
   function loadHistory(k){
     currentK = k;
     document.querySelectorAll(".karat-tab").forEach(function(t){
@@ -131,6 +167,7 @@
         if(!d.history || !d.history.length){
           list.className = "empty";
           list.textContent = "No history yet — check back after the next update.";
+          document.getElementById("chartCard").style.display = "none";
           return;
         }
         list.className = "";
@@ -143,6 +180,7 @@
             '</div>';
         });
         list.innerHTML = html;
+        renderChart(d.history.map(function(item){ return item.iqd; }).reverse());
       })
       .catch(function(){
         list.className = "empty";
