@@ -135,8 +135,19 @@
     </div>
 
     <div class="card">
-      <h2>Rate Sources <span class="soon">— multi-channel racing coming later</span></h2>
-      <div class="empty">Currently a single fixed Telegram channel per rate type. Adding, removing, and racing multiple channels is planned next.</div>
+      <h2>Rate Sources <span class="soon">— Baghdad/Erbil rate only for now</span></h2>
+      <p style="font-size:12px;color:var(--paper-dim);margin-bottom:12px">
+        Only one channel is active at a time — the one used for the main rate right now.
+        A channel only works if it posts Baghdad + Erbil rates in the same format as
+        Borsa_Erbil (bilingual, both cities in one message); anything else will silently
+        fail to parse. Multi-channel racing (auto-picking whichever posts first) is planned later.
+      </p>
+      <div id="sourceRows"></div>
+      <div class="rate-edit" style="margin-top:10px">
+        <input class="input" id="sourceInput" type="text" placeholder="Channel username, e.g. Borsa_Erbil" autocomplete="off" />
+        <button class="btn small" id="sourceAddBtn">Add</button>
+      </div>
+      <div class="msg" id="sourceMsg"></div>
     </div>
 
     <div class="card">
@@ -204,6 +215,7 @@
     loadRates();
     loadStats();
     loadFlags();
+    loadSources();
     if(statsTimer) clearInterval(statsTimer);
     statsTimer = setInterval(loadStats, 10000);
   }
@@ -327,6 +339,94 @@
     authedFetch("/admin/rate?city="+city, {method:"DELETE"})
       .then(function(){ msg.textContent = "Reverted to live."; loadRates(); })
       .catch(function(){ msg.textContent = "Failed."; });
+  }
+
+  /* ---------- rate sources ---------- */
+
+  function renderSources(sources){
+    var wrap = document.getElementById("sourceRows");
+    wrap.innerHTML = "";
+    if(!sources || !sources.length){
+      wrap.innerHTML = '<div class="empty">No channels configured.</div>';
+      return;
+    }
+    sources.forEach(function(s){
+      var row = document.createElement("div");
+      row.className = "flag-row";
+      var label = document.createElement("span");
+      label.className = "flag-label";
+      label.textContent = "@" + s.channel;
+      var actions = document.createElement("span");
+      actions.style.display = "flex";
+      actions.style.gap = "8px";
+      actions.style.alignItems = "center";
+
+      if(s.active){
+        var activeTag = document.createElement("span");
+        activeTag.className = "flag-toggle on";
+        activeTag.textContent = "Active";
+        actions.appendChild(activeTag);
+      } else {
+        var useBtn = document.createElement("button");
+        useBtn.className = "btn small ghost";
+        useBtn.textContent = "Use this";
+        useBtn.addEventListener("click", function(){ activateSource(s.channel); });
+        var removeBtn = document.createElement("button");
+        removeBtn.className = "btn small danger";
+        removeBtn.textContent = "Remove";
+        removeBtn.addEventListener("click", function(){ deleteSource(s.channel); });
+        actions.appendChild(useBtn);
+        actions.appendChild(removeBtn);
+      }
+
+      row.appendChild(label);
+      row.appendChild(actions);
+      wrap.appendChild(row);
+    });
+  }
+
+  function loadSources(){
+    authedFetch("/admin/sources").then(function(d){ renderSources(d.sources); }).catch(function(){});
+  }
+
+  document.getElementById("sourceAddBtn").addEventListener("click", function(){
+    var input = document.getElementById("sourceInput");
+    var msg = document.getElementById("sourceMsg");
+    var channel = input.value.trim();
+    if(!channel){ msg.textContent = "Enter a channel username."; return; }
+    msg.textContent = "Adding...";
+    authedFetch("/admin/sources", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({channel:channel})})
+      .then(function(d){
+        if(d && d.error){ msg.textContent = d.error; return; }
+        msg.textContent = "Added.";
+        input.value = "";
+        loadSources();
+      })
+      .catch(function(){ msg.textContent = "Failed to add."; });
+  });
+
+  function activateSource(channel){
+    var msg = document.getElementById("sourceMsg");
+    msg.textContent = "Switching...";
+    authedFetch("/admin/sources/activate", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({channel:channel})})
+      .then(function(d){
+        if(d && d.error){ msg.textContent = d.error; return; }
+        msg.textContent = "Now using @" + channel + ".";
+        loadSources();
+      })
+      .catch(function(){ msg.textContent = "Failed to switch."; });
+  }
+
+  function deleteSource(channel){
+    var msg = document.getElementById("sourceMsg");
+    msg.textContent = "Removing...";
+    authedFetch("/admin/sources?channel="+encodeURIComponent(channel), {method:"DELETE"})
+      .then(function(d){
+        if(d && d.error){ msg.textContent = d.error; return; }
+        msg.textContent = "Removed.";
+        loadSources();
+      })
+      .catch(function(){ msg.textContent = "Failed to remove."; });
   }
 
   /* ---------- feature flags (kill switch) ---------- */
