@@ -6,11 +6,26 @@
 <meta name="theme-color" content="#0a0108" />
 <meta name="description" content="The dinar, the dollar and the gold souk — in one place." />
 <title>Se3rForIQD · Iraq Dollar Rate</title>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Se3rForIQD">
+<meta property="og:title" content="Se3rForIQD · Live Iraqi Dinar Rate">
+<meta property="og:description" content="Live IQD/USD exchange rate, gold prices, and rates across Iraqi cities — updated in real time.">
+<meta property="og:image" content="https://se3rforiqd.xyz/favicon-512.png">
+<meta property="og:url" content="https://se3rforiqd.xyz/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Se3rForIQD · Live Iraqi Dinar Rate">
+<meta name="twitter:description" content="Live IQD/USD exchange rate, gold prices, and rates across Iraqi cities — updated in real time.">
+<meta name="twitter:image" content="https://se3rforiqd.xyz/favicon-512.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
 <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="shortcut icon" href="favicon.ico">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Se3rForIQD">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6053416863889248"
      crossorigin="anonymous"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -315,6 +330,15 @@
     box-shadow:0 8px 24px rgba(0,0,0,.4);
   }
 
+  .leaderboard-card{display:block;margin-bottom:20px;padding:14px 18px;}
+  .leaderboard-row{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13px;}
+  .leaderboard-row + .leaderboard-row{border-top:1px solid rgba(255,255,255,.08);}
+  .leaderboard-tag{display:flex;align-items:center;gap:4px;font-weight:700;flex-shrink:0;}
+  .leaderboard-tag.low{color:#4ade80;}
+  .leaderboard-tag.high{color:#f87171;}
+  .leaderboard-city{flex:1;color:#98989d;}
+  .leaderboard-val{font-weight:700;}
+
   .conv-tabs{display:flex;gap:10px;margin-bottom:14px}
   .conv-tab{
     flex:1;text-align:center;padding:10px 0;border-radius:10px;border:1px solid var(--purple);
@@ -574,6 +598,20 @@
     </div>
   </div>
 
+  <!-- BEST RATE LEADERBOARD -->
+  <a href="other-rates.html" class="card leaderboard-card" id="leaderboardCard" style="display:none;text-decoration:none;color:inherit;">
+    <div class="leaderboard-row">
+      <span class="leaderboard-tag low">↓ <span data-i18n="lowestToday">Lowest today</span></span>
+      <span class="leaderboard-city" id="lowCity">—</span>
+      <span class="leaderboard-val mono" id="lowVal">—</span>
+    </div>
+    <div class="leaderboard-row">
+      <span class="leaderboard-tag high">↑ <span data-i18n="highestToday">Highest today</span></span>
+      <span class="leaderboard-city" id="highCity">—</span>
+      <span class="leaderboard-val mono" id="highVal">—</span>
+    </div>
+  </a>
+
   <!-- CONVERTER -->
   <section>
     <div class="h2" data-i18n="convert">Convert</div>
@@ -684,6 +722,7 @@
       footerBy:"by", footerStatus:"All rates are live, still working on it",
       navigate:"Navigate", heroSub:"per 100 USD · Erbil market rate",
       heroDisclaimer:"Prices are real and they change — these are today's rates.",
+      lowestToday:"Lowest today", highestToday:"Highest today",
     },
     ar: {
       market:"السوق", sell:"البيع", erbil:"أربيل", baghdad:"بغداد",
@@ -702,6 +741,7 @@
       footerBy:"بواسطة", footerStatus:"جميع الأسعار مباشرة، ما زلنا نعمل عليه",
       navigate:"التنقل", heroSub:"لكل 100 دولار · سعر سوق أربيل",
       heroDisclaimer:"الأسعار حقيقية وتتغير — هذه أسعار اليوم.",
+      lowestToday:"الأدنى اليوم", highestToday:"الأعلى اليوم",
     },
     ku: {
       market:"بازار", sell:"فرۆشتن", erbil:"هەولێر", baghdad:"بەغدا",
@@ -720,6 +760,7 @@
       footerBy:"لەلایەن", footerStatus:"هەموو نرخەکان ڕاستەوخۆن، هێشتا کارمان لەسەری دەکەین",
       navigate:"ڕێنیشاندان", heroSub:"بۆ هەر ١٠٠ دۆلار · نرخی بازاڕی هەولێر",
       heroDisclaimer:"نرخەکان ڕاستەقینەن و دەگۆڕدرێن — ئەمانە نرخەکانی ئەمڕۆن.",
+      lowestToday:"کەمترین ئەمڕۆ", highestToday:"زۆرترین ئەمڕۆ",
     },
   };
   var currentLang = localStorage.getItem(LANG_KEY) || "en";
@@ -870,6 +911,30 @@
     document.getElementById("baghdadSell").textContent = baghdadSell ? fmt(baghdadSell) : "—";
     document.getElementById("erbilSellBig").textContent = erbilSell ? fmt(erbilSell) : "—";
     stamp();
+  }
+
+  var CITY_LABELS = {
+    baghdad:"Baghdad", erbil:"Erbil", sulaymaniyah:"Sulaymaniyah", karbala:"Karbala",
+    najaf:"Najaf", basra:"Basra", kirkuk:"Kirkuk", mosul:"Mosul", duhok:"Duhok",
+  };
+  function renderLeaderboard(data){
+    var cities = [];
+    if(data.erbil) cities.push({city:"erbil", rate:data.erbil.rate});
+    if(data.baghdad) cities.push({city:"baghdad", rate:data.baghdad.rate});
+    (data.otherCities||[]).forEach(function(c){ if(c && c.city && c.rate!=null) cities.push(c); });
+    cities = cities.filter(function(c){ return c.rate!=null; });
+    var card = document.getElementById("leaderboardCard");
+    if(cities.length < 2){ if(card) card.style.display = "none"; return; }
+    var low = cities[0], high = cities[0];
+    cities.forEach(function(c){
+      if(c.rate < low.rate) low = c;
+      if(c.rate > high.rate) high = c;
+    });
+    document.getElementById("lowCity").textContent = CITY_LABELS[low.city] || low.city;
+    document.getElementById("lowVal").textContent = fmt(low.rate) + " IQD";
+    document.getElementById("highCity").textContent = CITY_LABELS[high.city] || high.city;
+    document.getElementById("highVal").textContent = fmt(high.rate) + " IQD";
+    if(card) card.style.display = "block";
   }
 
   function renderHeroChart(points){
@@ -1039,6 +1104,7 @@
 
         if(res.data.erbil) erbilSell = res.data.erbil.rate;
         if(res.data.baghdad) baghdadSell = res.data.baghdad.rate;
+        renderLeaderboard(res.data);
         lastGoldData = res.data.gold;
         renderGold(res.data.gold);
         renderSpot(res.data.goldSpot);
@@ -1142,6 +1208,10 @@
   track();
   setInterval(ping, 25000);
   document.addEventListener("visibilitychange", function(){ if(!document.hidden) ping(); });
+
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.register("sw.js").catch(function(){});
+  }
 })();
 </script>
 </body>
