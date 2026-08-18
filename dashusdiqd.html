@@ -152,11 +152,40 @@
   </div>
 
   <div id="dashboard">
+    <div id="jumpNav" style="position:sticky;top:8px;z-index:20;margin-bottom:16px">
+      <select id="jumpSelect" class="input" style="width:100%;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.45)">
+        <option value="">Jump to section…</option>
+        <option value="emergencyCard">⚠ Emergency</option>
+        <option value="marketRatesCard">Market Rates</option>
+        <option value="rateControlCard">Rate Control</option>
+        <option value="rateSourcesCard">Rate Sources</option>
+        <option value="backupCard">Backup</option>
+        <option value="appSiteControlCard">App / Site Control</option>
+        <option value="sendNotificationCard">Send Notification</option>
+        <option value="feedbackCard">Feedback</option>
+        <option value="appAccountsCard">App Accounts</option>
+        <option value="activeNowCard">Active Now</option>
+      </select>
+    </div>
+
     <div class="grid4">
       <div class="stat live"><div class="stat-num" id="stOnline">—</div><div class="stat-lbl"><span class="live-dot"></span>Online now</div></div>
       <div class="stat"><div class="stat-num" id="stToday">—</div><div class="stat-lbl">Views today</div></div>
       <div class="stat"><div class="stat-num" id="stTotal">—</div><div class="stat-lbl">Total views</div></div>
       <div class="stat"><div class="stat-num" id="stUnique">—</div><div class="stat-lbl">Unique visitors</div></div>
+    </div>
+
+    <div class="card" id="emergencyCard" style="border:1px solid rgba(255,69,58,.4);background:linear-gradient(135deg,rgba(255,69,58,.08),var(--dark-2))">
+      <h2 style="color:var(--danger)">⚠ Emergency</h2>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div>
+          <div style="font-weight:700;font-size:14px" id="maintenanceLabel">App is running normally</div>
+          <div style="font-size:11px;color:var(--paper-dim);margin-top:2px">
+            Turning this on shows every user a "down for maintenance" screen instead of the app — the one button that stops everything at once.
+          </div>
+        </div>
+        <button class="flag-toggle" id="maintenanceToggle" style="flex-shrink:0"></button>
+      </div>
     </div>
 
     <br>
@@ -177,7 +206,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="rateControlCard">
       <h2 style="display:flex;align-items:center;justify-content:space-between;gap:10px">
         <span>Rate Control</span>
         <button class="btn small ghost" id="resetAllRatesBtn" style="text-transform:none;letter-spacing:0;font-weight:700">Reset to live</button>
@@ -186,7 +215,7 @@
       <div class="msg" id="rateMsg"></div>
     </div>
 
-    <div class="card">
+    <div class="card" id="rateSourcesCard">
       <h2>Rate Sources</h2>
       <p style="font-size:12px;color:var(--paper-dim);margin-bottom:12px">
         Any number of channels can be active at once. For each city, whichever active
@@ -209,7 +238,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="backupCard">
       <h2>Backup</h2>
       <p style="font-size:12px;color:var(--paper-dim);margin-bottom:12px">
         Downloads a full snapshot of the rate system — channels, overrides, currencies,
@@ -219,13 +248,13 @@
       <div class="msg" id="backupMsg"></div>
     </div>
 
-    <div class="card">
+    <div class="card" id="appSiteControlCard">
       <h2>App / Site Control</h2>
       <div id="flagRows"></div>
       <div class="msg" id="flagMsg"></div>
     </div>
 
-    <div class="card">
+    <div class="card" id="sendNotificationCard">
       <h2>Send Notification</h2>
       <input class="input" id="pushTitle" type="text" placeholder="Title" maxlength="60" aria-label="Notification title" />
       <input class="input" id="pushBody" type="text" placeholder="Message" maxlength="150" style="margin-top:8px" aria-label="Notification message" />
@@ -233,7 +262,7 @@
       <div class="msg" id="pushMsg"></div>
     </div>
 
-    <div class="card">
+    <div class="card" id="feedbackCard">
       <h2>Feedback <span id="feedbackUnread" class="rate-tag" style="display:none"></span></h2>
       <div id="feedbackList"></div>
       <div id="feedbackDetail" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--dark-3)">
@@ -250,7 +279,7 @@
       <div class="msg" id="feedbackMsg"></div>
     </div>
 
-    <div class="card">
+    <div class="card" id="appAccountsCard">
       <h2>App Accounts</h2>
       <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
         <span id="appUsersCount" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:28px">—</span>
@@ -279,7 +308,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="activeNowCard">
       <h2>Active Now</h2>
       <table>
         <thead><tr><th>Visitor</th><th>Platform</th><th>Device</th><th>Last seen</th></tr></thead>
@@ -318,6 +347,14 @@
     if(s < 3600) return Math.floor(s/60)+"m ago";
     return Math.floor(s/3600)+"h ago";
   }
+
+  document.getElementById("jumpSelect").addEventListener("change", function(e){
+    var id = e.target.value;
+    if(!id) return;
+    var el = document.getElementById(id);
+    if(el) el.scrollIntoView({behavior:"smooth", block:"start"});
+    e.target.value = "";
+  });
 
   function showDashboard(){
     loginWrap.style.display = "none";
@@ -721,11 +758,26 @@
     btn_share: "Share Button",
     btn_notifications: "Notifications Toggle",
     sms_verification: "SMS Verification (OTPIQ)",
+    live_activity_enabled: "Live Activity",
+    signup_enabled: "New Account Signups",
+    push_enabled: "Push Notifications",
   };
   var lastFlags = {};
 
+  function renderMaintenanceToggle(flags){
+    var on = flags["app_operational"] !== false; // missing key = operating normally
+    var btn = document.getElementById("maintenanceToggle");
+    var label = document.getElementById("maintenanceLabel");
+    btn.className = "flag-toggle " + (on ? "on" : "off");
+    btn.textContent = on ? "Running" : "MAINTENANCE";
+    label.textContent = on ? "App is running normally" : "⚠ App is showing the maintenance screen to everyone";
+    label.style.color = on ? "" : "var(--danger)";
+    btn.onclick = function(){ setFlag("app_operational", !on); };
+  }
+
   function renderFlags(flags){
     lastFlags = flags;
+    renderMaintenanceToggle(flags);
     var wrap = document.getElementById("flagRows");
     wrap.innerHTML = "";
     Object.keys(FLAG_LABELS).forEach(function(key){
