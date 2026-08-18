@@ -163,7 +163,10 @@
 
     <div class="dcols">
     <div class="card">
-      <h2>Rate Control</h2>
+      <h2 style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <span>Rate Control</span>
+        <button class="btn small ghost" id="resetAllRatesBtn" style="text-transform:none;letter-spacing:0;font-weight:700">Reset to live</button>
+      </h2>
       <div id="rateRows"></div>
       <div class="msg" id="rateMsg"></div>
     </div>
@@ -208,6 +211,23 @@
       <input class="input" id="pushBody" type="text" placeholder="Message" maxlength="150" style="margin-top:8px" aria-label="Notification message" />
       <button class="btn" id="pushSendBtn" aria-label="Send notification to all devices">Send to all devices</button>
       <div class="msg" id="pushMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Feedback <span id="feedbackUnread" class="rate-tag" style="display:none"></span></h2>
+      <div id="feedbackList"></div>
+      <div id="feedbackDetail" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--dark-3)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div>
+            <div id="feedbackDetailName" style="font-weight:700;font-size:14px"></div>
+            <div id="feedbackDetailWhen" style="font-size:11px;color:var(--paper-dim2);margin-top:2px"></div>
+          </div>
+          <button class="btn small danger" id="feedbackDeleteBtn">Delete</button>
+        </div>
+        <div id="feedbackDetailContact" style="font-size:12px;color:var(--paper-dim);margin-bottom:10px"></div>
+        <div id="feedbackDetailMessage" style="font-size:13px;line-height:1.6;white-space:pre-wrap"></div>
+      </div>
+      <div class="msg" id="feedbackMsg"></div>
     </div>
 
     <div class="cols2">
@@ -268,6 +288,7 @@
     loadStats();
     loadFlags();
     loadChannels();
+    loadFeedback();
     if(statsTimer) clearInterval(statsTimer);
     statsTimer = setInterval(loadStats, 10000);
   }
@@ -381,6 +402,17 @@
   function loadRates(){
     authedFetch("/admin/rates").then(renderRates).catch(function(){});
   }
+
+  document.getElementById("resetAllRatesBtn").addEventListener("click", function(){
+    var msg = document.getElementById("rateMsg");
+    msg.textContent = "Resetting…";
+    authedFetch("/admin/rate/reset-all", {method:"POST"})
+      .then(function(d){
+        msg.textContent = d && d.cleared != null ? "Cleared " + d.cleared + " override(s) — showing live rates." : "Reset.";
+        loadRates();
+      })
+      .catch(function(){ msg.textContent = "Failed to reset."; });
+  });
 
   function setOverride(city, rateStr){
     var rate = parseInt(rateStr, 10);
@@ -610,6 +642,107 @@
     authedFetch("/admin/push", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({title:title, body:body})})
       .then(function(){ msg.textContent = "Sent."; titleEl.value = ""; bodyEl.value = ""; })
       .catch(function(){ msg.textContent = "Failed to send."; });
+  });
+
+  /* ---------- feedback ---------- */
+
+  var feedbackItems = [];
+  var selectedFeedbackId = null;
+
+  function timeAgoShort(iso){
+    if(!iso) return "";
+    var s = Math.max(0, Math.floor((Date.now() - new Date(iso.replace(" ","T")+"Z").getTime())/1000));
+    if(s < 60) return s+"s ago";
+    if(s < 3600) return Math.floor(s/60)+"m ago";
+    if(s < 86400) return Math.floor(s/3600)+"h ago";
+    return Math.floor(s/86400)+"d ago";
+  }
+
+  function renderFeedbackList(){
+    var wrap = document.getElementById("feedbackList");
+    var unreadTag = document.getElementById("feedbackUnread");
+    wrap.innerHTML = "";
+    if(!feedbackItems.length){
+      wrap.innerHTML = '<div class="empty">No feedback yet.</div>';
+      unreadTag.style.display = "none";
+      return;
+    }
+    var unreadCount = feedbackItems.filter(function(f){ return !f.read; }).length;
+    if(unreadCount > 0){
+      unreadTag.style.display = "";
+      unreadTag.textContent = unreadCount + " new";
+    } else {
+      unreadTag.style.display = "none";
+    }
+    feedbackItems.forEach(function(f){
+      var row = document.createElement("div");
+      row.className = "flag-row";
+      row.style.cursor = "pointer";
+      if(f.id === selectedFeedbackId) row.style.background = "rgba(255,255,255,.04)";
+      var label = document.createElement("span");
+      label.className = "flag-label";
+      label.style.display = "flex";
+      label.style.alignItems = "center";
+      label.style.gap = "8px";
+      if(!f.read){
+        var dot = document.createElement("span");
+        dot.style.cssText = "width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0";
+        label.appendChild(dot);
+      }
+      var nameSpan = document.createElement("span");
+      nameSpan.textContent = f.first_name + " " + f.last_name;
+      label.appendChild(nameSpan);
+      var when = document.createElement("span");
+      when.style.cssText = "color:var(--paper-dim2);font-size:11px;font-weight:400";
+      when.textContent = timeAgoShort(f.submitted_at);
+      row.appendChild(label);
+      row.appendChild(when);
+      row.addEventListener("click", function(){ selectFeedback(f.id); });
+      wrap.appendChild(row);
+    });
+  }
+
+  function selectFeedback(id){
+    selectedFeedbackId = id;
+    var f = feedbackItems.find(function(x){ return x.id === id; });
+    if(!f) return;
+    renderFeedbackList();
+    var detail = document.getElementById("feedbackDetail");
+    detail.style.display = "";
+    document.getElementById("feedbackDetailName").textContent = f.first_name + " " + f.last_name;
+    document.getElementById("feedbackDetailWhen").textContent = timeAgoShort(f.submitted_at) + " · " + f.submitted_at + " UTC";
+    var contactBits = [];
+    if(f.email) contactBits.push(f.email);
+    if(f.phone) contactBits.push(f.phone);
+    document.getElementById("feedbackDetailContact").textContent = contactBits.join(" · ") || "No contact info given";
+    document.getElementById("feedbackDetailMessage").textContent = f.message;
+
+    if(!f.read){
+      f.read = 1;
+      renderFeedbackList();
+      authedFetch("/admin/feedback/read", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({id:id})}).catch(function(){});
+    }
+  }
+
+  function loadFeedback(){
+    authedFetch("/admin/feedback").then(function(d){
+      feedbackItems = d.feedback || [];
+      renderFeedbackList();
+    }).catch(function(){});
+  }
+
+  document.getElementById("feedbackDeleteBtn").addEventListener("click", function(){
+    if(selectedFeedbackId == null) return;
+    var msg = document.getElementById("feedbackMsg");
+    msg.textContent = "Deleting...";
+    authedFetch("/admin/feedback?id="+selectedFeedbackId, {method:"DELETE"})
+      .then(function(){
+        msg.textContent = "Deleted.";
+        document.getElementById("feedbackDetail").style.display = "none";
+        selectedFeedbackId = null;
+        loadFeedback();
+      })
+      .catch(function(){ msg.textContent = "Failed to delete."; });
   });
 
   /* ---------- stats ---------- */
