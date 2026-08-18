@@ -1146,7 +1146,14 @@
   }
 
   fetch(WORKER_URL + "/flags").then(function(r){ return r.json(); })
-    .then(function(d){ applyFlags(d.flags || {}); }).catch(function(){});
+    .then(function(d){
+      var flags = d.flags || {};
+      if(flags.site_operational === false){
+        document.body.innerHTML = '<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:#0a0108;color:#fff;font-family:system-ui,sans-serif"><div style="font-size:40px;margin-bottom:12px">🛠️</div><div style="font-size:18px;font-weight:700;margin-bottom:8px">Down for maintenance</div><div style="font-size:14px;color:#98989d;max-width:320px">Se3rForIQD is temporarily unavailable while we fix something. Please check back soon.</div></div>';
+        return;
+      }
+      applyFlags(flags);
+    }).catch(function(){});
 
   renderRates();
   fetchLive();

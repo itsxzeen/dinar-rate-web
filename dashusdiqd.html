@@ -33,10 +33,6 @@
     .brand{font-size:17px}
     .card{padding:13px 15px;margin-bottom:12px;border-radius:14px}
     .card h2{font-size:11px;margin-bottom:11px}
-    .grid4{gap:8px}
-    .stat{padding:11px 8px;border-radius:11px}
-    .stat-num{font-size:19px}
-    .stat-lbl{font-size:10px}
     .input{padding:9px 11px;font-size:13px;border-radius:10px}
     .btn{padding:9px;font-size:13px;border-radius:10px;margin-top:8px}
     .btn.small{padding:7px 12px;font-size:12px}
@@ -74,25 +70,14 @@
 
   #dashboard{display:none}
 
-  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:6px}
-  @media(max-width:640px){.grid4{grid-template-columns:repeat(2,1fr)}}
-  .stat{background:var(--dark-3);border-radius:14px;padding:16px 12px;text-align:center}
-  .stat.live .stat-num{color:var(--accent)}
-  .stat-num{font-family:"IBM Plex Mono",monospace;font-size:26px;font-weight:700}
-  .stat-lbl{font-size:11px;color:var(--paper-dim);margin-top:5px;display:flex;align-items:center;justify-content:center;gap:5px}
-  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;animation:pulse 1.4s infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .dcols > .card, .cols2 > .card{height:320px;display:flex;flex-direction:column;overflow:hidden}
+  .dcols > .card > h2, .cols2 > .card > h2{flex-shrink:0}
+  .card-body{flex:1;overflow-y:auto;min-height:0}
+  .card-body::-webkit-scrollbar{width:6px}
+  .card-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
 
   .cols2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   @media(max-width:640px){.cols2{grid-template-columns:1fr}}
-
-  .bar-row{margin-bottom:12px}
-  .bar-row:last-child{margin-bottom:0}
-  .bar-top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
-  .bar-top .lbl{color:var(--paper-dim)}
-  .bar-top .val{font-family:"IBM Plex Mono",monospace;font-weight:700}
-  .bar-track{height:8px;background:var(--dark-3);border-radius:4px;overflow:hidden}
-  .bar-fill{height:100%;background:var(--blue);border-radius:4px;transition:width .4s}
 
   .rate-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
   .rate-city{font-weight:700;font-size:15px;width:70px}
@@ -161,6 +146,7 @@
         <option value="rateSourcesCard">Rate Sources</option>
         <option value="backupCard">Backup</option>
         <option value="appSiteControlCard">App / Site Control</option>
+        <option value="currenciesCard">Currencies</option>
         <option value="sendNotificationCard">Send Notification</option>
         <option value="feedbackCard">Feedback</option>
         <option value="appAccountsCard">App Accounts</option>
@@ -168,16 +154,9 @@
       </select>
     </div>
 
-    <div class="grid4">
-      <div class="stat live"><div class="stat-num" id="stOnline">—</div><div class="stat-lbl"><span class="live-dot"></span>Online now</div></div>
-      <div class="stat"><div class="stat-num" id="stToday">—</div><div class="stat-lbl">Views today</div></div>
-      <div class="stat"><div class="stat-num" id="stTotal">—</div><div class="stat-lbl">Total views</div></div>
-      <div class="stat"><div class="stat-num" id="stUnique">—</div><div class="stat-lbl">Unique visitors</div></div>
-    </div>
-
     <div class="card" id="emergencyCard" style="border:1px solid rgba(255,69,58,.4);background:linear-gradient(135deg,rgba(255,69,58,.08),var(--dark-2))">
       <h2 style="color:var(--danger)">⚠ Emergency</h2>
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid rgba(255,69,58,.2)">
         <div>
           <div style="font-weight:700;font-size:14px" id="maintenanceLabel">App is running normally</div>
           <div style="font-size:11px;color:var(--paper-dim);margin-top:2px">
@@ -186,6 +165,15 @@
         </div>
         <button class="flag-toggle" id="maintenanceToggle" style="flex-shrink:0"></button>
       </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div>
+          <div style="font-weight:700;font-size:14px" id="siteMaintenanceLabel">Website is running normally</div>
+          <div style="font-size:11px;color:var(--paper-dim);margin-top:2px">
+            Turning this on shows every website visitor a "down for maintenance" page — same idea, but for se3rforiqd.xyz instead of the app.
+          </div>
+        </div>
+        <button class="flag-toggle" id="siteMaintenanceToggle" style="flex-shrink:0"></button>
+      </div>
     </div>
 
     <br>
@@ -193,6 +181,7 @@
     <div class="dcols">
     <div class="card" id="marketRatesCard">
       <h2>Market Rates</h2>
+      <div class="card-body">
       <div id="marketIssue" style="display:none;font-size:12px;color:var(--danger);background:rgba(255,69,58,.12);border:1px solid rgba(255,69,58,.35);border-radius:10px;padding:9px 12px;margin-bottom:12px"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
         <div style="display:flex;align-items:center;gap:9px;min-width:0">
@@ -204,6 +193,7 @@
           <div id="marketChangedAt" style="font-size:11px;color:var(--paper-dim2)"></div>
         </div>
       </div>
+      </div>
     </div>
 
     <div class="card" id="rateControlCard">
@@ -211,12 +201,15 @@
         <span>Rate Control</span>
         <button class="btn small ghost" id="resetAllRatesBtn" style="text-transform:none;letter-spacing:0;font-weight:700">Reset to live</button>
       </h2>
+      <div class="card-body">
       <div id="rateRows"></div>
       <div class="msg" id="rateMsg"></div>
+      </div>
     </div>
 
     <div class="card" id="rateSourcesCard">
       <h2>Rate Sources</h2>
+      <div class="card-body">
       <p style="font-size:12px;color:var(--paper-dim);margin-bottom:12px">
         Any number of channels can be active at once. For each city, whichever active
         channel posted most recently wins — including your manual overrides above, which
@@ -236,34 +229,59 @@
         <div id="detectRows"></div>
         <button class="btn small" id="confirmAddBtn" style="margin-top:10px">Add — stopped, won't affect app/site yet</button>
       </div>
+      </div>
     </div>
 
     <div class="card" id="backupCard">
       <h2>Backup</h2>
+      <div class="card-body">
       <p style="font-size:12px;color:var(--paper-dim);margin-bottom:12px">
         Downloads a full snapshot of the rate system — channels, overrides, currencies,
         feature flags, last known rates, 24h rate history — plus all accounts, as one JSON file.
       </p>
       <button class="btn" id="downloadBackupBtn">Download Backup</button>
       <div class="msg" id="backupMsg"></div>
+      </div>
     </div>
 
     <div class="card" id="appSiteControlCard">
       <h2>App / Site Control</h2>
+      <div class="card-body">
       <div id="flagRows"></div>
       <div class="msg" id="flagMsg"></div>
+      </div>
+    </div>
+
+    <div class="card" id="currenciesCard">
+      <h2>Currencies</h2>
+      <div class="card-body">
+      <p style="font-size:12px;color:var(--paper-dim);margin-bottom:12px">
+        Baghdad/Erbil IQD are always on. These extra currencies show up in the
+        converter on the app and site — remove one to turn it off everywhere.
+      </p>
+      <div id="currencyRows"></div>
+      <div class="rate-edit" style="margin-top:14px">
+        <input class="input" id="currencyCodeInput" type="text" placeholder="Code, e.g. EUR" maxlength="3" autocomplete="off" style="text-transform:uppercase" />
+        <input class="input" id="currencyLabelInput" type="text" placeholder="Label, e.g. Euro" autocomplete="off" />
+        <button class="btn small" id="addCurrencyBtn">Add</button>
+      </div>
+      <div class="msg" id="currencyMsg"></div>
+      </div>
     </div>
 
     <div class="card" id="sendNotificationCard">
       <h2>Send Notification</h2>
+      <div class="card-body">
       <input class="input" id="pushTitle" type="text" placeholder="Title" maxlength="60" aria-label="Notification title" />
       <input class="input" id="pushBody" type="text" placeholder="Message" maxlength="150" style="margin-top:8px" aria-label="Notification message" />
       <button class="btn" id="pushSendBtn" aria-label="Send notification to all devices">Send to all devices</button>
       <div class="msg" id="pushMsg"></div>
+      </div>
     </div>
 
     <div class="card" id="feedbackCard">
       <h2>Feedback <span id="feedbackUnread" class="rate-tag" style="display:none"></span></h2>
+      <div class="card-body">
       <div id="feedbackList"></div>
       <div id="feedbackDetail" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--dark-3)">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
@@ -277,44 +295,43 @@
         <div id="feedbackDetailMessage" style="font-size:13px;line-height:1.6;white-space:pre-wrap"></div>
       </div>
       <div class="msg" id="feedbackMsg"></div>
+      </div>
     </div>
 
     <div class="card" id="appAccountsCard">
       <h2>App Accounts</h2>
+      <div class="card-body">
       <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
         <span id="appUsersCount" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:28px">—</span>
-        <span style="font-size:12px;color:var(--paper-dim)">people have created an account in the app</span>
+        <span style="font-size:12px;color:var(--paper-dim)">accounts created</span>
       </div>
-      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px">
-        <span id="smsCodeAccountCount" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:20px">—</span>
-        <span style="font-size:12px;color:var(--paper-dim)">SMS Code Account Count</span>
+      <div style="display:flex;gap:14px;margin-bottom:12px;flex-wrap:wrap">
+        <div>
+          <span id="appActiveToday" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px;color:var(--accent)">—</span>
+          <span style="font-size:11px;color:var(--paper-dim)"> active today</span>
+        </div>
+        <div>
+          <span id="appActiveWeek" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px">—</span>
+          <span style="font-size:11px;color:var(--paper-dim)"> active this week</span>
+        </div>
+        <div>
+          <span id="smsCodeAccountCount" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px">—</span>
+          <span style="font-size:11px;color:var(--paper-dim)"> via SMS code</span>
+        </div>
       </div>
       <div id="appUsersList"></div>
-    </div>
-
-    <div class="card">
-      <h2>Home Page Section <span class="soon">— coming later</span></h2>
-      <div class="empty">A custom content block you'll be able to edit from here is planned next.</div>
-    </div>
-
-    <div class="cols2">
-      <div class="card">
-        <h2>Website vs App</h2>
-        <div id="platformBars"><div class="empty">—</div></div>
-      </div>
-      <div class="card">
-        <h2>Phone vs Desktop</h2>
-        <div id="deviceBars"><div class="empty">—</div></div>
       </div>
     </div>
 
     <div class="card" id="activeNowCard">
-      <h2>Active Now</h2>
+      <h2>Active Now (website)</h2>
+      <div class="card-body">
       <table>
         <thead><tr><th>Visitor</th><th>Platform</th><th>Device</th><th>Last seen</th></tr></thead>
         <tbody id="activeRows"></tbody>
       </table>
       <div class="empty" id="activeEmpty" style="display:none">No one online right now.</div>
+      </div>
     </div>
     </div>
 
@@ -366,6 +383,7 @@
     loadFeedback();
     loadMarketStatus();
     loadAppUsers();
+    loadCurrencies();
     if(statsTimer) clearInterval(statsTimer);
     statsTimer = setInterval(loadStats, 10000);
   }
@@ -775,9 +793,21 @@
     btn.onclick = function(){ setFlag("app_operational", !on); };
   }
 
+  function renderSiteMaintenanceToggle(flags){
+    var on = flags["site_operational"] !== false; // missing key = operating normally
+    var btn = document.getElementById("siteMaintenanceToggle");
+    var label = document.getElementById("siteMaintenanceLabel");
+    btn.className = "flag-toggle " + (on ? "on" : "off");
+    btn.textContent = on ? "Running" : "MAINTENANCE";
+    label.textContent = on ? "Website is running normally" : "⚠ Website is showing the maintenance page to everyone";
+    label.style.color = on ? "" : "var(--danger)";
+    btn.onclick = function(){ setFlag("site_operational", !on); };
+  }
+
   function renderFlags(flags){
     lastFlags = flags;
     renderMaintenanceToggle(flags);
+    renderSiteMaintenanceToggle(flags);
     var wrap = document.getElementById("flagRows");
     wrap.innerHTML = "";
     Object.keys(FLAG_LABELS).forEach(function(key){
@@ -808,6 +838,62 @@
     authedFetch("/admin/flag", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({key:key, enabled:enabled})})
       .then(function(){ msg.textContent = "Saved."; loadFlags(); })
       .catch(function(){ msg.textContent = "Failed to save."; });
+  }
+
+  /* ---------- currencies ---------- */
+
+  function renderCurrencies(currencies){
+    var wrap = document.getElementById("currencyRows");
+    wrap.innerHTML = "";
+    if(!currencies || !currencies.length){
+      wrap.innerHTML = '<div class="empty">No extra currencies added.</div>';
+      return;
+    }
+    currencies.forEach(function(c){
+      var row = document.createElement("div");
+      row.className = "flag-row";
+      var label = document.createElement("span");
+      label.className = "flag-label";
+      label.textContent = c.code + " — " + c.label;
+      var removeBtn = document.createElement("button");
+      removeBtn.className = "btn small danger";
+      removeBtn.textContent = "Remove";
+      removeBtn.addEventListener("click", function(){ deleteCurrency(c.code); });
+      row.appendChild(label);
+      row.appendChild(removeBtn);
+      wrap.appendChild(row);
+    });
+  }
+
+  function loadCurrencies(){
+    authedFetch("/admin/currencies").then(function(d){ renderCurrencies(d.currencies); }).catch(function(){});
+  }
+
+  document.getElementById("addCurrencyBtn").addEventListener("click", function(){
+    var codeEl = document.getElementById("currencyCodeInput");
+    var labelEl = document.getElementById("currencyLabelInput");
+    var msg = document.getElementById("currencyMsg");
+    var code = codeEl.value.trim().toUpperCase();
+    var label = labelEl.value.trim();
+    if(!/^[A-Z]{3}$/.test(code)){ msg.textContent = "Enter a valid 3-letter code, e.g. EUR."; return; }
+    if(!label){ msg.textContent = "Enter a label, e.g. Euro."; return; }
+    msg.textContent = "Adding...";
+    authedFetch("/admin/currencies", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({code:code, label:label})})
+      .then(function(d){
+        if(d && d.error){ msg.textContent = d.error; return; }
+        msg.textContent = "Added.";
+        codeEl.value = ""; labelEl.value = "";
+        loadCurrencies();
+      })
+      .catch(function(){ msg.textContent = "Failed to add."; });
+  });
+
+  function deleteCurrency(code){
+    var msg = document.getElementById("currencyMsg");
+    msg.textContent = "Removing...";
+    authedFetch("/admin/currencies?code="+encodeURIComponent(code), {method:"DELETE"})
+      .then(function(){ msg.textContent = "Removed."; loadCurrencies(); })
+      .catch(function(){ msg.textContent = "Failed to remove."; });
   }
 
   /* ---------- push broadcast ---------- */
@@ -921,6 +1007,16 @@
       var wrap = document.getElementById("appUsersList");
       wrap.innerHTML = "";
       var users = d.users || [];
+      var now = Date.now();
+      var activeToday = 0, activeWeek = 0;
+      users.forEach(function(u){
+        if(!u.lastActiveAt) return;
+        var ageMs = now - new Date(u.lastActiveAt.replace(" ","T")+"Z").getTime();
+        if(ageMs <= 86400000) activeToday++;
+        if(ageMs <= 7*86400000) activeWeek++;
+      });
+      document.getElementById("appActiveToday").textContent = activeToday;
+      document.getElementById("appActiveWeek").textContent = activeWeek;
       if(!users.length){
         wrap.innerHTML = '<div class="empty">No accounts yet.</div>';
         return;
@@ -997,40 +1093,6 @@
 
   /* ---------- stats ---------- */
 
-  function bar(label, value, total){
-    var pct = total > 0 ? Math.round((value/total)*100) : 0;
-    var wrap = document.createElement("div");
-    wrap.className = "bar-row";
-    wrap.innerHTML =
-      '<div class="bar-top"><span class="lbl">'+label+'</span><span class="val">'+value.toLocaleString("en-US")+' ('+pct+'%)</span></div>' +
-      '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%"></div></div>';
-    return wrap;
-  }
-
-  function renderPlatform(byPlatform){
-    var el = document.getElementById("platformBars");
-    el.innerHTML = "";
-    var web = 0, app = 0;
-    (byPlatform||[]).forEach(function(row){
-      if(row.platform === "ios-app") app += row.c; else web += row.c;
-    });
-    var total = web + app;
-    if(total === 0){ el.innerHTML = '<div class="empty">No views yet.</div>'; return; }
-    el.appendChild(bar("Website", web, total));
-    el.appendChild(bar("iOS App", app, total));
-  }
-
-  function renderDevice(byDevice){
-    var el = document.getElementById("deviceBars");
-    el.innerHTML = "";
-    var phone = (byDevice && byDevice.phone) || 0;
-    var desktop = (byDevice && byDevice.desktop) || 0;
-    var total = phone + desktop;
-    if(total === 0){ el.innerHTML = '<div class="empty">No views yet.</div>'; return; }
-    el.appendChild(bar("Phone", phone, total));
-    el.appendChild(bar("Desktop", desktop, total));
-  }
-
   function renderActive(active){
     var tbody = document.getElementById("activeRows");
     var empty = document.getElementById("activeEmpty");
@@ -1052,12 +1114,6 @@
 
   function loadStats(){
     authedFetch("/admin/stats").then(function(d){
-      document.getElementById("stOnline").textContent = d.onlineNow!=null ? d.onlineNow : "—";
-      document.getElementById("stTotal").textContent = d.totalViews!=null ? Number(d.totalViews).toLocaleString("en-US") : "—";
-      document.getElementById("stUnique").textContent = d.uniqueVisitors!=null ? Number(d.uniqueVisitors).toLocaleString("en-US") : "—";
-      document.getElementById("stToday").textContent = d.today!=null ? Number(d.today).toLocaleString("en-US") : "—";
-      renderPlatform(d.byPlatform);
-      renderDevice(d.byDevice);
       renderActive(d.active);
     }).catch(function(){});
   }
