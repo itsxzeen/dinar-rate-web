@@ -134,8 +134,9 @@
 
     <div class="card">
       <h2>App Accounts</h2>
-      <div class="stat-grid" style="grid-template-columns:1fr">
+      <div class="stat-grid" style="grid-template-columns:1fr 1fr">
         <div class="stat"><div class="stat-num" id="stAppUsers">—</div><div class="stat-lbl">Accounts created</div></div>
+        <div class="stat"><div class="stat-num" id="stSmsCodeUsers">—</div><div class="stat-lbl">SMS Code Account Count</div></div>
       </div>
       <table style="margin-top:12px">
         <thead><tr><th>Name</th><th>Email</th><th>Created</th></tr></thead>
@@ -476,6 +477,7 @@
 
   function renderAppUsers(d){
     document.getElementById("stAppUsers").textContent = d.count!=null ? Number(d.count).toLocaleString("en-US") : "—";
+    document.getElementById("stSmsCodeUsers").textContent = d.smsCodeCount!=null ? Number(d.smsCodeCount).toLocaleString("en-US") : "—";
     var tbody = document.getElementById("appUserRows");
     var empty = document.getElementById("appUserEmpty");
     tbody.innerHTML = "";
