@@ -242,9 +242,13 @@
 
     <div class="card">
       <h2>App Accounts</h2>
-      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px">
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
         <span id="appUsersCount" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:28px">—</span>
         <span style="font-size:12px;color:var(--paper-dim)">people have created an account in the app</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px">
+        <span id="smsCodeAccountCount" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:20px">—</span>
+        <span style="font-size:12px;color:var(--paper-dim)">SMS Code Account Count</span>
       </div>
       <div id="appUsersList"></div>
     </div>
@@ -680,6 +684,7 @@
     page_map: "Map Page",
     btn_share: "Share Button",
     btn_notifications: "Notifications Toggle",
+    sms_verification: "SMS Verification (OTPIQ)",
   };
   var lastFlags = {};
 
@@ -824,6 +829,7 @@
   function loadAppUsers(){
     authedFetch("/admin/app-users").then(function(d){
       document.getElementById("appUsersCount").textContent = d.count != null ? d.count : "—";
+      document.getElementById("smsCodeAccountCount").textContent = d.smsCodeCount != null ? d.smsCodeCount : "—";
       var wrap = document.getElementById("appUsersList");
       wrap.innerHTML = "";
       var users = d.users || [];
