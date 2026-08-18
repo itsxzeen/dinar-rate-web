@@ -187,12 +187,6 @@
     </div>
 
     <div class="card">
-      <h2>App / Site Control</h2>
-      <div id="flagRows"></div>
-      <div class="msg" id="flagMsg"></div>
-    </div>
-
-    <div class="card">
       <h2>Rate Sources</h2>
       <p style="font-size:12px;color:var(--paper-dim);margin-bottom:12px">
         Any number of channels can be active at once. For each city, whichever active
@@ -216,8 +210,9 @@
     </div>
 
     <div class="card">
-      <h2>Home Page Section <span class="soon">— coming later</span></h2>
-      <div class="empty">A custom content block you'll be able to edit from here is planned next.</div>
+      <h2>App / Site Control</h2>
+      <div id="flagRows"></div>
+      <div class="msg" id="flagMsg"></div>
     </div>
 
     <div class="card">
@@ -252,6 +247,11 @@
         <span style="font-size:12px;color:var(--paper-dim)">people have created an account in the app</span>
       </div>
       <div id="appUsersList"></div>
+    </div>
+
+    <div class="card">
+      <h2>Home Page Section <span class="soon">— coming later</span></h2>
+      <div class="empty">A custom content block you'll be able to edit from here is planned next.</div>
     </div>
 
     <div class="cols2">
@@ -834,8 +834,12 @@
       users.forEach(function(u){
         var row = document.createElement("div");
         row.className = "flag-row";
+        row.style.alignItems = "flex-start";
         row.innerHTML =
-          "<span class='flag-label'>"+(u.firstName||"")+" "+(u.lastName||"")+"</span>" +
+          "<span class='flag-label' style='display:flex;flex-direction:column;gap:2px'>" +
+            "<span>"+(u.firstName||"")+" "+(u.lastName||"")+"</span>" +
+            "<span style='font-size:11px;color:var(--paper-dim2);font-weight:400'>"+(u.phone||"no phone given")+"</span>" +
+          "</span>" +
           "<span style='text-align:right;font-size:11px;color:var(--paper-dim2)'>" +
             (u.email||"") + "<div>" + timeAgoMarket(u.createdAt) + "</div>" +
           "</span>";
