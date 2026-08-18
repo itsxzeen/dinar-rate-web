@@ -165,18 +165,16 @@
     <div class="card" id="marketRatesCard">
       <h2>Market Rates</h2>
       <div id="marketIssue" style="display:none;font-size:12px;color:var(--danger);background:rgba(255,69,58,.12);border:1px solid rgba(255,69,58,.35);border-radius:10px;padding:9px 12px;margin-bottom:12px"></div>
-      <div id="marketPrimary" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" role="button">
-        <div style="display:flex;align-items:center;gap:9px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="display:flex;align-items:center;gap:9px;min-width:0">
           <span id="marketDot" style="width:9px;height:9px;border-radius:50%;flex-shrink:0"></span>
-          <span id="marketCityName" style="font-weight:700;font-size:15px;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px"></span>
-          <span style="color:var(--paper-dim2);font-size:12px">▾</span>
+          <select id="marketCitySelect" class="input" style="width:auto;padding:7px 28px 7px 10px;font-weight:700;font-size:13px"></select>
         </div>
         <div style="text-align:right">
           <div id="marketRateVal" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px"></div>
           <div id="marketChangedAt" style="font-size:11px;color:var(--paper-dim2)"></div>
         </div>
       </div>
-      <div id="marketAllCities" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--dark-3)"></div>
     </div>
 
     <div class="card">
@@ -247,6 +245,15 @@
       <div class="msg" id="feedbackMsg"></div>
     </div>
 
+    <div class="card">
+      <h2>App Accounts</h2>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px">
+        <span id="appUsersCount" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:28px">—</span>
+        <span style="font-size:12px;color:var(--paper-dim)">people have created an account in the app</span>
+      </div>
+      <div id="appUsersList"></div>
+    </div>
+
     <div class="cols2">
       <div class="card">
         <h2>Website vs App</h2>
@@ -307,6 +314,7 @@
     loadChannels();
     loadFeedback();
     loadMarketStatus();
+    loadAppUsers();
     if(statsTimer) clearInterval(statsTimer);
     statsTimer = setInterval(loadStats, 10000);
   }
@@ -454,7 +462,6 @@
 
   var marketCities = [];
   var marketPrimaryCity = "erbil";
-  var marketExpanded = false;
 
   function timeAgoMarket(ts){
     if(!ts) return "—";
@@ -472,52 +479,37 @@
   function renderMarketPrimary(){
     var city = marketCities.find(function(c){ return c.city === marketPrimaryCity; }) || marketCities[0];
     if(!city){
-      document.getElementById("marketCityName").textContent = "—";
       document.getElementById("marketRateVal").textContent = "—";
+      document.getElementById("marketChangedAt").textContent = "";
       return;
     }
     document.getElementById("marketDot").style.background = marketDotColor(city);
-    document.getElementById("marketCityName").textContent = city.label;
     document.getElementById("marketRateVal").textContent = city.rate != null ? Number(city.rate).toLocaleString("en-US")+" IQD" : "—";
     document.getElementById("marketChangedAt").textContent = "changed " + timeAgoMarket(city.changedAt);
   }
 
-  function renderMarketAllCities(){
-    var wrap = document.getElementById("marketAllCities");
-    wrap.innerHTML = "";
+  function renderMarketCitySelect(){
+    var sel = document.getElementById("marketCitySelect");
+    sel.innerHTML = "";
     marketCities.forEach(function(c){
-      var row = document.createElement("div");
-      row.className = "flag-row";
-      row.style.cursor = "pointer";
-      if(c.city === marketPrimaryCity) row.style.background = "rgba(255,255,255,.04)";
-      row.innerHTML =
-        "<span class='flag-label' style='display:flex;align-items:center;gap:9px'>" +
-          "<span style='width:8px;height:8px;border-radius:50%;flex-shrink:0;background:"+marketDotColor(c)+"'></span>" +
-          c.label +
-        "</span>" +
-        "<span style='text-align:right;font-size:12px'>" +
-          "<span style='font-family:\"IBM Plex Mono\",monospace;font-weight:700'>"+(c.rate != null ? Number(c.rate).toLocaleString("en-US") : "—")+"</span>" +
-          "<div style='color:var(--paper-dim2);font-size:10px'>"+timeAgoMarket(c.changedAt)+"</div>" +
-        "</span>";
-      row.addEventListener("click", function(){
-        marketPrimaryCity = c.city;
-        renderMarketPrimary();
-        renderMarketAllCities();
-      });
-      wrap.appendChild(row);
+      var opt = document.createElement("option");
+      opt.value = c.city;
+      opt.textContent = c.label;
+      if(c.city === marketPrimaryCity) opt.selected = true;
+      sel.appendChild(opt);
     });
   }
 
-  document.getElementById("marketPrimary").addEventListener("click", function(){
-    marketExpanded = !marketExpanded;
-    document.getElementById("marketAllCities").style.display = marketExpanded ? "" : "none";
+  document.getElementById("marketCitySelect").addEventListener("change", function(e){
+    marketPrimaryCity = e.target.value;
+    renderMarketPrimary();
   });
 
   function loadMarketStatus(){
     authedFetch("/admin/rate-status").then(function(d){
       marketCities = d.cities || [];
+      renderMarketCitySelect();
       renderMarketPrimary();
-      renderMarketAllCities();
       var issueEl = document.getElementById("marketIssue");
       if(d.scrapeIssue){
         issueEl.style.display = "";
@@ -824,6 +816,31 @@
     authedFetch("/admin/feedback").then(function(d){
       feedbackItems = d.feedback || [];
       renderFeedbackList();
+    }).catch(function(){});
+  }
+
+  /* ---------- app accounts ---------- */
+
+  function loadAppUsers(){
+    authedFetch("/admin/app-users").then(function(d){
+      document.getElementById("appUsersCount").textContent = d.count != null ? d.count : "—";
+      var wrap = document.getElementById("appUsersList");
+      wrap.innerHTML = "";
+      var users = d.users || [];
+      if(!users.length){
+        wrap.innerHTML = '<div class="empty">No accounts yet.</div>';
+        return;
+      }
+      users.forEach(function(u){
+        var row = document.createElement("div");
+        row.className = "flag-row";
+        row.innerHTML =
+          "<span class='flag-label'>"+(u.firstName||"")+" "+(u.lastName||"")+"</span>" +
+          "<span style='text-align:right;font-size:11px;color:var(--paper-dim2)'>" +
+            (u.email||"") + "<div>" + timeAgoMarket(u.createdAt) + "</div>" +
+          "</span>";
+        wrap.appendChild(row);
+      });
     }).catch(function(){});
   }
 
