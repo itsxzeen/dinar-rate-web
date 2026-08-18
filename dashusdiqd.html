@@ -832,20 +832,59 @@
         return;
       }
       users.forEach(function(u){
+        var suspended = u.status === "suspended";
         var row = document.createElement("div");
         row.className = "flag-row";
         row.style.alignItems = "flex-start";
-        row.innerHTML =
-          "<span class='flag-label' style='display:flex;flex-direction:column;gap:2px'>" +
-            "<span>"+(u.firstName||"")+" "+(u.lastName||"")+"</span>" +
-            "<span style='font-size:11px;color:var(--paper-dim2);font-weight:400'>"+(u.phone||"no phone given")+"</span>" +
+        row.style.flexWrap = "wrap";
+        row.style.gap = "8px";
+
+        var info = document.createElement("span");
+        info.className = "flag-label";
+        info.style.cssText = "display:flex;flex-direction:column;gap:2px;flex:1;min-width:140px";
+        info.innerHTML =
+          "<span style='display:flex;align-items:center;gap:6px'>" +
+            (u.firstName||"")+" "+(u.lastName||"") +
+            (suspended ? "<span class='flag-toggle off' style='padding:2px 8px;font-size:9px'>Suspended</span>" : "") +
           "</span>" +
-          "<span style='text-align:right;font-size:11px;color:var(--paper-dim2)'>" +
-            (u.email||"") + "<div>" + timeAgoMarket(u.createdAt) + "</div>" +
-          "</span>";
+          "<span style='font-size:11px;color:var(--paper-dim2);font-weight:400'>"+(u.phone||"no phone given")+"</span>" +
+          "<span style='font-size:11px;color:var(--paper-dim2);font-weight:400'>"+(u.email||"")+"</span>" +
+          "<span style='font-size:10px;color:var(--paper-dim2);font-weight:400'>joined "+timeAgoMarket(u.createdAt)+
+            (u.lastActiveAt ? " · last active "+timeAgoMarket(u.lastActiveAt) : "") + "</span>";
+
+        var actions = document.createElement("span");
+        actions.style.cssText = "display:flex;gap:6px;flex-shrink:0";
+
+        var suspendBtn = document.createElement("button");
+        suspendBtn.className = "btn small ghost";
+        suspendBtn.textContent = suspended ? "Reactivate" : "Stop";
+        suspendBtn.addEventListener("click", function(){ setAppUserSuspended(u.email, !suspended); });
+
+        var deleteBtn = document.createElement("button");
+        deleteBtn.className = "btn small danger";
+        deleteBtn.textContent = "Delete";
+        deleteBtn.addEventListener("click", function(){ deleteAppUser(u.email); });
+
+        actions.appendChild(suspendBtn);
+        actions.appendChild(deleteBtn);
+        row.appendChild(info);
+        row.appendChild(actions);
         wrap.appendChild(row);
       });
     }).catch(function(){});
+  }
+
+  function setAppUserSuspended(email, suspended){
+    authedFetch("/admin/app-users/suspend", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({email:email, suspended:suspended})})
+      .then(function(){ loadAppUsers(); })
+      .catch(function(){});
+  }
+
+  function deleteAppUser(email){
+    if(!confirm("Delete the account for "+email+"? This can't be undone.")) return;
+    authedFetch("/admin/app-users?email="+encodeURIComponent(email), {method:"DELETE"})
+      .then(function(){ loadAppUsers(); })
+      .catch(function(){});
   }
 
   document.getElementById("feedbackDeleteBtn").addEventListener("click", function(){
