@@ -133,6 +133,18 @@
     </div>
 
     <div class="card">
+      <h2>App Accounts</h2>
+      <div class="stat-grid" style="grid-template-columns:1fr">
+        <div class="stat"><div class="stat-num" id="stAppUsers">—</div><div class="stat-lbl">Accounts created</div></div>
+      </div>
+      <table style="margin-top:12px">
+        <thead><tr><th>Name</th><th>Email</th><th>Created</th></tr></thead>
+        <tbody id="appUserRows"></tbody>
+      </table>
+      <div class="empty" id="appUserEmpty" style="display:none">No accounts yet.</div>
+    </div>
+
+    <div class="card">
       <h2>Live</h2>
       <div class="stat-grid">
         <div class="stat live"><div class="stat-num" id="stOnline">—</div><div class="stat-lbl"><span class="live-dot"></span>Online now</div></div>
@@ -193,8 +205,9 @@
     loadRates();
     loadStats();
     loadFlags();
+    loadAppUsers();
     if(statsTimer) clearInterval(statsTimer);
-    statsTimer = setInterval(loadStats, 10000);
+    statsTimer = setInterval(function(){ loadStats(); loadAppUsers(); }, 10000);
   }
   function showLogin(msg){
     loginCard.style.display = "";
@@ -457,6 +470,30 @@
       renderDevice(d.byDevice);
       renderActive(d.active);
     }).catch(function(){});
+  }
+
+  /* ---------- app accounts (sign up / log in) ---------- */
+
+  function renderAppUsers(d){
+    document.getElementById("stAppUsers").textContent = d.count!=null ? Number(d.count).toLocaleString("en-US") : "—";
+    var tbody = document.getElementById("appUserRows");
+    var empty = document.getElementById("appUserEmpty");
+    tbody.innerHTML = "";
+    var users = d.users || [];
+    if(!users.length){ empty.style.display = ""; return; }
+    empty.style.display = "none";
+    users.forEach(function(u){
+      var tr = document.createElement("tr");
+      tr.innerHTML =
+        "<td>"+[u.firstName,u.lastName].filter(Boolean).join(" ")+"</td>" +
+        "<td>"+u.email+"</td>" +
+        "<td>"+timeAgo(u.createdAt)+"</td>";
+      tbody.appendChild(tr);
+    });
+  }
+
+  function loadAppUsers(){
+    authedFetch("/admin/app-users").then(renderAppUsers).catch(function(){});
   }
 
   if(localStorage.getItem(TOKEN_KEY)) showDashboard();
