@@ -162,6 +162,23 @@
     <br>
 
     <div class="dcols">
+    <div class="card" id="marketRatesCard">
+      <h2>Market Rates</h2>
+      <div id="marketIssue" style="display:none;font-size:12px;color:var(--danger);background:rgba(255,69,58,.12);border:1px solid rgba(255,69,58,.35);border-radius:10px;padding:9px 12px;margin-bottom:12px"></div>
+      <div id="marketPrimary" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" role="button">
+        <div style="display:flex;align-items:center;gap:9px">
+          <span id="marketDot" style="width:9px;height:9px;border-radius:50%;flex-shrink:0"></span>
+          <span id="marketCityName" style="font-weight:700;font-size:15px;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px"></span>
+          <span style="color:var(--paper-dim2);font-size:12px">▾</span>
+        </div>
+        <div style="text-align:right">
+          <div id="marketRateVal" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px"></div>
+          <div id="marketChangedAt" style="font-size:11px;color:var(--paper-dim2)"></div>
+        </div>
+      </div>
+      <div id="marketAllCities" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--dark-3)"></div>
+    </div>
+
     <div class="card">
       <h2 style="display:flex;align-items:center;justify-content:space-between;gap:10px">
         <span>Rate Control</span>
@@ -289,6 +306,7 @@
     loadFlags();
     loadChannels();
     loadFeedback();
+    loadMarketStatus();
     if(statsTimer) clearInterval(statsTimer);
     statsTimer = setInterval(loadStats, 10000);
   }
@@ -430,6 +448,84 @@
     authedFetch("/admin/rate?city="+city, {method:"DELETE"})
       .then(function(){ msg.textContent = "Reverted to live."; loadRates(); })
       .catch(function(){ msg.textContent = "Failed."; });
+  }
+
+  /* ---------- market rates (live/changed status, per-city) ---------- */
+
+  var marketCities = [];
+  var marketPrimaryCity = "erbil";
+  var marketExpanded = false;
+
+  function timeAgoMarket(ts){
+    if(!ts) return "—";
+    var s = Math.max(0, Math.floor((Date.now() - new Date(ts.replace(" ","T")+"Z").getTime())/1000));
+    if(s < 60) return "just now";
+    if(s < 3600) return Math.floor(s/60)+"m ago";
+    if(s < 86400) return Math.floor(s/3600)+"h ago";
+    return Math.floor(s/86400)+"d ago";
+  }
+
+  function marketDotColor(city){
+    return city && city.changed ? "var(--accent)" : "var(--danger)";
+  }
+
+  function renderMarketPrimary(){
+    var city = marketCities.find(function(c){ return c.city === marketPrimaryCity; }) || marketCities[0];
+    if(!city){
+      document.getElementById("marketCityName").textContent = "—";
+      document.getElementById("marketRateVal").textContent = "—";
+      return;
+    }
+    document.getElementById("marketDot").style.background = marketDotColor(city);
+    document.getElementById("marketCityName").textContent = city.label;
+    document.getElementById("marketRateVal").textContent = city.rate != null ? Number(city.rate).toLocaleString("en-US")+" IQD" : "—";
+    document.getElementById("marketChangedAt").textContent = "changed " + timeAgoMarket(city.changedAt);
+  }
+
+  function renderMarketAllCities(){
+    var wrap = document.getElementById("marketAllCities");
+    wrap.innerHTML = "";
+    marketCities.forEach(function(c){
+      var row = document.createElement("div");
+      row.className = "flag-row";
+      row.style.cursor = "pointer";
+      if(c.city === marketPrimaryCity) row.style.background = "rgba(255,255,255,.04)";
+      row.innerHTML =
+        "<span class='flag-label' style='display:flex;align-items:center;gap:9px'>" +
+          "<span style='width:8px;height:8px;border-radius:50%;flex-shrink:0;background:"+marketDotColor(c)+"'></span>" +
+          c.label +
+        "</span>" +
+        "<span style='text-align:right;font-size:12px'>" +
+          "<span style='font-family:\"IBM Plex Mono\",monospace;font-weight:700'>"+(c.rate != null ? Number(c.rate).toLocaleString("en-US") : "—")+"</span>" +
+          "<div style='color:var(--paper-dim2);font-size:10px'>"+timeAgoMarket(c.changedAt)+"</div>" +
+        "</span>";
+      row.addEventListener("click", function(){
+        marketPrimaryCity = c.city;
+        renderMarketPrimary();
+        renderMarketAllCities();
+      });
+      wrap.appendChild(row);
+    });
+  }
+
+  document.getElementById("marketPrimary").addEventListener("click", function(){
+    marketExpanded = !marketExpanded;
+    document.getElementById("marketAllCities").style.display = marketExpanded ? "" : "none";
+  });
+
+  function loadMarketStatus(){
+    authedFetch("/admin/rate-status").then(function(d){
+      marketCities = d.cities || [];
+      renderMarketPrimary();
+      renderMarketAllCities();
+      var issueEl = document.getElementById("marketIssue");
+      if(d.scrapeIssue){
+        issueEl.style.display = "";
+        issueEl.textContent = "⚠ Rate scrape has failed " + d.scrapeIssue.consecutiveFailures + " time(s) in a row (~" + d.scrapeIssue.minutesDown + " min) — Baghdad/Erbil channel may be unreachable.";
+      } else {
+        issueEl.style.display = "none";
+      }
+    }).catch(function(){});
   }
 
   /* ---------- rate sources (multi-channel) ---------- */
