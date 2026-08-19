@@ -75,6 +75,18 @@
   .card-body{flex:1;overflow-y:auto;min-height:0}
   .card-body::-webkit-scrollbar{width:6px}
   .card-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+  .card-desc{font-size:12px;color:var(--paper-dim);margin-bottom:12px}
+  .mini-btn{background:var(--dark-3);border:1px solid var(--line);color:var(--paper-dim);
+    border-radius:8px;width:26px;height:26px;font-size:13px;cursor:pointer;flex-shrink:0;
+    display:inline-flex;align-items:center;justify-content:center}
+  .mini-btn:disabled{opacity:.3;cursor:default}
+  .audit-row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--dark-3);font-size:12px}
+  .audit-row:last-child{border-bottom:none}
+  .audit-row .act{color:var(--paper)}
+  .audit-row .when{color:var(--paper-dim2);white-space:nowrap;flex-shrink:0}
+  .trend-bars{display:flex;align-items:flex-end;gap:3px;height:40px;margin:10px 0}
+  .trend-bar{flex:1;background:var(--blue);border-radius:2px 2px 0 0;min-height:2px}
+  .search-input{margin-bottom:10px}
 
   .cols2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   @media(max-width:640px){.cols2{grid-template-columns:1fr}}
@@ -148,8 +160,10 @@
         <option value="appSiteControlCard">App / Site Control</option>
         <option value="currenciesCard">Currencies</option>
         <option value="sendNotificationCard">Send Notification</option>
+        <option value="notificationHistoryCard">Notification History</option>
         <option value="feedbackCard">Feedback</option>
         <option value="appAccountsCard">App Accounts</option>
+        <option value="auditLogCard">Audit Log</option>
         <option value="activeNowCard">Active Now</option>
       </select>
     </div>
@@ -182,6 +196,7 @@
     <div class="card" id="marketRatesCard">
       <h2>Market Rates</h2>
       <div class="card-body">
+      <div class="card-desc">The live rate for one city, straight from whichever source channel posted it most recently. Green dot = fresh, red = stale.</div>
       <div id="marketIssue" style="display:none;font-size:12px;color:var(--danger);background:rgba(255,69,58,.12);border:1px solid rgba(255,69,58,.35);border-radius:10px;padding:9px 12px;margin-bottom:12px"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
         <div style="display:flex;align-items:center;gap:9px;min-width:0">
@@ -202,6 +217,7 @@
         <button class="btn small ghost" id="resetAllRatesBtn" style="text-transform:none;letter-spacing:0;font-weight:700">Reset to live</button>
       </h2>
       <div class="card-body">
+      <div class="card-desc">Manually pin a city's rate — it overrides live source data until you clear it or set a new one. "Reset to live" clears every override at once.</div>
       <div id="rateRows"></div>
       <div class="msg" id="rateMsg"></div>
       </div>
@@ -247,6 +263,7 @@
     <div class="card" id="appSiteControlCard">
       <h2>App / Site Control</h2>
       <div class="card-body">
+      <div class="card-desc">Individual on/off switches for one page or feature at a time. For "everything off" use the Emergency card instead.</div>
       <div id="flagRows"></div>
       <div class="msg" id="flagMsg"></div>
       </div>
@@ -257,7 +274,8 @@
       <div class="card-body">
       <p style="font-size:12px;color:var(--paper-dim);margin-bottom:12px">
         Baghdad/Erbil IQD are always on. These extra currencies show up in the
-        converter on the app and site — remove one to turn it off everywhere.
+        converter on the app and site, in this order — remove one to turn it off
+        everywhere, or reorder with the arrows.
       </p>
       <div id="currencyRows"></div>
       <div class="rate-edit" style="margin-top:14px">
@@ -276,11 +294,28 @@
       <input class="input" id="pushBody" type="text" placeholder="Message" maxlength="150" style="margin-top:8px" aria-label="Notification message" />
       <button class="btn" id="pushSendBtn" aria-label="Send notification to all devices">Send to all devices</button>
       <div class="msg" id="pushMsg"></div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--dark-3)">
+        <div style="font-size:11px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Proof it on one device first</div>
+        <input class="input" id="testDeviceToken" type="text" placeholder="Your device's push token (saved locally)" autocomplete="off" style="font-size:11px" />
+        <button class="btn small ghost" id="pushTestBtn" style="margin-top:8px">Send test only</button>
+        <div class="msg" id="pushTestMsg"></div>
+      </div>
+      </div>
+    </div>
+
+    <div class="card" id="notificationHistoryCard">
+      <h2>Notification History</h2>
+      <div class="card-body">
+      <div class="card-desc">The last notifications actually delivered — manual sends and automatic rate-change alerts both land here.</div>
+      <div id="notifHistoryRows"></div>
       </div>
     </div>
 
     <div class="card" id="feedbackCard">
-      <h2>Feedback <span id="feedbackUnread" class="rate-tag" style="display:none"></span></h2>
+      <h2 style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <span>Feedback <span id="feedbackUnread" class="rate-tag" style="display:none"></span></span>
+        <button class="btn small ghost" id="exportFeedbackBtn" style="text-transform:none;letter-spacing:0;font-weight:700">Export CSV</button>
+      </h2>
       <div class="card-body">
       <div id="feedbackList"></div>
       <div id="feedbackDetail" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--dark-3)">
@@ -299,7 +334,10 @@
     </div>
 
     <div class="card" id="appAccountsCard">
-      <h2>App Accounts</h2>
+      <h2 style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <span>App Accounts</span>
+        <button class="btn small ghost" id="exportAccountsBtn" style="text-transform:none;letter-spacing:0;font-weight:700">Export CSV</button>
+      </h2>
       <div class="card-body">
       <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
         <span id="appUsersCount" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:28px">—</span>
@@ -319,13 +357,25 @@
           <span style="font-size:11px;color:var(--paper-dim)"> via SMS code</span>
         </div>
       </div>
+      <div style="font-size:11px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Signups, last 14 days</div>
+      <div class="trend-bars" id="signupTrend"></div>
+      <input class="input search-input" id="userSearchInput" type="text" placeholder="Search by name, email or phone…" autocomplete="off" />
       <div id="appUsersList"></div>
+      </div>
+    </div>
+
+    <div class="card" id="auditLogCard">
+      <h2>Audit Log</h2>
+      <div class="card-body">
+      <div class="card-desc">What changed on this dashboard, most recent first — flags, rate overrides, currencies, sources, accounts.</div>
+      <div id="auditRows"></div>
       </div>
     </div>
 
     <div class="card" id="activeNowCard">
       <h2>Active Now (website)</h2>
       <div class="card-body">
+      <div class="card-desc">Visitors currently browsing se3rforiqd.xyz — not the app, and not the same as an account.</div>
       <table>
         <thead><tr><th>Visitor</th><th>Platform</th><th>Device</th><th>Last seen</th></tr></thead>
         <tbody id="activeRows"></tbody>
@@ -365,6 +415,21 @@
     return Math.floor(s/3600)+"h ago";
   }
 
+  function downloadCsv(filename, rows){
+    var csv = rows.map(function(row){
+      return row.map(function(cell){
+        var s = String(cell == null ? "" : cell).replace(/"/g, '""');
+        return /[",\n]/.test(s) ? '"'+s+'"' : s;
+      }).join(",");
+    }).join("\r\n");
+    var blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+
   document.getElementById("jumpSelect").addEventListener("change", function(e){
     var id = e.target.value;
     if(!id) return;
@@ -384,15 +449,34 @@
     loadMarketStatus();
     loadAppUsers();
     loadCurrencies();
+    loadNotificationHistory();
+    loadAuditLog();
     if(statsTimer) clearInterval(statsTimer);
     statsTimer = setInterval(loadStats, 10000);
+    resetIdleTimer();
   }
   function showLogin(msg){
     loginWrap.style.display = "";
     dashboard.style.display = "none";
     dashMsg.textContent = msg || "";
     if(statsTimer){ clearInterval(statsTimer); statsTimer = null; }
+    if(idleTimer){ clearTimeout(idleTimer); idleTimer = null; }
   }
+
+  /* ---------- auto-logout after inactivity ---------- */
+
+  var IDLE_LIMIT_MS = 20 * 60 * 1000; // 20 minutes — this page has real control over the whole app/site
+  var idleTimer = null;
+  function resetIdleTimer(){
+    if(idleTimer) clearTimeout(idleTimer);
+    idleTimer = setTimeout(function(){
+      localStorage.removeItem(TOKEN_KEY);
+      showLogin("Signed out after 20 minutes idle.");
+    }, IDLE_LIMIT_MS);
+  }
+  ["mousemove","keydown","click","touchstart","scroll"].forEach(function(evt){
+    document.addEventListener(evt, function(){ if(dashboard.style.display !== "none") resetIdleTimer(); }, {passive:true});
+  });
 
   function authedFetch(path, opts){
     var token = localStorage.getItem(TOKEN_KEY);
@@ -842,31 +926,55 @@
 
   /* ---------- currencies ---------- */
 
+  var currentCurrencies = [];
+
   function renderCurrencies(currencies){
+    currentCurrencies = currencies || [];
     var wrap = document.getElementById("currencyRows");
     wrap.innerHTML = "";
     if(!currencies || !currencies.length){
       wrap.innerHTML = '<div class="empty">No extra currencies added.</div>';
       return;
     }
-    currencies.forEach(function(c){
+    currencies.forEach(function(c, i){
       var row = document.createElement("div");
       row.className = "flag-row";
       var label = document.createElement("span");
       label.className = "flag-label";
       label.textContent = c.code + " — " + c.label;
+      var actions = document.createElement("span");
+      actions.style.cssText = "display:flex;gap:6px;align-items:center;flex-shrink:0";
+      var upBtn = document.createElement("button");
+      upBtn.className = "mini-btn"; upBtn.textContent = "↑"; upBtn.disabled = i === 0;
+      upBtn.addEventListener("click", function(){ moveCurrency(i, -1); });
+      var downBtn = document.createElement("button");
+      downBtn.className = "mini-btn"; downBtn.textContent = "↓"; downBtn.disabled = i === currencies.length - 1;
+      downBtn.addEventListener("click", function(){ moveCurrency(i, 1); });
       var removeBtn = document.createElement("button");
       removeBtn.className = "btn small danger";
       removeBtn.textContent = "Remove";
       removeBtn.addEventListener("click", function(){ deleteCurrency(c.code); });
+      actions.appendChild(upBtn); actions.appendChild(downBtn); actions.appendChild(removeBtn);
       row.appendChild(label);
-      row.appendChild(removeBtn);
+      row.appendChild(actions);
       wrap.appendChild(row);
     });
   }
 
   function loadCurrencies(){
     authedFetch("/admin/currencies").then(function(d){ renderCurrencies(d.currencies); }).catch(function(){});
+  }
+
+  function moveCurrency(index, direction){
+    var target = index + direction;
+    if(target < 0 || target >= currentCurrencies.length) return;
+    var codes = currentCurrencies.map(function(c){ return c.code; });
+    var tmp = codes[index]; codes[index] = codes[target]; codes[target] = tmp;
+    var msg = document.getElementById("currencyMsg");
+    msg.textContent = "Saving order...";
+    authedFetch("/admin/currencies/reorder", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({codes:codes})})
+      .then(function(){ msg.textContent = "Saved."; loadCurrencies(); })
+      .catch(function(){ msg.textContent = "Failed to save order."; });
   }
 
   document.getElementById("addCurrencyBtn").addEventListener("click", function(){
@@ -907,9 +1015,57 @@
     if(!title || !body){ msg.textContent = "Title and message are both required."; return; }
     msg.textContent = "Sending...";
     authedFetch("/admin/push", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({title:title, body:body})})
-      .then(function(){ msg.textContent = "Sent."; titleEl.value = ""; bodyEl.value = ""; })
+      .then(function(d){
+        if(d && d.error){ msg.textContent = d.error; return; }
+        msg.textContent = "Sent."; titleEl.value = ""; bodyEl.value = "";
+        loadNotificationHistory();
+      })
       .catch(function(){ msg.textContent = "Failed to send."; });
   });
+
+  var TEST_TOKEN_KEY = "adminTestDeviceToken_v1";
+  var testTokenInput = document.getElementById("testDeviceToken");
+  testTokenInput.value = localStorage.getItem(TEST_TOKEN_KEY) || "";
+  testTokenInput.addEventListener("input", function(){
+    localStorage.setItem(TEST_TOKEN_KEY, testTokenInput.value.trim());
+  });
+
+  document.getElementById("pushTestBtn").addEventListener("click", function(){
+    var msg = document.getElementById("pushTestMsg");
+    var token = testTokenInput.value.trim();
+    var title = document.getElementById("pushTitle").value.trim();
+    var body = document.getElementById("pushBody").value.trim();
+    if(!token){ msg.textContent = "Paste your device's push token first."; return; }
+    if(!title || !body){ msg.textContent = "Fill in title and message above, then send a test."; return; }
+    msg.textContent = "Sending test...";
+    authedFetch("/admin/push/test", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({token:token, title:title, body:body})})
+      .then(function(d){ msg.textContent = (d && d.error) ? d.error : "Test sent — check your device."; })
+      .catch(function(){ msg.textContent = "Failed to send test."; });
+  });
+
+  /* ---------- notification history ---------- */
+
+  function renderNotificationHistory(history){
+    var wrap = document.getElementById("notifHistoryRows");
+    wrap.innerHTML = "";
+    if(!history || !history.length){
+      wrap.innerHTML = '<div class="empty">Nothing sent yet.</div>';
+      return;
+    }
+    history.forEach(function(n){
+      var row = document.createElement("div");
+      row.className = "audit-row";
+      row.innerHTML =
+        '<span class="act"><b>'+n.title+'</b><br><span style="color:var(--paper-dim);font-size:11px">'+n.body+'</span></span>' +
+        '<span class="when">'+timeAgoShort(n.sent_at)+'</span>';
+      wrap.appendChild(row);
+    });
+  }
+
+  function loadNotificationHistory(){
+    fetch(WORKER_URL + "/notifications/history").then(function(r){ return r.json(); })
+      .then(function(d){ renderNotificationHistory(d.history); }).catch(function(){});
+  }
 
   /* ---------- feedback ---------- */
 
@@ -998,15 +1154,95 @@
     }).catch(function(){});
   }
 
+  document.getElementById("exportFeedbackBtn").addEventListener("click", function(){
+    var rows = [["Name","Email","Phone","Message","Read","Submitted At (UTC)"]];
+    feedbackItems.forEach(function(f){
+      rows.push([f.first_name+" "+f.last_name, f.email||"", f.phone||"", f.message, f.read?"yes":"no", f.submitted_at]);
+    });
+    downloadCsv("se3r-feedback-"+new Date().toISOString().slice(0,10)+".csv", rows);
+  });
+
   /* ---------- app accounts ---------- */
+
+  var currentAppUsers = [];
+
+  function renderSignupTrend(users){
+    var el = document.getElementById("signupTrend");
+    el.innerHTML = "";
+    var days = 14;
+    var counts = new Array(days).fill(0);
+    var today = new Date(); today.setHours(0,0,0,0);
+    users.forEach(function(u){
+      if(!u.createdAt) return;
+      var d = new Date(u.createdAt.replace(" ","T")+"Z"); d.setHours(0,0,0,0);
+      var diffDays = Math.round((today - d) / 86400000);
+      if(diffDays >= 0 && diffDays < days) counts[days-1-diffDays]++;
+    });
+    var max = Math.max.apply(null, counts.concat([1]));
+    counts.forEach(function(c){
+      var bar = document.createElement("div");
+      bar.className = "trend-bar";
+      bar.style.height = Math.max(2, Math.round((c/max)*40)) + "px";
+      bar.title = c + " signup" + (c===1?"":"s");
+      el.appendChild(bar);
+    });
+  }
+
+  function renderAppUsersList(users){
+    var wrap = document.getElementById("appUsersList");
+    wrap.innerHTML = "";
+    if(!users.length){
+      wrap.innerHTML = '<div class="empty">No matching accounts.</div>';
+      return;
+    }
+    users.forEach(function(u){
+      var suspended = u.status === "suspended";
+      var row = document.createElement("div");
+      row.className = "flag-row";
+      row.style.alignItems = "flex-start";
+      row.style.flexWrap = "wrap";
+      row.style.gap = "8px";
+
+      var info = document.createElement("span");
+      info.className = "flag-label";
+      info.style.cssText = "display:flex;flex-direction:column;gap:2px;flex:1;min-width:140px";
+      info.innerHTML =
+        "<span style='display:flex;align-items:center;gap:6px'>" +
+          (u.firstName||"")+" "+(u.lastName||"") +
+          (suspended ? "<span class='flag-toggle off' style='padding:2px 8px;font-size:9px'>Suspended</span>" : "") +
+        "</span>" +
+        "<span style='font-size:11px;color:var(--paper-dim2);font-weight:400'>"+(u.phone||"no phone given")+"</span>" +
+        "<span style='font-size:11px;color:var(--paper-dim2);font-weight:400'>"+(u.email||"")+"</span>" +
+        "<span style='font-size:10px;color:var(--paper-dim2);font-weight:400'>joined "+timeAgoMarket(u.createdAt)+
+          (u.lastActiveAt ? " · last active "+timeAgoMarket(u.lastActiveAt) : "") + "</span>";
+
+      var actions = document.createElement("span");
+      actions.style.cssText = "display:flex;gap:6px;flex-shrink:0";
+
+      var suspendBtn = document.createElement("button");
+      suspendBtn.className = "btn small ghost";
+      suspendBtn.textContent = suspended ? "Reactivate" : "Stop";
+      suspendBtn.addEventListener("click", function(){ setAppUserSuspended(u.email, !suspended); });
+
+      var deleteBtn = document.createElement("button");
+      deleteBtn.className = "btn small danger";
+      deleteBtn.textContent = "Delete";
+      deleteBtn.addEventListener("click", function(){ deleteAppUser(u.email); });
+
+      actions.appendChild(suspendBtn);
+      actions.appendChild(deleteBtn);
+      row.appendChild(info);
+      row.appendChild(actions);
+      wrap.appendChild(row);
+    });
+  }
 
   function loadAppUsers(){
     authedFetch("/admin/app-users").then(function(d){
       document.getElementById("appUsersCount").textContent = d.count != null ? d.count : "—";
       document.getElementById("smsCodeAccountCount").textContent = d.smsCodeCount != null ? d.smsCodeCount : "—";
-      var wrap = document.getElementById("appUsersList");
-      wrap.innerHTML = "";
       var users = d.users || [];
+      currentAppUsers = users;
       var now = Date.now();
       var activeToday = 0, activeWeek = 0;
       users.forEach(function(u){
@@ -1017,52 +1253,30 @@
       });
       document.getElementById("appActiveToday").textContent = activeToday;
       document.getElementById("appActiveWeek").textContent = activeWeek;
-      if(!users.length){
-        wrap.innerHTML = '<div class="empty">No accounts yet.</div>';
-        return;
-      }
-      users.forEach(function(u){
-        var suspended = u.status === "suspended";
-        var row = document.createElement("div");
-        row.className = "flag-row";
-        row.style.alignItems = "flex-start";
-        row.style.flexWrap = "wrap";
-        row.style.gap = "8px";
-
-        var info = document.createElement("span");
-        info.className = "flag-label";
-        info.style.cssText = "display:flex;flex-direction:column;gap:2px;flex:1;min-width:140px";
-        info.innerHTML =
-          "<span style='display:flex;align-items:center;gap:6px'>" +
-            (u.firstName||"")+" "+(u.lastName||"") +
-            (suspended ? "<span class='flag-toggle off' style='padding:2px 8px;font-size:9px'>Suspended</span>" : "") +
-          "</span>" +
-          "<span style='font-size:11px;color:var(--paper-dim2);font-weight:400'>"+(u.phone||"no phone given")+"</span>" +
-          "<span style='font-size:11px;color:var(--paper-dim2);font-weight:400'>"+(u.email||"")+"</span>" +
-          "<span style='font-size:10px;color:var(--paper-dim2);font-weight:400'>joined "+timeAgoMarket(u.createdAt)+
-            (u.lastActiveAt ? " · last active "+timeAgoMarket(u.lastActiveAt) : "") + "</span>";
-
-        var actions = document.createElement("span");
-        actions.style.cssText = "display:flex;gap:6px;flex-shrink:0";
-
-        var suspendBtn = document.createElement("button");
-        suspendBtn.className = "btn small ghost";
-        suspendBtn.textContent = suspended ? "Reactivate" : "Stop";
-        suspendBtn.addEventListener("click", function(){ setAppUserSuspended(u.email, !suspended); });
-
-        var deleteBtn = document.createElement("button");
-        deleteBtn.className = "btn small danger";
-        deleteBtn.textContent = "Delete";
-        deleteBtn.addEventListener("click", function(){ deleteAppUser(u.email); });
-
-        actions.appendChild(suspendBtn);
-        actions.appendChild(deleteBtn);
-        row.appendChild(info);
-        row.appendChild(actions);
-        wrap.appendChild(row);
-      });
+      renderSignupTrend(users);
+      applyUserSearch();
     }).catch(function(){});
   }
+
+  function applyUserSearch(){
+    var q = document.getElementById("userSearchInput").value.trim().toLowerCase();
+    if(!q){ renderAppUsersList(currentAppUsers); return; }
+    var filtered = currentAppUsers.filter(function(u){
+      return ((u.firstName||"")+" "+(u.lastName||"")).toLowerCase().indexOf(q) !== -1 ||
+        (u.email||"").toLowerCase().indexOf(q) !== -1 ||
+        (u.phone||"").toLowerCase().indexOf(q) !== -1;
+    });
+    renderAppUsersList(filtered);
+  }
+  document.getElementById("userSearchInput").addEventListener("input", applyUserSearch);
+
+  document.getElementById("exportAccountsBtn").addEventListener("click", function(){
+    var rows = [["First Name","Last Name","Email","Phone","Status","Created At (UTC)","Last Active (UTC)"]];
+    currentAppUsers.forEach(function(u){
+      rows.push([u.firstName||"", u.lastName||"", u.email||"", u.phone||"", u.status||"active", u.createdAt||"", u.lastActiveAt||""]);
+    });
+    downloadCsv("se3r-accounts-"+new Date().toISOString().slice(0,10)+".csv", rows);
+  });
 
   function setAppUserSuspended(email, suspended){
     authedFetch("/admin/app-users/suspend", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({email:email, suspended:suspended})})
@@ -1075,6 +1289,41 @@
     authedFetch("/admin/app-users?email="+encodeURIComponent(email), {method:"DELETE"})
       .then(function(){ loadAppUsers(); })
       .catch(function(){});
+  }
+
+  /* ---------- audit log ---------- */
+
+  var AUDIT_LABELS = {
+    flag_set: "Flag changed", rate_override_set: "Rate override set",
+    rate_override_cleared: "Rate override cleared", rate_overrides_reset_all: "All overrides reset",
+    currency_added: "Currency added", currency_removed: "Currency removed",
+    currencies_reordered: "Currencies reordered", channel_added: "Source added",
+    channel_started: "Source started", channel_stopped: "Source stopped",
+    channel_removed: "Source removed", account_suspended: "Account suspended",
+    account_reactivated: "Account reactivated", account_deleted: "Account deleted",
+    push_sent: "Notification sent",
+  };
+
+  function renderAuditLog(log){
+    var wrap = document.getElementById("auditRows");
+    wrap.innerHTML = "";
+    if(!log || !log.length){
+      wrap.innerHTML = '<div class="empty">Nothing logged yet.</div>';
+      return;
+    }
+    log.forEach(function(entry){
+      var row = document.createElement("div");
+      row.className = "audit-row";
+      var label = AUDIT_LABELS[entry.action] || entry.action;
+      row.innerHTML =
+        '<span class="act">'+label+(entry.detail ? ' <span style="color:var(--paper-dim)">— '+entry.detail+'</span>' : '')+'</span>' +
+        '<span class="when">'+timeAgoShort(entry.created_at)+'</span>';
+      wrap.appendChild(row);
+    });
+  }
+
+  function loadAuditLog(){
+    authedFetch("/admin/audit-log").then(function(d){ renderAuditLog(d.log); }).catch(function(){});
   }
 
   document.getElementById("feedbackDeleteBtn").addEventListener("click", function(){
