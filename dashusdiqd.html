@@ -19,6 +19,13 @@
     --dark:#000000; --dark-2:#141416; --dark-3:#1e1e21;
     --line:#2c2c2e; --paper:#ffffff; --paper-dim:#98989d; --paper-dim2:#636366;
     --accent:#30d158; --blue:#0a84ff; --danger:#ff453a; --gold:#f5c542;
+    /* Section accent colors — dark-mode categorical steps, validated for CVD-safe
+       adjacent contrast (see dataviz skill palette.md). One hue per dashboard
+       section, used only as a left-accent bar + section-header dot, never as
+       the only signal for anything (status still carries its own icon/label). */
+    --cat-emergency:#e66767; --cat-rates:#3987e5; --cat-site:#199e70;
+    --cat-comms:#9085e9; --cat-users:#d95926; --cat-system:#c98500;
+    --status-good:#0ca30c; --status-warning:#fab219; --status-critical:#d03b3b;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{
@@ -130,6 +137,49 @@
   .channel-city-row .val .changes{display:block;font-size:10px;color:var(--paper-dim2);margin-top:2px}
   .detect-preview{background:var(--dark-3);border-radius:10px;padding:12px;margin-top:10px}
   .detect-preview h3{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--paper-dim);margin-bottom:8px}
+
+  /* ---------- redesign: sections, colored card accents, new shapes ---------- */
+
+  .section{margin-bottom:26px}
+  .section-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-left:2px}
+  .section-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+  .section-title{font-family:"Sora",sans-serif;font-weight:800;font-size:15px;letter-spacing:.02em}
+  .section-sub{font-size:11px;color:var(--paper-dim2);margin-left:auto}
+
+  .dcols > .card{border-top:3px solid transparent;border-radius:16px}
+  .card.cat-emergency{border-top-color:var(--cat-emergency)}
+  .card.cat-rates{border-top-color:var(--cat-rates)}
+  .card.cat-site{border-top-color:var(--cat-site)}
+  .card.cat-comms{border-top-color:var(--cat-comms)}
+  .card.cat-users{border-top-color:var(--cat-users)}
+  .card.cat-system{border-top-color:var(--cat-system)}
+
+  .stat-chip-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+  .stat-chip{flex:1;min-width:120px;background:var(--dark-2);border-radius:14px;padding:12px 14px;
+    display:flex;flex-direction:column;gap:2px;position:relative;overflow:hidden}
+  .stat-chip::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px}
+  .stat-chip.good::before{background:var(--status-good)}
+  .stat-chip.warn::before{background:var(--status-warning)}
+  .stat-chip.crit::before{background:var(--status-critical)}
+  .stat-chip.neutral::before{background:var(--line)}
+  .stat-chip-val{font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:20px}
+  .stat-chip-lbl{font-size:10px;color:var(--paper-dim);text-transform:uppercase;letter-spacing:.04em}
+
+  .pill-btn{border:none;background:var(--dark-3);color:var(--paper);border-radius:999px;
+    padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0}
+  .pill-btn.danger{background:rgba(255,69,58,.15);color:var(--danger)}
+  .pill-btn.ghost{background:transparent;border:1px solid var(--line);color:var(--paper-dim)}
+
+  .usage-bar-row{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:12px}
+  .usage-bar-row .lbl{width:90px;flex-shrink:0;color:var(--paper-dim)}
+  .usage-bar-track{flex:1;height:6px;background:var(--dark-3);border-radius:3px;overflow:hidden}
+  .usage-bar-fill{height:100%;border-radius:3px}
+  .usage-bar-row .val{width:36px;text-align:right;flex-shrink:0;font-family:"IBM Plex Mono",monospace}
+
+  .session-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;
+    border-bottom:1px solid var(--dark-3);font-size:12px}
+  .session-row:last-child{border-bottom:none}
+  .session-row.current{color:var(--status-good)}
 </style>
 </head>
 <body>
@@ -152,245 +202,350 @@
     <div id="jumpNav" style="position:sticky;top:8px;z-index:20;margin-bottom:16px">
       <select id="jumpSelect" class="input" style="width:100%;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.45)">
         <option value="">Jump to section…</option>
-        <option value="emergencyCard">⚠ Emergency</option>
-        <option value="marketRatesCard">Market Rates</option>
-        <option value="rateControlCard">Rate Control</option>
-        <option value="rateSourcesCard">Rate Sources</option>
-        <option value="backupCard">Backup</option>
-        <option value="appSiteControlCard">App / Site Control</option>
-        <option value="currenciesCard">Currencies</option>
-        <option value="sendNotificationCard">Send Notification</option>
-        <option value="notificationHistoryCard">Notification History</option>
-        <option value="feedbackCard">Feedback</option>
-        <option value="appAccountsCard">App Accounts</option>
-        <option value="auditLogCard">Audit Log</option>
-        <option value="activeNowCard">Active Now</option>
+        <optgroup label="⚠ Emergency">
+          <option value="emergencyCard">Kill switches &amp; App Reset</option>
+        </optgroup>
+        <optgroup label="Rates">
+          <option value="marketRatesCard">Market Rates</option>
+          <option value="rateControlCard">Rate Control</option>
+          <option value="rateSourcesCard">Rate Sources</option>
+          <option value="backupCard">Backup</option>
+        </optgroup>
+        <optgroup label="Site &amp; Currencies">
+          <option value="appSiteControlCard">App / Site Control</option>
+          <option value="currenciesCard">Currencies</option>
+        </optgroup>
+        <optgroup label="Communication">
+          <option value="sendNotificationCard">Send Notification</option>
+          <option value="notificationHistoryCard">Notification History</option>
+          <option value="feedbackCard">Feedback</option>
+        </optgroup>
+        <optgroup label="Users &amp; Security">
+          <option value="appAccountsCard">App Accounts</option>
+          <option value="sessionsCard">Dashboard Sessions</option>
+        </optgroup>
+        <optgroup label="System &amp; Analytics">
+          <option value="auditLogCard">Audit Log</option>
+          <option value="apiUsageCard">API Usage</option>
+          <option value="topPagesCard">Top Pages</option>
+          <option value="activeNowCard">Active Now</option>
+        </optgroup>
       </select>
     </div>
 
-    <div class="card" id="emergencyCard" style="border:1px solid rgba(255,69,58,.4);background:linear-gradient(135deg,rgba(255,69,58,.08),var(--dark-2))">
-      <h2 style="color:var(--danger)">⚠ Emergency</h2>
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid rgba(255,69,58,.2)">
-        <div>
-          <div style="font-weight:700;font-size:14px" id="maintenanceLabel">App is running normally</div>
-          <div style="font-size:11px;color:var(--paper-dim);margin-top:2px">
-            Turning this on shows every user a "down for maintenance" screen instead of the app — the one button that stops everything at once.
-          </div>
-        </div>
-        <button class="flag-toggle" id="maintenanceToggle" style="flex-shrink:0"></button>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-        <div>
-          <div style="font-weight:700;font-size:14px" id="siteMaintenanceLabel">Website is running normally</div>
-          <div style="font-size:11px;color:var(--paper-dim);margin-top:2px">
-            Turning this on shows every website visitor a "down for maintenance" page — same idea, but for se3rforiqd.xyz instead of the app.
-          </div>
-        </div>
-        <button class="flag-toggle" id="siteMaintenanceToggle" style="flex-shrink:0"></button>
-      </div>
-    </div>
+    <div class="stat-chip-row" id="statChipRow"></div>
 
-    <br>
-
-    <div class="dcols">
-    <div class="card" id="marketRatesCard">
-      <h2>Market Rates</h2>
-      <div class="card-body">
-      <div class="card-desc">The live rate for one city, straight from whichever source channel posted it most recently. Green dot = fresh, red = stale.</div>
-      <div id="marketIssue" style="display:none;font-size:12px;color:var(--danger);background:rgba(255,69,58,.12);border:1px solid rgba(255,69,58,.35);border-radius:10px;padding:9px 12px;margin-bottom:12px"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-        <div style="display:flex;align-items:center;gap:9px;min-width:0">
-          <span id="marketDot" style="width:9px;height:9px;border-radius:50%;flex-shrink:0"></span>
-          <select id="marketCitySelect" class="input" style="width:auto;padding:7px 28px 7px 10px;font-weight:700;font-size:13px"></select>
-        </div>
-        <div style="text-align:right">
-          <div id="marketRateVal" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px"></div>
-          <div id="marketChangedAt" style="font-size:11px;color:var(--paper-dim2)"></div>
-        </div>
+    <div class="section" id="emergencyCard">
+      <div class="section-head">
+        <span class="section-dot" style="background:var(--cat-emergency)"></span>
+        <span class="section-title" style="color:var(--cat-emergency)">⚠ Emergency</span>
       </div>
-      <div id="marketSparkBox" style="height:44px;margin-top:12px"></div>
-      </div>
-    </div>
-
-    <div class="card" id="rateControlCard">
-      <h2 style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-        <span>Rate Control</span>
-        <button class="btn small ghost" id="resetAllRatesBtn" style="text-transform:none;letter-spacing:0;font-weight:700">Reset to live</button>
-      </h2>
-      <div class="card-body">
-      <div class="card-desc">Manually pin a city's rate — it overrides live source data until you clear it or set a new one. "Reset to live" clears every override at once.</div>
-      <div id="rateRows"></div>
-      <div class="msg" id="rateMsg"></div>
-      </div>
-    </div>
-
-    <div class="card" id="rateSourcesCard">
-      <h2>Rate Sources</h2>
-      <div class="card-body">
-      <p style="font-size:12px;color:var(--paper-dim);margin-bottom:12px">
-        Any number of channels can be active at once. For each city, whichever active
-        channel posted most recently wins — including your manual overrides above, which
-        stay in effect until a channel posts something newer. Tap a channel to see which
-        cities it covers and how many times each rate has changed.
-      </p>
-      <div id="channelRows"></div>
-
-      <div class="rate-edit" style="margin-top:14px">
-        <input class="input" id="sourceInput" type="text" placeholder="Channel username, e.g. dollar_price" autocomplete="off" />
-        <button class="btn small" id="detectBtn">Detect</button>
-      </div>
-      <div class="msg" id="sourceMsg"></div>
-
-      <div class="detect-preview" id="detectPreview" style="display:none">
-        <h3>Detected in recent posts</h3>
-        <div id="detectRows"></div>
-        <button class="btn small" id="confirmAddBtn" style="margin-top:10px">Add — stopped, won't affect app/site yet</button>
-      </div>
-      </div>
-    </div>
-
-    <div class="card" id="backupCard">
-      <h2>Backup</h2>
-      <div class="card-body">
-      <p style="font-size:12px;color:var(--paper-dim);margin-bottom:12px">
-        Downloads a full snapshot of the rate system — channels, overrides, currencies,
-        feature flags, last known rates, 24h rate history — plus all accounts, as one JSON file.
-      </p>
-      <button class="btn" id="downloadBackupBtn">Download Backup</button>
-      <div class="msg" id="backupMsg"></div>
-      </div>
-    </div>
-
-    <div class="card" id="appSiteControlCard">
-      <h2>App / Site Control</h2>
-      <div class="card-body">
-      <div class="card-desc">Individual on/off switches for one page or feature at a time. For "everything off" use the Emergency card instead.</div>
-      <div id="flagRows"></div>
-      <div class="msg" id="flagMsg"></div>
-      </div>
-    </div>
-
-    <div class="card" id="currenciesCard">
-      <h2>Currencies</h2>
-      <div class="card-body">
-      <p style="font-size:12px;color:var(--paper-dim);margin-bottom:12px">
-        Baghdad/Erbil IQD are always on. These extra currencies show up in the
-        converter on the app and site, in this order — remove one to turn it off
-        everywhere, or reorder with the arrows.
-      </p>
-      <div id="currencyRows"></div>
-      <div class="rate-edit" style="margin-top:14px">
-        <input class="input" id="currencyCodeInput" type="text" placeholder="Code, e.g. EUR" maxlength="3" autocomplete="off" style="text-transform:uppercase" />
-        <input class="input" id="currencyLabelInput" type="text" placeholder="Label, e.g. Euro" autocomplete="off" />
-        <button class="btn small" id="addCurrencyBtn">Add</button>
-      </div>
-      <div class="msg" id="currencyMsg"></div>
-      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--dark-3)">
-        <div style="font-size:11px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Add several at once</div>
-        <textarea class="input" id="bulkCurrencyInput" rows="3" placeholder="One per line: EUR Euro&#10;GBP British Pound&#10;or just codes: EUR, GBP, TRY" style="resize:vertical;font-family:inherit"></textarea>
-        <button class="btn small ghost" id="bulkAddCurrencyBtn" style="margin-top:8px">Add all</button>
-        <div class="msg" id="bulkCurrencyMsg"></div>
-      </div>
-      </div>
-    </div>
-
-    <div class="card" id="sendNotificationCard">
-      <h2>Send Notification</h2>
-      <div class="card-body">
-      <input class="input" id="pushTitle" type="text" placeholder="Title" maxlength="60" aria-label="Notification title" />
-      <input class="input" id="pushBody" type="text" placeholder="Message" maxlength="150" style="margin-top:8px" aria-label="Notification message" />
-      <button class="btn" id="pushSendBtn" aria-label="Send notification to all devices">Send to all devices</button>
-      <div class="msg" id="pushMsg"></div>
-      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--dark-3)">
-        <div style="font-size:11px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Proof it on one device first</div>
-        <input class="input" id="testDeviceToken" type="text" placeholder="Your device's push token (saved locally)" autocomplete="off" style="font-size:11px" />
-        <button class="btn small ghost" id="pushTestBtn" style="margin-top:8px">Send test only</button>
-        <div class="msg" id="pushTestMsg"></div>
-      </div>
-      </div>
-    </div>
-
-    <div class="card" id="notificationHistoryCard">
-      <h2>Notification History</h2>
-      <div class="card-body">
-      <div class="card-desc">The last notifications actually delivered — manual sends and automatic rate-change alerts both land here.</div>
-      <div id="notifHistoryRows"></div>
-      </div>
-    </div>
-
-    <div class="card" id="feedbackCard">
-      <h2 style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-        <span>Feedback <span id="feedbackUnread" class="rate-tag" style="display:none"></span></span>
-        <button class="btn small ghost" id="exportFeedbackBtn" style="text-transform:none;letter-spacing:0;font-weight:700">Export CSV</button>
-      </h2>
-      <div class="card-body">
-      <div id="feedbackList"></div>
-      <div id="feedbackDetail" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--dark-3)">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="card cat-emergency" style="background:linear-gradient(135deg,rgba(230,103,103,.10),var(--dark-2))">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid rgba(255,69,58,.2)">
           <div>
-            <div id="feedbackDetailName" style="font-weight:700;font-size:14px"></div>
-            <div id="feedbackDetailWhen" style="font-size:11px;color:var(--paper-dim2);margin-top:2px"></div>
+            <div style="font-weight:700;font-size:14px" id="maintenanceLabel">App is running normally</div>
+            <div style="font-size:11px;color:var(--paper-dim);margin-top:2px">
+              Turning this on shows every user a "down for maintenance" screen instead of the app — the one button that stops everything at once.
+            </div>
           </div>
-          <button class="btn small danger" id="feedbackDeleteBtn">Delete</button>
+          <button class="flag-toggle" id="maintenanceToggle" style="flex-shrink:0"></button>
         </div>
-        <div id="feedbackDetailContact" style="font-size:12px;color:var(--paper-dim);margin-bottom:10px"></div>
-        <div id="feedbackDetailMessage" style="font-size:13px;line-height:1.6;white-space:pre-wrap;margin-bottom:12px"></div>
-        <a id="feedbackReplyBtn" class="btn small ghost" style="text-decoration:none;display:none">Reply by email</a>
-      </div>
-      <div class="msg" id="feedbackMsg"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid rgba(255,69,58,.2)">
+          <div>
+            <div style="font-weight:700;font-size:14px" id="siteMaintenanceLabel">Website is running normally</div>
+            <div style="font-size:11px;color:var(--paper-dim);margin-top:2px">
+              Turning this on shows every website visitor a "down for maintenance" page — same idea, but for se3rforiqd.xyz instead of the app.
+            </div>
+          </div>
+          <button class="flag-toggle" id="siteMaintenanceToggle" style="flex-shrink:0"></button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <div>
+            <div style="font-weight:700;font-size:14px">Force reset the app</div>
+            <div style="font-size:11px;color:var(--paper-dim);margin-top:2px">
+              Clears cached city/language preferences on every device and reloads fresh data — for a screen that's stuck or crashing, not for logging anyone out. Takes effect next time each device opens the app.
+            </div>
+          </div>
+          <button class="pill-btn danger" id="appResetBtn" style="flex-shrink:0">Reset App</button>
+        </div>
+        <div class="msg" id="appResetMsg"></div>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,69,58,.2)">
+          <div style="font-size:11px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Custom maintenance message (optional)</div>
+          <input class="input" id="maintenanceTitleInput" type="text" placeholder="Title, e.g. Down for maintenance" maxlength="80" autocomplete="off" />
+          <input class="input" id="maintenanceBodyInput" type="text" placeholder="Message shown under the title" maxlength="500" style="margin-top:8px" autocomplete="off" />
+          <button class="btn small ghost" id="saveMaintenanceMsgBtn" style="margin-top:8px">Save message</button>
+          <div class="msg" id="maintenanceMsgMsg"></div>
+        </div>
       </div>
     </div>
 
-    <div class="card" id="appAccountsCard">
-      <h2 style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-        <span>App Accounts</span>
-        <button class="btn small ghost" id="exportAccountsBtn" style="text-transform:none;letter-spacing:0;font-weight:700">Export CSV</button>
-      </h2>
-      <div class="card-body">
-      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
-        <span id="appUsersCount" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:28px">—</span>
-        <span style="font-size:12px;color:var(--paper-dim)">accounts created</span>
+    <div class="section">
+      <div class="section-head">
+        <span class="section-dot" style="background:var(--cat-rates)"></span>
+        <span class="section-title">Rates</span>
       </div>
-      <div style="display:flex;gap:14px;margin-bottom:12px;flex-wrap:wrap">
-        <div>
-          <span id="appActiveToday" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px;color:var(--accent)">—</span>
-          <span style="font-size:11px;color:var(--paper-dim)"> active today</span>
+      <div class="dcols">
+      <div class="card cat-rates" id="marketRatesCard">
+        <h2>Market Rates</h2>
+        <div class="card-body">
+        <div class="card-desc">The live rate for one city, straight from whichever source channel posted it most recently. Green dot = fresh, red = stale.</div>
+        <div id="marketIssue" style="display:none;font-size:12px;color:var(--danger);background:rgba(255,69,58,.12);border:1px solid rgba(255,69,58,.35);border-radius:10px;padding:9px 12px;margin-bottom:12px"></div>
+        <div id="goldIssue" style="display:none;font-size:12px;color:var(--status-warning);background:rgba(250,178,25,.12);border:1px solid rgba(250,178,25,.35);border-radius:10px;padding:9px 12px;margin-bottom:12px"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div style="display:flex;align-items:center;gap:9px;min-width:0">
+            <span id="marketDot" style="width:9px;height:9px;border-radius:50%;flex-shrink:0"></span>
+            <select id="marketCitySelect" class="input" style="width:auto;padding:7px 28px 7px 10px;font-weight:700;font-size:13px"></select>
+          </div>
+          <div style="text-align:right">
+            <div id="marketRateVal" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px"></div>
+            <div id="marketChangedAt" style="font-size:11px;color:var(--paper-dim2)"></div>
+          </div>
         </div>
-        <div>
-          <span id="appActiveWeek" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px">—</span>
-          <span style="font-size:11px;color:var(--paper-dim)"> active this week</span>
-        </div>
-        <div>
-          <span id="smsCodeAccountCount" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px">—</span>
-          <span style="font-size:11px;color:var(--paper-dim)"> via SMS code</span>
+        <div id="marketSparkBox" style="height:44px;margin-top:12px"></div>
         </div>
       </div>
-      <div style="font-size:11px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Signups, last 14 days</div>
-      <div class="trend-bars" id="signupTrend"></div>
-      <input class="input search-input" id="userSearchInput" type="text" placeholder="Search by name, email or phone…" autocomplete="off" />
-      <div id="appUsersList"></div>
+
+      <div class="card cat-rates" id="rateControlCard">
+        <h2 style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <span>Rate Control</span>
+          <button class="btn small ghost" id="resetAllRatesBtn" style="text-transform:none;letter-spacing:0;font-weight:700">Reset to live</button>
+        </h2>
+        <div class="card-body">
+        <div class="card-desc">Manually pin a city's rate — it overrides live source data until you clear it or set a new one. "Reset to live" clears every override at once.</div>
+        <div id="rateRows"></div>
+        <div class="msg" id="rateMsg"></div>
+        </div>
+      </div>
+
+      <div class="card cat-rates" id="rateSourcesCard">
+        <h2>Rate Sources</h2>
+        <div class="card-body">
+        <p style="font-size:12px;color:var(--paper-dim);margin-bottom:12px">
+          Any number of channels can be active at once. For each city, whichever active
+          channel posted most recently wins — including your manual overrides above, which
+          stay in effect until a channel posts something newer. Tap a channel to see which
+          cities it covers and how many times each rate has changed.
+        </p>
+        <div id="channelRows"></div>
+
+        <div class="rate-edit" style="margin-top:14px">
+          <input class="input" id="sourceInput" type="text" placeholder="Channel username, e.g. dollar_price" autocomplete="off" />
+          <button class="btn small" id="detectBtn">Detect</button>
+        </div>
+        <div class="msg" id="sourceMsg"></div>
+
+        <div class="detect-preview" id="detectPreview" style="display:none">
+          <h3>Detected in recent posts</h3>
+          <div id="detectRows"></div>
+          <button class="btn small" id="confirmAddBtn" style="margin-top:10px">Add — stopped, won't affect app/site yet</button>
+        </div>
+        </div>
+      </div>
+
+      <div class="card cat-rates" id="backupCard">
+        <h2>Backup</h2>
+        <div class="card-body">
+        <p style="font-size:12px;color:var(--paper-dim);margin-bottom:12px">
+          Downloads a full snapshot of the rate system — channels, overrides, currencies,
+          feature flags, last known rates, 24h rate history — plus all accounts, as one JSON file.
+        </p>
+        <button class="btn" id="downloadBackupBtn">Download Backup</button>
+        <div class="msg" id="backupMsg"></div>
+        </div>
+      </div>
       </div>
     </div>
 
-    <div class="card" id="auditLogCard">
-      <h2>Audit Log</h2>
-      <div class="card-body">
-      <div class="card-desc">What changed on this dashboard, most recent first — flags, rate overrides, currencies, sources, accounts.</div>
-      <div id="auditRows"></div>
+    <div class="section">
+      <div class="section-head">
+        <span class="section-dot" style="background:var(--cat-site)"></span>
+        <span class="section-title">Site &amp; Currencies</span>
+      </div>
+      <div class="dcols">
+      <div class="card cat-site" id="appSiteControlCard">
+        <h2>App / Site Control</h2>
+        <div class="card-body">
+        <div class="card-desc">Individual on/off switches for one page or feature at a time. For "everything off" use the Emergency card instead.</div>
+        <div id="flagRows"></div>
+        <div class="msg" id="flagMsg"></div>
+        </div>
+      </div>
+
+      <div class="card cat-site" id="currenciesCard">
+        <h2>Currencies</h2>
+        <div class="card-body">
+        <p style="font-size:12px;color:var(--paper-dim);margin-bottom:12px">
+          Baghdad/Erbil IQD are always on. These extra currencies show up in the
+          converter on the app and site, in this order — remove one to turn it off
+          everywhere, or reorder with the arrows.
+        </p>
+        <div id="currencyRows"></div>
+        <div class="rate-edit" style="margin-top:14px">
+          <input class="input" id="currencyCodeInput" type="text" placeholder="Code, e.g. EUR" maxlength="3" autocomplete="off" style="text-transform:uppercase" />
+          <input class="input" id="currencyLabelInput" type="text" placeholder="Label, e.g. Euro" autocomplete="off" />
+          <button class="btn small" id="addCurrencyBtn">Add</button>
+        </div>
+        <div class="msg" id="currencyMsg"></div>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--dark-3)">
+          <div style="font-size:11px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Add several at once</div>
+          <textarea class="input" id="bulkCurrencyInput" rows="3" placeholder="One per line: EUR Euro&#10;GBP British Pound&#10;or just codes: EUR, GBP, TRY" style="resize:vertical;font-family:inherit"></textarea>
+          <button class="btn small ghost" id="bulkAddCurrencyBtn" style="margin-top:8px">Add all</button>
+          <div class="msg" id="bulkCurrencyMsg"></div>
+        </div>
+        </div>
+      </div>
       </div>
     </div>
 
-    <div class="card" id="activeNowCard">
-      <h2>Active Now (website)</h2>
-      <div class="card-body">
-      <div class="card-desc">Visitors currently browsing se3rforiqd.xyz — not the app, and not the same as an account.</div>
-      <table>
-        <thead><tr><th>Visitor</th><th>Platform</th><th>Device</th><th>Last seen</th></tr></thead>
-        <tbody id="activeRows"></tbody>
-      </table>
-      <div class="empty" id="activeEmpty" style="display:none">No one online right now.</div>
+    <div class="section">
+      <div class="section-head">
+        <span class="section-dot" style="background:var(--cat-comms)"></span>
+        <span class="section-title">Communication</span>
+      </div>
+      <div class="dcols">
+      <div class="card cat-comms" id="sendNotificationCard">
+        <h2>Send Notification</h2>
+        <div class="card-body">
+        <input class="input" id="pushTitle" type="text" placeholder="Title" maxlength="60" aria-label="Notification title" />
+        <input class="input" id="pushBody" type="text" placeholder="Message" maxlength="150" style="margin-top:8px" aria-label="Notification message" />
+        <button class="btn" id="pushSendBtn" aria-label="Send notification to all devices">Send to all devices</button>
+        <div class="msg" id="pushMsg"></div>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--dark-3)">
+          <div style="font-size:11px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Proof it on one device first</div>
+          <input class="input" id="testDeviceToken" type="text" placeholder="Your device's push token (saved locally)" autocomplete="off" style="font-size:11px" />
+          <button class="btn small ghost" id="pushTestBtn" style="margin-top:8px">Send test only</button>
+          <div class="msg" id="pushTestMsg"></div>
+        </div>
+        </div>
+      </div>
+
+      <div class="card cat-comms" id="notificationHistoryCard">
+        <h2>Notification History</h2>
+        <div class="card-body">
+        <div class="card-desc">The last notifications actually delivered — manual sends and automatic rate-change alerts both land here.</div>
+        <div id="notifHistoryRows"></div>
+        </div>
+      </div>
+
+      <div class="card cat-comms" id="feedbackCard">
+        <h2 style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <span>Feedback <span id="feedbackUnread" class="rate-tag" style="display:none"></span></span>
+          <button class="btn small ghost" id="exportFeedbackBtn" style="text-transform:none;letter-spacing:0;font-weight:700">Export CSV</button>
+        </h2>
+        <div class="card-body">
+        <div id="feedbackList"></div>
+        <div id="feedbackDetail" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--dark-3)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div>
+              <div id="feedbackDetailName" style="font-weight:700;font-size:14px"></div>
+              <div id="feedbackDetailWhen" style="font-size:11px;color:var(--paper-dim2);margin-top:2px"></div>
+            </div>
+            <button class="btn small danger" id="feedbackDeleteBtn">Delete</button>
+          </div>
+          <div id="feedbackDetailContact" style="font-size:12px;color:var(--paper-dim);margin-bottom:10px"></div>
+          <div id="feedbackDetailMessage" style="font-size:13px;line-height:1.6;white-space:pre-wrap;margin-bottom:12px"></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <a id="feedbackReplyBtn" class="btn small ghost" style="text-decoration:none;display:none;margin-top:0">Reply by email</a>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--paper-dim);cursor:pointer">
+              <input type="checkbox" id="feedbackRepliedCheck" /> Marked as replied
+            </label>
+          </div>
+        </div>
+        <div class="msg" id="feedbackMsg"></div>
+        </div>
+      </div>
       </div>
     </div>
+
+    <div class="section">
+      <div class="section-head">
+        <span class="section-dot" style="background:var(--cat-users)"></span>
+        <span class="section-title">Users &amp; Security</span>
+      </div>
+      <div class="dcols">
+      <div class="card cat-users" id="appAccountsCard">
+        <h2 style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <span>App Accounts</span>
+          <button class="btn small ghost" id="exportAccountsBtn" style="text-transform:none;letter-spacing:0;font-weight:700">Export CSV</button>
+        </h2>
+        <div class="card-body">
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+          <span id="appUsersCount" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:28px">—</span>
+          <span style="font-size:12px;color:var(--paper-dim)">accounts created</span>
+        </div>
+        <div style="display:flex;gap:14px;margin-bottom:12px;flex-wrap:wrap">
+          <div>
+            <span id="appActiveToday" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px;color:var(--accent)">—</span>
+            <span style="font-size:11px;color:var(--paper-dim)"> active today</span>
+          </div>
+          <div>
+            <span id="appActiveWeek" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px">—</span>
+            <span style="font-size:11px;color:var(--paper-dim)"> active this week</span>
+          </div>
+          <div>
+            <span id="smsCodeAccountCount" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px">—</span>
+            <span style="font-size:11px;color:var(--paper-dim)"> via SMS code</span>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Signups, last 14 days</div>
+        <div class="trend-bars" id="signupTrend"></div>
+        <input class="input search-input" id="userSearchInput" type="text" placeholder="Search by name, email or phone…" autocomplete="off" />
+        <div id="appUsersList"></div>
+        </div>
+      </div>
+
+      <div class="card cat-users" id="sessionsCard">
+        <h2>Dashboard Sessions</h2>
+        <div class="card-body">
+        <div class="card-desc">Every device currently signed into this dashboard. Revoke any you don't recognize.</div>
+        <div id="sessionRows"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <span class="section-dot" style="background:var(--cat-system)"></span>
+        <span class="section-title">System &amp; Analytics</span>
+      </div>
+      <div class="dcols">
+      <div class="card cat-system" id="auditLogCard">
+        <h2>Audit Log</h2>
+        <div class="card-body">
+        <div class="card-desc">What changed on this dashboard, most recent first — flags, rate overrides, currencies, sources, accounts.</div>
+        <div id="auditRows"></div>
+        </div>
+      </div>
+
+      <div class="card cat-system" id="apiUsageCard">
+        <h2>API Usage</h2>
+        <div class="card-body">
+        <div class="card-desc">Calls made today to the paid/quota-limited third-party APIs, so a spike or an outage doesn't come as a surprise.</div>
+        <div id="apiUsageRows"></div>
+        </div>
+      </div>
+
+      <div class="card cat-system" id="topPagesCard">
+        <h2>Top Pages</h2>
+        <div class="card-body">
+        <div class="card-desc">Most-visited paths on the website, all time.</div>
+        <div id="topPagesRows"></div>
+        </div>
+      </div>
+
+      <div class="card cat-system" id="activeNowCard">
+        <h2>Active Now (website)</h2>
+        <div class="card-body">
+        <div class="card-desc">Visitors currently browsing se3rforiqd.xyz — not the app, and not the same as an account.</div>
+        <table>
+          <thead><tr><th>Visitor</th><th>Platform</th><th>Device</th><th>Last seen</th></tr></thead>
+          <tbody id="activeRows"></tbody>
+        </table>
+        <div class="empty" id="activeEmpty" style="display:none">No one online right now.</div>
+        </div>
+      </div>
+      </div>
     </div>
 
     <button class="btn danger" id="dashLogout" aria-label="Log out">Log out</button>
@@ -421,6 +576,26 @@
     if(s < 60) return s+"s ago";
     if(s < 3600) return Math.floor(s/60)+"m ago";
     return Math.floor(s/3600)+"h ago";
+  }
+
+  /* ---------- stat chips (top-of-page at-a-glance strip) ---------- */
+
+  var dashSummary = { appOn: true, siteOn: true, accounts: null, unreadFeedback: 0, pushTokens: null, scrapeOk: true };
+
+  function chipHtml(cls, val, lbl){
+    return '<div class="stat-chip '+cls+'"><span class="stat-chip-val">'+val+'</span><span class="stat-chip-lbl">'+lbl+'</span></div>';
+  }
+
+  function renderStatChips(){
+    var el = document.getElementById("statChipRow");
+    if(!el) return;
+    el.innerHTML =
+      chipHtml(dashSummary.appOn ? "good" : "crit", dashSummary.appOn ? "Running" : "DOWN", "App") +
+      chipHtml(dashSummary.siteOn ? "good" : "crit", dashSummary.siteOn ? "Running" : "DOWN", "Website") +
+      chipHtml("neutral", dashSummary.accounts != null ? dashSummary.accounts : "—", "Accounts") +
+      chipHtml(dashSummary.unreadFeedback > 0 ? "warn" : "neutral", dashSummary.unreadFeedback, "Unread Feedback") +
+      chipHtml("neutral", dashSummary.pushTokens != null ? dashSummary.pushTokens : "—", "Devices") +
+      chipHtml(dashSummary.scrapeOk ? "good" : "warn", dashSummary.scrapeOk ? "OK" : "Issue", "Rate Scrape");
   }
 
   function downloadCsv(filename, rows){
@@ -459,6 +634,8 @@
     loadCurrencies();
     loadNotificationHistory();
     loadAuditLog();
+    loadSessions();
+    loadApiUsage();
     if(statsTimer) clearInterval(statsTimer);
     statsTimer = setInterval(loadStats, 10000);
     resetIdleTimer();
@@ -705,6 +882,15 @@
       } else {
         issueEl.style.display = "none";
       }
+      var goldEl = document.getElementById("goldIssue");
+      if(d.goldScrapeIssue){
+        goldEl.style.display = "";
+        goldEl.textContent = "⚠ Gold price scrape has failed " + d.goldScrapeIssue.consecutiveFailures + " time(s) in a row (~" + d.goldScrapeIssue.minutesDown + " min) — @azura_gold may be unreachable.";
+      } else {
+        goldEl.style.display = "none";
+      }
+      dashSummary.scrapeOk = !d.scrapeIssue && !d.goldScrapeIssue;
+      renderStatChips();
     }).catch(function(){});
     loadMarketSpark();
   }
@@ -905,6 +1091,7 @@
 
   function renderMaintenanceToggle(flags){
     var on = flags["app_operational"] !== false; // missing key = operating normally
+    dashSummary.appOn = on; renderStatChips();
     var btn = document.getElementById("maintenanceToggle");
     var label = document.getElementById("maintenanceLabel");
     btn.className = "flag-toggle " + (on ? "on" : "off");
@@ -919,6 +1106,7 @@
 
   function renderSiteMaintenanceToggle(flags){
     var on = flags["site_operational"] !== false; // missing key = operating normally
+    dashSummary.siteOn = on; renderStatChips();
     var btn = document.getElementById("siteMaintenanceToggle");
     var label = document.getElementById("siteMaintenanceLabel");
     btn.className = "flag-toggle " + (on ? "on" : "off");
@@ -956,8 +1144,33 @@
 
   function loadFlags(){
     fetch(WORKER_URL + "/flags").then(function(r){ return r.json(); })
-      .then(function(d){ renderFlags(d.flags || {}); }).catch(function(){});
+      .then(function(d){
+        renderFlags(d.flags || {});
+        if(d.maintenanceOverride){
+          document.getElementById("maintenanceTitleInput").value = d.maintenanceOverride.title || "";
+          document.getElementById("maintenanceBodyInput").value = d.maintenanceOverride.body || "";
+        }
+      }).catch(function(){});
   }
+
+  document.getElementById("appResetBtn").addEventListener("click", function(){
+    var msg = document.getElementById("appResetMsg");
+    if(!confirm("Force every device to clear its cached preferences and reload fresh data next time it opens the app? Use this for a stuck or crashing screen — it does not log anyone out.")) return;
+    msg.textContent = "Sending...";
+    authedFetch("/admin/app-reset", {method:"POST"})
+      .then(function(d){ msg.textContent = d && d.error ? d.error : "Done — takes effect next time each device opens the app."; })
+      .catch(function(){ msg.textContent = "Failed to send."; });
+  });
+
+  document.getElementById("saveMaintenanceMsgBtn").addEventListener("click", function(){
+    var msg = document.getElementById("maintenanceMsgMsg");
+    var title = document.getElementById("maintenanceTitleInput").value.trim();
+    var body = document.getElementById("maintenanceBodyInput").value.trim();
+    msg.textContent = "Saving...";
+    authedFetch("/admin/maintenance-message", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({title:title, body:body})})
+      .then(function(){ msg.textContent = "Saved — used next time maintenance mode is on."; })
+      .catch(function(){ msg.textContent = "Failed to save."; });
+  });
 
   function setFlag(key, enabled){
     var msg = document.getElementById("flagMsg");
@@ -1159,9 +1372,11 @@
     if(!feedbackItems.length){
       wrap.innerHTML = '<div class="empty">No feedback yet.</div>';
       unreadTag.style.display = "none";
+      dashSummary.unreadFeedback = 0; renderStatChips();
       return;
     }
     var unreadCount = feedbackItems.filter(function(f){ return !f.read; }).length;
+    dashSummary.unreadFeedback = unreadCount; renderStatChips();
     if(unreadCount > 0){
       unreadTag.style.display = "";
       unreadTag.textContent = unreadCount + " new";
@@ -1221,6 +1436,13 @@
     } else {
       replyBtn.style.display = "none";
     }
+
+    var repliedCheck = document.getElementById("feedbackRepliedCheck");
+    repliedCheck.checked = !!f.replied;
+    repliedCheck.onchange = function(){
+      f.replied = repliedCheck.checked ? 1 : 0;
+      authedFetch("/admin/feedback/replied", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({id:id, replied:repliedCheck.checked})}).catch(function(){});
+    };
 
     if(!f.read){
       f.read = 1;
@@ -1306,12 +1528,19 @@
       suspendBtn.textContent = suspended ? "Reactivate" : "Stop";
       suspendBtn.addEventListener("click", function(){ setAppUserSuspended(u.email, !suspended); });
 
+      var logoutBtn = document.createElement("button");
+      logoutBtn.className = "btn small ghost";
+      logoutBtn.textContent = "Force logout";
+      logoutBtn.title = "Logs the account out everywhere without suspending it";
+      logoutBtn.addEventListener("click", function(){ forceLogoutAppUser(u.email); });
+
       var deleteBtn = document.createElement("button");
       deleteBtn.className = "btn small danger";
       deleteBtn.textContent = "Delete";
       deleteBtn.addEventListener("click", function(){ deleteAppUser(u.email); });
 
       actions.appendChild(suspendBtn);
+      actions.appendChild(logoutBtn);
       actions.appendChild(deleteBtn);
       row.appendChild(info);
       row.appendChild(actions);
@@ -1323,6 +1552,7 @@
     authedFetch("/admin/app-users").then(function(d){
       document.getElementById("appUsersCount").textContent = d.count != null ? d.count : "—";
       document.getElementById("smsCodeAccountCount").textContent = d.smsCodeCount != null ? d.smsCodeCount : "—";
+      dashSummary.accounts = d.count; renderStatChips();
       var users = d.users || [];
       currentAppUsers = users;
       var now = Date.now();
@@ -1363,6 +1593,11 @@
   function setAppUserSuspended(email, suspended){
     authedFetch("/admin/app-users/suspend", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({email:email, suspended:suspended})})
       .then(function(){ loadAppUsers(); })
+      .catch(function(){});
+  }
+
+  function forceLogoutAppUser(email){
+    authedFetch("/admin/app-users/force-logout", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({email:email})})
       .catch(function(){});
   }
 
@@ -1443,10 +1678,100 @@
     });
   }
 
+  function renderTopPages(pages){
+    var wrap = document.getElementById("topPagesRows");
+    wrap.innerHTML = "";
+    if(!pages || !pages.length){ wrap.innerHTML = '<div class="empty">No traffic yet.</div>'; return; }
+    var max = pages[0].c || 1;
+    pages.forEach(function(p){
+      var pct = Math.round((p.c/max)*100);
+      var row = document.createElement("div");
+      row.className = "usage-bar-row";
+      row.innerHTML =
+        '<span class="lbl" title="'+p.path+'">'+p.path+'</span>' +
+        '<span class="usage-bar-track"><span class="usage-bar-fill" style="width:'+pct+'%;background:var(--cat-system)"></span></span>' +
+        '<span class="val">'+p.c+'</span>';
+      wrap.appendChild(row);
+    });
+  }
+
   function loadStats(){
     authedFetch("/admin/stats").then(function(d){
       renderActive(d.active);
+      renderTopPages(d.topPages);
+      dashSummary.pushTokens = d.pushTokenCount;
+      renderStatChips();
     }).catch(function(){});
+  }
+
+  /* ---------- dashboard sessions ---------- */
+
+  function renderSessions(sessions){
+    var wrap = document.getElementById("sessionRows");
+    wrap.innerHTML = "";
+    if(!sessions || !sessions.length){ wrap.innerHTML = '<div class="empty">No active sessions.</div>'; return; }
+    sessions.forEach(function(s){
+      var row = document.createElement("div");
+      row.className = "session-row" + (s.current ? " current" : "");
+      var revokeBtn = s.current ? "" : '<button class="pill-btn ghost" data-hash="'+s.tokenHash+'">Revoke</button>';
+      row.innerHTML =
+        '<span>'+(s.current ? "This device" : "Session " + s.id)+'<br><span style="color:var(--paper-dim2);font-size:10px">signed in '+timeAgoShort(s.createdAt)+'</span></span>' +
+        revokeBtn;
+      wrap.appendChild(row);
+    });
+    wrap.querySelectorAll("button[data-hash]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        if(!confirm("Sign this session out?")) return;
+        authedFetch("/admin/sessions", {method:"DELETE", headers:{"Content-Type":"application/json"}, body: JSON.stringify({tokenHash:btn.getAttribute("data-hash")})})
+          .then(function(){ loadSessions(); }).catch(function(){});
+      });
+    });
+  }
+
+  function loadSessions(){
+    authedFetch("/admin/sessions").then(function(d){ renderSessions(d.sessions); }).catch(function(){});
+  }
+
+  /* ---------- API usage ---------- */
+
+  var API_USAGE_LABELS = { google_places: "Google Places", otpiq: "OTPIQ SMS" };
+  var API_USAGE_COLORS = { google_places: "var(--cat-rates)", otpiq: "var(--cat-comms)" };
+
+  function renderApiUsage(usage){
+    var wrap = document.getElementById("apiUsageRows");
+    wrap.innerHTML = "";
+    var today = new Date().toISOString().slice(0, 10);
+    var byApi = {};
+    (usage || []).forEach(function(row){
+      if(!byApi[row.api]) byApi[row.api] = { today: 0, total: 0 };
+      byApi[row.api].total += row.calls;
+      if(row.day === today) byApi[row.api].today = row.calls;
+    });
+    var apis = Object.keys(API_USAGE_LABELS);
+    if(!apis.some(function(a){ return byApi[a]; })){
+      wrap.innerHTML = '<div class="empty">No calls in the last 14 days.</div>';
+      return;
+    }
+    var maxToday = Math.max.apply(null, apis.map(function(a){ return byApi[a] ? byApi[a].today : 0; }).concat([1]));
+    apis.forEach(function(api){
+      var c = byApi[api] || { today: 0, total: 0 };
+      var pct = Math.round((c.today/maxToday)*100);
+      var row = document.createElement("div");
+      row.className = "usage-bar-row";
+      row.innerHTML =
+        '<span class="lbl">'+API_USAGE_LABELS[api]+'</span>' +
+        '<span class="usage-bar-track"><span class="usage-bar-fill" style="width:'+pct+'%;background:'+API_USAGE_COLORS[api]+'"></span></span>' +
+        '<span class="val">'+c.today+'</span>';
+      wrap.appendChild(row);
+    });
+    var note = document.createElement("div");
+    note.style.cssText = "font-size:10px;color:var(--paper-dim2);margin-top:8px";
+    note.textContent = "Calls today, out of the last-14-day window shown here.";
+    wrap.appendChild(note);
+  }
+
+  function loadApiUsage(){
+    authedFetch("/admin/api-usage").then(function(d){ renderApiUsage(d.usage); }).catch(function(){});
   }
 
   if(localStorage.getItem(TOKEN_KEY)) showDashboard();
