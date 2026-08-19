@@ -424,6 +424,7 @@
         <div class="card-body">
         <div class="card-desc">The last notifications actually delivered — manual sends and automatic rate-change alerts both land here.</div>
         <div id="notifHistoryRows"></div>
+        <button class="btn small ghost" id="notifHistoryLoadMoreBtn" style="display:none;width:100%;margin-top:8px">Load more</button>
         </div>
       </div>
 
@@ -518,7 +519,11 @@
         <h2>Audit Log</h2>
         <div class="card-body">
         <div class="card-desc">What changed on this dashboard, most recent first — flags, rate overrides, currencies, sources, accounts.</div>
+        <select class="input" id="auditActionFilter" style="margin-bottom:10px;font-size:12px;padding:7px 10px">
+          <option value="">All actions</option>
+        </select>
         <div id="auditRows"></div>
+        <button class="btn small ghost" id="auditLoadMoreBtn" style="display:none;width:100%;margin-top:8px">Load more</button>
         </div>
       </div>
 
@@ -1333,11 +1338,14 @@
 
   /* ---------- notification history ---------- */
 
-  function renderNotificationHistory(history){
+  var notifHistoryItems = [];
+  var notifHistoryOldestId = null;
+
+  function renderNotificationHistory(history, append){
     var wrap = document.getElementById("notifHistoryRows");
-    wrap.innerHTML = "";
+    if(!append) wrap.innerHTML = "";
     if(!history || !history.length){
-      wrap.innerHTML = '<div class="empty">Nothing sent yet.</div>';
+      if(!append) wrap.innerHTML = '<div class="empty">Nothing sent yet.</div>';
       return;
     }
     history.forEach(function(n){
@@ -1347,13 +1355,21 @@
         '<span class="act"><b>'+n.title+'</b><br><span style="color:var(--paper-dim);font-size:11px">'+n.body+'</span></span>' +
         '<span class="when">'+timeAgoShort(n.sent_at)+'</span>';
       wrap.appendChild(row);
+      notifHistoryOldestId = n.id;
     });
   }
 
-  function loadNotificationHistory(){
-    fetch(WORKER_URL + "/notifications/history").then(function(r){ return r.json(); })
-      .then(function(d){ renderNotificationHistory(d.history); }).catch(function(){});
+  function loadNotificationHistory(append){
+    var url = "/notifications/history";
+    if(append && notifHistoryOldestId != null) url += "?beforeId=" + notifHistoryOldestId;
+    fetch(WORKER_URL + url).then(function(r){ return r.json(); })
+      .then(function(d){
+        renderNotificationHistory(d.history, append);
+        document.getElementById("notifHistoryLoadMoreBtn").style.display = d.hasMore ? "" : "none";
+      }).catch(function(){});
   }
+
+  document.getElementById("notifHistoryLoadMoreBtn").addEventListener("click", function(){ loadNotificationHistory(true); });
 
   /* ---------- feedback ---------- */
 
@@ -1622,14 +1638,20 @@
     channel_started: "Source started", channel_stopped: "Source stopped",
     channel_removed: "Source removed", account_suspended: "Account suspended",
     account_reactivated: "Account reactivated", account_deleted: "Account deleted",
+    account_force_logout: "Account force-logged-out", admin_session_revoked: "Dashboard session revoked",
+    app_force_reset: "App force-reset triggered", maintenance_message_set: "Maintenance message changed",
     push_sent: "Notification sent",
   };
 
-  function renderAuditLog(log){
+  var auditOldestId = null;
+  var auditActionFilterVal = "";
+  var auditActionsPopulated = false;
+
+  function renderAuditLog(log, append){
     var wrap = document.getElementById("auditRows");
-    wrap.innerHTML = "";
+    if(!append) wrap.innerHTML = "";
     if(!log || !log.length){
-      wrap.innerHTML = '<div class="empty">Nothing logged yet.</div>';
+      if(!append) wrap.innerHTML = '<div class="empty">Nothing logged yet.</div>';
       return;
     }
     log.forEach(function(entry){
@@ -1640,12 +1662,39 @@
         '<span class="act">'+label+(entry.detail ? ' <span style="color:var(--paper-dim)">— '+entry.detail+'</span>' : '')+'</span>' +
         '<span class="when">'+timeAgoShort(entry.created_at)+'</span>';
       wrap.appendChild(row);
+      auditOldestId = entry.id;
     });
   }
 
-  function loadAuditLog(){
-    authedFetch("/admin/audit-log").then(function(d){ renderAuditLog(d.log); }).catch(function(){});
+  function populateAuditActionFilter(actions){
+    if(auditActionsPopulated || !actions || !actions.length) return;
+    auditActionsPopulated = true;
+    var sel = document.getElementById("auditActionFilter");
+    actions.forEach(function(a){
+      var opt = document.createElement("option");
+      opt.value = a;
+      opt.textContent = AUDIT_LABELS[a] || a;
+      sel.appendChild(opt);
+    });
   }
+
+  function loadAuditLog(append){
+    if(!append){ auditOldestId = null; }
+    var path = "/admin/audit-log?";
+    if(auditActionFilterVal) path += "action=" + encodeURIComponent(auditActionFilterVal) + "&";
+    if(append && auditOldestId != null) path += "beforeId=" + auditOldestId;
+    authedFetch(path).then(function(d){
+      renderAuditLog(d.log, append);
+      populateAuditActionFilter(d.actions);
+      document.getElementById("auditLoadMoreBtn").style.display = d.hasMore ? "" : "none";
+    }).catch(function(){});
+  }
+
+  document.getElementById("auditActionFilter").addEventListener("change", function(e){
+    auditActionFilterVal = e.target.value;
+    loadAuditLog(false);
+  });
+  document.getElementById("auditLoadMoreBtn").addEventListener("click", function(){ loadAuditLog(true); });
 
   document.getElementById("feedbackDeleteBtn").addEventListener("click", function(){
     if(selectedFeedbackId == null) return;
