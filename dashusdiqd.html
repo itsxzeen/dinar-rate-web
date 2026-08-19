@@ -486,6 +486,10 @@
             <span id="smsCodeAccountCount" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px">—</span>
             <span style="font-size:11px;color:var(--paper-dim)"> via SMS code</span>
           </div>
+          <div>
+            <span id="pendingVerifications" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px">—</span>
+            <span style="font-size:11px;color:var(--paper-dim)"> codes pending</span>
+          </div>
         </div>
         <div style="font-size:11px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Signups, last 14 days</div>
         <div class="trend-bars" id="signupTrend"></div>
@@ -1699,6 +1703,7 @@
     authedFetch("/admin/stats").then(function(d){
       renderActive(d.active);
       renderTopPages(d.topPages);
+      document.getElementById("pendingVerifications").textContent = d.pendingVerifications != null ? d.pendingVerifications : "—";
       dashSummary.pushTokens = d.pushTokenCount;
       renderStatChips();
     }).catch(function(){});
