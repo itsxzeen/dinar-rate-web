@@ -208,6 +208,7 @@
           <div id="marketChangedAt" style="font-size:11px;color:var(--paper-dim2)"></div>
         </div>
       </div>
+      <div id="marketSparkBox" style="height:44px;margin-top:12px"></div>
       </div>
     </div>
 
@@ -284,6 +285,12 @@
         <button class="btn small" id="addCurrencyBtn">Add</button>
       </div>
       <div class="msg" id="currencyMsg"></div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--dark-3)">
+        <div style="font-size:11px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Add several at once</div>
+        <textarea class="input" id="bulkCurrencyInput" rows="3" placeholder="One per line: EUR Euro&#10;GBP British Pound&#10;or just codes: EUR, GBP, TRY" style="resize:vertical;font-family:inherit"></textarea>
+        <button class="btn small ghost" id="bulkAddCurrencyBtn" style="margin-top:8px">Add all</button>
+        <div class="msg" id="bulkCurrencyMsg"></div>
+      </div>
       </div>
     </div>
 
@@ -327,7 +334,8 @@
           <button class="btn small danger" id="feedbackDeleteBtn">Delete</button>
         </div>
         <div id="feedbackDetailContact" style="font-size:12px;color:var(--paper-dim);margin-bottom:10px"></div>
-        <div id="feedbackDetailMessage" style="font-size:13px;line-height:1.6;white-space:pre-wrap"></div>
+        <div id="feedbackDetailMessage" style="font-size:13px;line-height:1.6;white-space:pre-wrap;margin-bottom:12px"></div>
+        <a id="feedbackReplyBtn" class="btn small ghost" style="text-decoration:none;display:none">Reply by email</a>
       </div>
       <div class="msg" id="feedbackMsg"></div>
       </div>
@@ -682,6 +690,7 @@
   document.getElementById("marketCitySelect").addEventListener("change", function(e){
     marketPrimaryCity = e.target.value;
     renderMarketPrimary();
+    loadMarketSpark();
   });
 
   function loadMarketStatus(){
@@ -697,6 +706,34 @@
         issueEl.style.display = "none";
       }
     }).catch(function(){});
+    loadMarketSpark();
+  }
+
+  function renderMarketSpark(points){
+    var box = document.getElementById("marketSparkBox");
+    if(!points || points.length < 2){ box.innerHTML = ""; return; }
+    var w = 480, h = 44, pad = 3;
+    var min = Math.min.apply(null, points), max = Math.max.apply(null, points);
+    var range = (max - min) || 1;
+    var stepX = (w - pad*2) / (points.length - 1);
+    var coords = points.map(function(v, i){
+      var x = pad + i*stepX;
+      var y = pad + (h - pad*2) * (1 - (v - min)/range);
+      return x.toFixed(1) + "," + y.toFixed(1);
+    }).join(" ");
+    box.innerHTML =
+      '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" style="width:100%;height:100%;display:block">' +
+      '<polyline points="'+coords+'" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></polyline>' +
+      '</svg>';
+  }
+
+  function loadMarketSpark(){
+    fetch(WORKER_URL + "/rate/history?city=" + marketPrimaryCity + "&limit=24")
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        var points = (d.history || []).map(function(item){ return item.rate; }).reverse();
+        renderMarketSpark(points);
+      }).catch(function(){});
   }
 
   /* ---------- rate sources (multi-channel) ---------- */
@@ -874,7 +911,10 @@
     btn.textContent = on ? "Running" : "MAINTENANCE";
     label.textContent = on ? "App is running normally" : "⚠ App is showing the maintenance screen to everyone";
     label.style.color = on ? "" : "var(--danger)";
-    btn.onclick = function(){ setFlag("app_operational", !on); };
+    btn.onclick = function(){
+      if(on && !confirm("Put the app into maintenance mode? Every user will see the maintenance screen instead of the app until you turn this back on.")) return;
+      setFlag("app_operational", !on);
+    };
   }
 
   function renderSiteMaintenanceToggle(flags){
@@ -885,7 +925,10 @@
     btn.textContent = on ? "Running" : "MAINTENANCE";
     label.textContent = on ? "Website is running normally" : "⚠ Website is showing the maintenance page to everyone";
     label.style.color = on ? "" : "var(--danger)";
-    btn.onclick = function(){ setFlag("site_operational", !on); };
+    btn.onclick = function(){
+      if(on && !confirm("Put the website into maintenance mode? Every visitor to se3rforiqd.xyz will see the maintenance page instead of the site until you turn this back on.")) return;
+      setFlag("site_operational", !on);
+    };
   }
 
   function renderFlags(flags){
@@ -994,6 +1037,34 @@
         loadCurrencies();
       })
       .catch(function(){ msg.textContent = "Failed to add."; });
+  });
+
+  document.getElementById("bulkAddCurrencyBtn").addEventListener("click", function(){
+    var input = document.getElementById("bulkCurrencyInput");
+    var msg = document.getElementById("bulkCurrencyMsg");
+    var raw = input.value.trim();
+    if(!raw){ msg.textContent = "Paste at least one currency code."; return; }
+    var entries = raw.split(/[\n,]/).map(function(line){
+      var t = line.trim();
+      if(!t) return null;
+      var m = t.match(/^([A-Za-z]{3})[\s:]*(.*)$/);
+      if(!m) return null;
+      return { code: m[1].toUpperCase(), label: m[2].trim() || m[1].toUpperCase() };
+    }).filter(Boolean);
+    if(!entries.length){ msg.textContent = "Couldn't find any valid 3-letter codes in that."; return; }
+    msg.textContent = "Adding " + entries.length + "...";
+    var addOne = function(i){
+      if(i >= entries.length){
+        msg.textContent = "Added " + entries.length + ".";
+        input.value = "";
+        loadCurrencies();
+        return;
+      }
+      authedFetch("/admin/currencies", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(entries[i])})
+        .then(function(){ addOne(i+1); })
+        .catch(function(){ addOne(i+1); });
+    };
+    addOne(0);
   });
 
   function deleteCurrency(code){
@@ -1139,6 +1210,17 @@
     if(f.phone) contactBits.push(f.phone);
     document.getElementById("feedbackDetailContact").textContent = contactBits.join(" · ") || "No contact info given";
     document.getElementById("feedbackDetailMessage").textContent = f.message;
+
+    var replyBtn = document.getElementById("feedbackReplyBtn");
+    if(f.email){
+      var subject = encodeURIComponent("Re: your Se3rForIQD feedback");
+      var quoted = f.message.split("\n").map(function(l){ return "> " + l; }).join("\n");
+      var body = encodeURIComponent("Hi " + f.first_name + ",\n\n\n\n---\nYour message:\n" + quoted);
+      replyBtn.href = "mailto:" + f.email + "?subject=" + subject + "&body=" + body;
+      replyBtn.style.display = "";
+    } else {
+      replyBtn.style.display = "none";
+    }
 
     if(!f.read){
       f.read = 1;
