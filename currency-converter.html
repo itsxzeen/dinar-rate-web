@@ -35,16 +35,17 @@
     border-bottom:1px solid rgba(255,255,255,.12);background:#020a1a;
   }
   .back-btn{
-    width:44px;height:44px;background:#071b3d;border:1px solid #1a4fa0;border-radius:14px;
+    width:44px;height:44px;background:#071b3d;border:none;border-radius:14px;
     color:#ffffff;font-size:20px;text-decoration:none;display:flex;align-items:center;justify-content:center;
   }
+  .back-btn:active{background:#0c2c5c;}
   .title{flex:1;text-align:center;font-size:20px;font-weight:900;letter-spacing:1px;}
   .wrap{max-width:420px;margin:0 auto;padding:40px 18px 40px;}
 
   .card{background:linear-gradient(135deg, rgba(255,255,255,.06), transparent);border:none;border-radius:22px;box-shadow:0 8px 30px rgba(0,0,0,.35);padding:20px;}
   .field{
     display:flex;align-items:center;justify-content:space-between;gap:10px;
-    background:#020a1a;border:1px solid #1a4fa0;border-radius:14px;padding:16px;margin-bottom:0;
+    background:#0c2c5c;border:none;border-radius:14px;padding:16px;margin-bottom:0;
   }
   .field input{
     flex:1;text-align:right;background:none;border:none;color:#ffffff;
@@ -56,13 +57,13 @@
   .cur-chip::after{content:"▾";font-size:10px;color:#98989d;margin-left:2px;}
   .cur-popover{
     position:absolute;top:calc(100% + 8px);left:0;background:#0c2c5c;
-    border:1px solid #1a4fa0;border-radius:12px;overflow:hidden;
+    border:none;border-radius:12px;overflow:hidden;
     box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:50;min-width:190px;display:none;
   }
   .cur-popover.open{display:block;}
   .cur-search{
     display:block;width:100%;box-sizing:border-box;padding:10px 14px;border:none;
-    border-bottom:1px solid #1a4fa0;background:#071b3d;color:#ffffff;font-size:13px;
+    border-bottom:1px solid rgba(255,255,255,.08);background:#071b3d;color:#ffffff;font-size:13px;
     font-family:inherit;outline:none;
   }
   .cur-search::placeholder{color:#98989d;}
@@ -83,11 +84,11 @@
   .rate-info{text-align:center;font-size:12px;color:#98989d;margin-top:16px;}
   .amount-chips{display:flex;gap:8px;margin-top:14px;justify-content:center;flex-wrap:wrap;}
   .amount-chip{
-    background:#020a1a;border:1px solid #1a4fa0;color:#c9d6ff;border-radius:999px;
+    background:#0c2c5c;border:none;color:#c9d6ff;border-radius:999px;
     font-size:12px;font-weight:700;padding:7px 14px;cursor:pointer;font-family:"IBM Plex Mono",monospace;
-    transition:background .15s,border-color .15s;
+    transition:background .15s;
   }
-  .amount-chip:hover{background:#1a4fa0;border-color:#0a84ff;}
+  .amount-chip:hover{background:#1a4fa0;}
   .empty-note{text-align:center;font-size:12px;color:#636366;margin-top:14px;}
 </style>
 <script>

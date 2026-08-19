@@ -30,14 +30,16 @@
     border-bottom:1px solid rgba(255,255,255,.12);background:#020a1a;
   }
   .back-btn{
-    width:44px;height:44px;background:#071b3d;border:1px solid #1a4fa0;border-radius:14px;
+    width:44px;height:44px;background:#071b3d;border:none;border-radius:14px;
     color:#ffffff;text-decoration:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;
   }
+  .back-btn:active{background:#0c2c5c;}
   .title{flex:1;text-align:center;font-size:17px;font-weight:900;letter-spacing:.5px;}
   .refresh-btn{
-    width:44px;height:44px;background:#071b3d;border:1px solid #1a4fa0;border-radius:14px;
+    width:44px;height:44px;background:#071b3d;border:none;border-radius:14px;
     color:#ffffff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;
   }
+  .refresh-btn:active{background:#0c2c5c;}
 
   #mapArea{position:relative;flex:1 1 auto;min-height:0;}
   #map{position:absolute;inset:0;background:#0c2c5c;}
@@ -53,13 +55,13 @@
   }
   @keyframes spin{to{transform:rotate(360deg);}}
   .retry-btn{
-    background:#071b3d;border:1px solid #1a4fa0;color:#ffffff;border-radius:999px;
+    background:#071b3d;border:none;color:#ffffff;border-radius:999px;
     padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;
   }
 
   #sheet{
     flex-shrink:0;max-height:38vh;overflow-y:auto;background:#071b3d;
-    border-top:1px solid #1a4fa0;padding:6px 0 calc(10px + env(safe-area-inset-bottom));
+    border-top:1px solid rgba(255,255,255,.08);padding:6px 0 calc(10px + env(safe-area-inset-bottom));
   }
 
   .bottom-nav{
@@ -100,7 +102,7 @@
   }
   .shop-row:last-child{border-bottom:none;}
   .shop-ic{
-    width:34px;height:34px;border-radius:10px;background:#020a1a;border:1px solid #1a4fa0;
+    width:34px;height:34px;border-radius:10px;background:#0c2c5c;
     display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#5b9cff;margin-top:2px;
   }
   .shop-name{font-size:14px;font-weight:700;color:#ffffff;}
@@ -115,7 +117,7 @@
 
   /* Leaflet dark-theme overrides */
   .leaflet-container{background:#0c2c5c;font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;}
-  .leaflet-control-zoom a{background:#071b3d !important;color:#ffffff !important;border-color:#1a4fa0 !important;}
+  .leaflet-control-zoom a{background:#071b3d !important;color:#ffffff !important;border-color:rgba(255,255,255,.1) !important;}
   .leaflet-control-zoom a:hover{background:#0c2c5c !important;}
   .leaflet-control-attribution{background:rgba(2,10,26,.75) !important;color:#98989d !important;}
   .leaflet-control-attribution a{color:#5b9cff !important;}
