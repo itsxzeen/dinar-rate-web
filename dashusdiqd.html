@@ -162,16 +162,23 @@
   .card.cat-users{border-top-color:var(--cat-users)}
   .card.cat-system{border-top-color:var(--cat-system)}
 
-  .stat-chip-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
-  .stat-chip{flex:1;min-width:120px;background:var(--dark-2);border:1px solid var(--line);border-radius:2px;padding:12px 14px;
-    display:flex;flex-direction:column;gap:2px;position:relative;overflow:hidden}
+  .stat-chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+  .stat-chip{flex:0 0 auto;background:var(--dark-2);border:1px solid var(--line);border-radius:2px;padding:8px 12px;
+    display:flex;align-items:baseline;gap:7px;position:relative;overflow:hidden}
   .stat-chip::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px}
   .stat-chip.good::before{background:var(--status-good)}
   .stat-chip.warn::before{background:var(--status-warning)}
   .stat-chip.crit::before{background:var(--status-critical)}
   .stat-chip.neutral::before{background:var(--line)}
-  .stat-chip-val{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:20px}
-  .stat-chip-lbl{font-size:10px;color:var(--paper-dim);text-transform:uppercase;letter-spacing:.04em}
+  .stat-chip-val{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:14px;white-space:nowrap}
+  .stat-chip-lbl{font-size:9.5px;color:var(--paper-dim);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+
+  #jumpNav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+  .nav-btn{background:var(--dark-2);border:1px solid var(--line);color:var(--paper-dim);
+    font-family:inherit;font-size:11px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;
+    padding:7px 12px;border-radius:2px;cursor:pointer;text-decoration:none;transition:color .15s,border-color .15s}
+  .nav-btn:hover{color:var(--paper);border-color:var(--paper-dim)}
+  .nav-btn-link{color:var(--paper);border-color:var(--paper-dim2)}
 
   .pill-btn{border:1px solid var(--line);background:var(--dark-3);color:var(--paper);border-radius:2px;
     padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;text-transform:uppercase;letter-spacing:.03em}
@@ -208,38 +215,14 @@
   </div>
 
   <div id="dashboard">
-    <div id="jumpNav" style="position:sticky;top:8px;z-index:20;margin-bottom:16px">
-      <select id="jumpSelect" class="input" style="width:100%;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.45)">
-        <option value="">Jump to section…</option>
-        <optgroup label="⚠ Emergency">
-          <option value="emergencyCard">Kill switches &amp; App Reset</option>
-        </optgroup>
-        <optgroup label="Rates">
-          <option value="marketRatesCard">Market Rates</option>
-          <option value="rateControlCard">Rate Control</option>
-          <option value="rateSourcesCard">Rate Sources</option>
-          <option value="backupCard">Backup</option>
-        </optgroup>
-        <optgroup label="Site &amp; Currencies">
-          <option value="appSiteControlCard">App / Site Control</option>
-          <option value="currenciesCard">Currencies</option>
-        </optgroup>
-        <optgroup label="Communication">
-          <option value="sendNotificationCard">Send Notification</option>
-          <option value="notificationHistoryCard">Notification History</option>
-          <option value="feedbackCard">Feedback</option>
-        </optgroup>
-        <optgroup label="Users &amp; Security">
-          <option value="appAccountsCard">App Accounts</option>
-          <option value="sessionsCard">Dashboard Sessions</option>
-        </optgroup>
-        <optgroup label="System &amp; Analytics">
-          <option value="auditLogCard">Audit Log</option>
-          <option value="apiUsageCard">API Usage</option>
-          <option value="topPagesCard">Top Pages</option>
-          <option value="activeNowCard">Active Now</option>
-        </optgroup>
-      </select>
+    <div id="jumpNav">
+      <button class="nav-btn" data-target="emergencyCard">Emergency</button>
+      <button class="nav-btn" data-target="sectionRates">Rates</button>
+      <button class="nav-btn" data-target="sectionSite">Site &amp; Currencies</button>
+      <button class="nav-btn" data-target="sectionComms">Communication</button>
+      <button class="nav-btn" data-target="sectionUsers">Users &amp; Security</button>
+      <button class="nav-btn" data-target="sectionSystem">System &amp; Analytics</button>
+      <a class="nav-btn nav-btn-link" href="rate-source.html">Rate Source →</a>
     </div>
 
     <div class="stat-chip-row" id="statChipRow"></div>
@@ -288,7 +271,7 @@
       </div>
     </div>
 
-    <div class="section">
+    <div class="section" id="sectionRates">
       <div class="section-head">
         <span class="section-dot" style="background:var(--cat-rates)"></span>
         <span class="section-title">Rates</span>
@@ -346,7 +329,7 @@
       </div>
     </div>
 
-    <div class="section">
+    <div class="section" id="sectionSite">
       <div class="section-head">
         <span class="section-dot" style="background:var(--cat-site)"></span>
         <span class="section-title">Site &amp; Currencies</span>
@@ -387,7 +370,7 @@
       </div>
     </div>
 
-    <div class="section">
+    <div class="section" id="sectionComms">
       <div class="section-head">
         <span class="section-dot" style="background:var(--cat-comms)"></span>
         <span class="section-title">Communication</span>
@@ -448,7 +431,7 @@
       </div>
     </div>
 
-    <div class="section">
+    <div class="section" id="sectionUsers">
       <div class="section-head">
         <span class="section-dot" style="background:var(--cat-users)"></span>
         <span class="section-title">Users &amp; Security</span>
@@ -499,7 +482,7 @@
       </div>
     </div>
 
-    <div class="section">
+    <div class="section" id="sectionSystem">
       <div class="section-head">
         <span class="section-dot" style="background:var(--cat-system)"></span>
         <span class="section-title">System &amp; Analytics</span>
@@ -611,12 +594,11 @@
     URL.revokeObjectURL(url);
   }
 
-  document.getElementById("jumpSelect").addEventListener("change", function(e){
-    var id = e.target.value;
-    if(!id) return;
-    var el = document.getElementById(id);
-    if(el) el.scrollIntoView({behavior:"smooth", block:"start"});
-    e.target.value = "";
+  document.querySelectorAll(".nav-btn[data-target]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var el = document.getElementById(btn.getAttribute("data-target"));
+      if(el) el.scrollIntoView({behavior:"smooth", block:"start"});
+    });
   });
 
   function showDashboard(){
