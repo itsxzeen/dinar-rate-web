@@ -317,29 +317,10 @@
         </div>
       </div>
 
-      <div class="card cat-rates" id="rateSourcesCard">
+      <div class="card cat-rates" id="rateSourcesCard" style="height:auto">
         <h2>Rate Sources</h2>
-        <div class="card-body">
-        <p style="font-size:12px;color:var(--paper-dim);margin-bottom:12px">
-          Any number of channels can be active at once. For each city, whichever active
-          channel posted most recently wins — including your manual overrides above, which
-          stay in effect until a channel posts something newer. Tap a channel to see which
-          cities it covers and how many times each rate has changed.
-        </p>
-        <div id="channelRows"></div>
-
-        <div class="rate-edit" style="margin-top:14px">
-          <input class="input" id="sourceInput" type="text" placeholder="Channel username, e.g. dollar_price" autocomplete="off" />
-          <button class="btn small" id="detectBtn">Detect</button>
-        </div>
-        <div class="msg" id="sourceMsg"></div>
-
-        <div class="detect-preview" id="detectPreview" style="display:none">
-          <h3>Detected in recent posts</h3>
-          <div id="detectRows"></div>
-          <button class="btn small" id="confirmAddBtn" style="margin-top:10px">Add — stopped, won't affect app/site yet</button>
-        </div>
-        </div>
+        <div class="card-desc">Manage the Telegram channels that feed live rates — now its own page.</div>
+        <a class="btn" href="rate-source.html" style="text-decoration:none;display:block;text-align:center">Open Rate Source →</a>
       </div>
 
       <div class="card cat-rates" id="backupCard">
@@ -636,7 +617,6 @@
     loadRates();
     loadStats();
     loadFlags();
-    loadChannels();
     loadFeedback();
     loadMarketStatus();
     loadAppUsers();
@@ -929,155 +909,6 @@
         var points = (d.history || []).map(function(item){ return item.rate; }).reverse();
         renderMarketSpark(points);
       }).catch(function(){});
-  }
-
-  /* ---------- rate sources (multi-channel) ---------- */
-
-  var openChannelDetail = null; // which channel's detail row is currently expanded
-
-  function renderChannels(channels){
-    var wrap = document.getElementById("channelRows");
-    wrap.innerHTML = "";
-    if(!channels || !channels.length){
-      wrap.innerHTML = '<div class="empty">No channels configured.</div>';
-      return;
-    }
-    channels.forEach(function(ch){
-      var card = document.createElement("div");
-      card.className = "channel-card";
-
-      var head = document.createElement("div");
-      head.className = "channel-head";
-
-      var name = document.createElement("span");
-      name.className = "channel-name";
-      name.innerHTML = "@" + ch.username + (ch.builtin ? '<span class="builtin-tag">built-in</span>' : "");
-
-      var actions = document.createElement("span");
-      actions.className = "channel-actions";
-
-      var toggleBtn = document.createElement("button");
-      toggleBtn.className = "flag-toggle " + (ch.active ? "on" : "off");
-      toggleBtn.textContent = ch.active ? "Started" : "Stopped";
-      toggleBtn.addEventListener("click", function(e){
-        e.stopPropagation();
-        toggleChannel(ch.username, !ch.active);
-      });
-      actions.appendChild(toggleBtn);
-
-      if(!ch.builtin){
-        var removeBtn = document.createElement("button");
-        removeBtn.className = "btn small danger";
-        removeBtn.textContent = "Remove";
-        removeBtn.addEventListener("click", function(e){
-          e.stopPropagation();
-          deleteChannel(ch.username);
-        });
-        actions.appendChild(removeBtn);
-      }
-
-      head.appendChild(name);
-      head.appendChild(actions);
-
-      var detail = document.createElement("div");
-      detail.className = "channel-detail";
-      if(!ch.cities || !ch.cities.length){
-        detail.innerHTML = '<div class="empty" style="padding:12px 0">No readings yet — this channel hasn\'t posted a recognizable rate since it was added.</div>';
-      } else {
-        ch.cities.forEach(function(c){
-          var row = document.createElement("div");
-          row.className = "channel-city-row";
-          row.innerHTML =
-            '<span class="lbl">' + c.label + '</span>' +
-            '<span class="val">' + Number(c.rate).toLocaleString("en-US") +
-            '<span class="changes">sent ' + timeAgo(c.lastPostedAt) + ' · changed ' + c.changes + (c.changes === 1 ? " time" : " times") + '</span></span>';
-          detail.appendChild(row);
-        });
-      }
-
-      head.addEventListener("click", function(){
-        var isOpen = detail.classList.contains("open");
-        wrap.querySelectorAll(".channel-detail.open").forEach(function(d){ d.classList.remove("open"); });
-        if(!isOpen) detail.classList.add("open");
-        openChannelDetail = isOpen ? null : ch.username;
-      });
-      if(openChannelDetail === ch.username) detail.classList.add("open");
-
-      card.appendChild(head);
-      card.appendChild(detail);
-      wrap.appendChild(card);
-    });
-  }
-
-  function loadChannels(){
-    authedFetch("/admin/channels").then(function(d){ renderChannels(d.channels); }).catch(function(){});
-  }
-
-  document.getElementById("detectBtn").addEventListener("click", function(){
-    var input = document.getElementById("sourceInput");
-    var msg = document.getElementById("sourceMsg");
-    var preview = document.getElementById("detectPreview");
-    var username = input.value.trim();
-    if(!username){ msg.textContent = "Enter a channel username."; return; }
-    msg.textContent = "Checking recent posts...";
-    preview.style.display = "none";
-    authedFetch("/admin/channels/detect", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({username:username})})
-      .then(function(d){
-        if(d && d.error){ msg.textContent = d.error; return; }
-        msg.textContent = "";
-        var rows = document.getElementById("detectRows");
-        rows.innerHTML = "";
-        d.cities.forEach(function(c){
-          var row = document.createElement("div");
-          row.className = "channel-city-row";
-          row.innerHTML =
-            '<span class="lbl">' + c.label + '</span>' +
-            '<span class="val">' + Number(c.rate).toLocaleString("en-US") +
-            '<span class="changes">sent ' + timeAgo(c.postedAt) + '</span></span>';
-          rows.appendChild(row);
-        });
-        preview.style.display = "block";
-        document.getElementById("confirmAddBtn").onclick = function(){ addChannel(d.username); };
-      })
-      .catch(function(){ msg.textContent = "Failed to check that channel."; });
-  });
-
-  function addChannel(username){
-    var msg = document.getElementById("sourceMsg");
-    msg.textContent = "Adding...";
-    authedFetch("/admin/channels", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({username:username})})
-      .then(function(d){
-        if(d && d.error){ msg.textContent = d.error; return; }
-        msg.textContent = "Added, stopped — it won't affect the app or site until you start it.";
-        document.getElementById("sourceInput").value = "";
-        document.getElementById("detectPreview").style.display = "none";
-        loadChannels();
-      })
-      .catch(function(){ msg.textContent = "Failed to add."; });
-  }
-
-  function toggleChannel(username, makeActive){
-    var msg = document.getElementById("sourceMsg");
-    msg.textContent = makeActive ? "Starting..." : "Stopping...";
-    authedFetch("/admin/channels/" + (makeActive ? "start" : "stop"), {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({username:username})})
-      .then(function(d){
-        if(d && d.error){ msg.textContent = d.error; return; }
-        msg.textContent = "@" + username + (makeActive ? " started." : " stopped.");
-        loadChannels();
-      })
-      .catch(function(){ msg.textContent = "Failed."; });
-  }
-
-  function deleteChannel(username){
-    var msg = document.getElementById("sourceMsg");
-    msg.textContent = "Removing...";
-    authedFetch("/admin/channels?username="+encodeURIComponent(username), {method:"DELETE"})
-      .then(function(d){
-        if(d && d.error){ msg.textContent = d.error; return; }
-        msg.textContent = "Removed.";
-        loadChannels();
-      })
-      .catch(function(){ msg.textContent = "Failed to remove."; });
   }
 
   /* ---------- feature flags (kill switch) ---------- */

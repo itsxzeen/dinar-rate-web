@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<meta name="theme-color" content="#0a0108" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Rate Source · Se3rForIQD</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="shortcut icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --dark:#000000; --dark-2:#141416; --dark-3:#1e1e21;
+    --line:#2c2c2e; --paper:#ffffff; --paper-dim:#98989d; --paper-dim2:#636366;
+    --accent:#30d158; --blue:#0a84ff; --danger:#ff453a; --gold:#f5c542;
+    --cat-rates:#3987e5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--dark); color:var(--paper);
+    font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;
+    min-height:100vh; padding:20px 16px 80px;
+  }
+  .wrap{max-width:640px;margin:0 auto}
+  @media(min-width:900px){
+    body{padding:24px 24px 80px}
+    .brand{font-size:17px}
+    .card{padding:13px 15px;margin-bottom:12px;border-radius:14px}
+    .card h2{font-size:11px;margin-bottom:11px}
+    .input{padding:9px 11px;font-size:13px;border-radius:10px}
+    .btn{padding:9px;font-size:13px;border-radius:10px;margin-top:8px}
+    .btn.small{padding:7px 12px;font-size:12px}
+    .flag-toggle{font-size:10px;padding:5px 11px}
+  }
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:10px}
+  .brand{font-family:"Sora",sans-serif;font-weight:800;font-size:22px;letter-spacing:.3px}
+  .brand span{color:var(--blue)}
+  .brand small{display:block;font-family:"IBM Plex Sans Arabic",sans-serif;font-weight:600;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--paper-dim2);margin-top:2px}
+  a.back{color:var(--paper-dim);font-size:13px;text-decoration:none}
+
+  #loginWrap{max-width:360px;margin:80px auto 0}
+  .card{background:var(--dark-2);border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;border-top:3px solid var(--cat-rates)}
+  .card h2{font-size:13px;font-weight:700;letter-spacing:1px;color:var(--paper-dim);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  #loginWrap .card{border-top-color:var(--line)}
+
+  .input{width:100%;background:var(--dark-3);border:1px solid var(--line);border-radius:12px;
+    color:var(--paper);font-size:15px;padding:13px 14px;outline:none;font-family:inherit}
+  .input:focus{border-color:var(--blue)}
+  .btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:12px;
+    font-size:15px;font-weight:700;padding:13px;cursor:pointer;margin-top:10px;font-family:inherit}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:var(--dark-3);border:1px solid var(--line);color:var(--paper)}
+  .btn.small{width:auto;padding:9px 16px;font-size:13px;margin-top:0}
+  .msg{font-size:12px;color:var(--paper-dim);margin-top:10px;min-height:14px;text-align:center}
+
+  #page{display:none}
+
+  .card-desc{font-size:12px;color:var(--paper-dim);margin-bottom:12px}
+  .rate-edit{display:flex;gap:8px;margin-top:2px}
+  .rate-edit .input{flex:1}
+  .rate-edit .btn{width:auto;white-space:nowrap}
+  .empty{color:var(--paper-dim);font-size:13px;text-align:center;padding:14px 0}
+
+  .flag-toggle{border:1px solid var(--line);background:var(--dark-3);color:var(--paper-dim);
+    font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;
+    padding:6px 14px;cursor:pointer;flex-shrink:0;transition:background .2s,color .2s,border-color .2s}
+  .flag-toggle.on{background:var(--accent);border-color:var(--accent);color:#04150a}
+  .flag-toggle.off{background:var(--danger);border-color:var(--danger);color:#fff}
+
+  .channel-card{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden}
+  .channel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;cursor:pointer}
+  .channel-name{font-weight:700;font-size:14px}
+  .channel-name .builtin-tag{font-size:9px;color:var(--paper-dim2);font-weight:600;margin-left:6px;text-transform:uppercase;letter-spacing:.05em}
+  .channel-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
+  .channel-detail{display:none;padding:0 14px 14px;border-top:1px solid var(--line)}
+  .channel-detail.open{display:block}
+  .channel-city-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--dark-3);font-size:12px}
+  .channel-city-row:last-child{border-bottom:none}
+  .channel-city-row .lbl{color:var(--paper-dim)}
+  .channel-city-row .val{font-family:"IBM Plex Mono",monospace;text-align:right}
+  .channel-city-row .val .changes{display:block;font-size:10px;color:var(--paper-dim2);margin-top:2px}
+  .detect-preview{background:var(--dark-3);border-radius:10px;padding:12px;margin-top:10px}
+  .detect-preview h3{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--paper-dim);margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><img src="favicon-32.png" alt="" width="22" height="22" style="border-radius:6px;vertical-align:-5px;margin-right:6px">Se3r<span>ForIQD</span><small>Rate Source</small></div>
+    <a class="back" href="dashusdiqd.html"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Dashboard</a>
+  </div>
+
+  <div id="loginWrap">
+    <div id="loginCard" class="card">
+      <h2>Sign in</h2>
+      <input class="input" id="dashPass" type="password" inputmode="numeric" placeholder="Passcode" autocomplete="off" aria-label="Dashboard passcode" />
+      <button class="btn" id="dashLoginBtn" aria-label="Sign in">Enter</button>
+      <div class="msg" id="dashMsg"></div>
+    </div>
+  </div>
+
+  <div id="page">
+    <div class="card" id="rateSourcesCard">
+      <h2>Rate Sources</h2>
+      <div class="card-desc">
+        Any number of channels can be active at once. For each city, whichever active
+        channel posted most recently wins — including any manual overrides set on the
+        Dashboard, which stay in effect until a channel posts something newer. Tap a
+        channel to see which cities it covers and how many times each rate has changed.
+      </div>
+      <div id="channelRows"></div>
+
+      <div class="rate-edit" style="margin-top:14px">
+        <input class="input" id="sourceInput" type="text" placeholder="Channel username, e.g. dollar_price" autocomplete="off" />
+        <button class="btn small" id="detectBtn">Detect</button>
+      </div>
+      <div class="msg" id="sourceMsg"></div>
+
+      <div class="detect-preview" id="detectPreview" style="display:none">
+        <h3>Detected in recent posts</h3>
+        <div id="detectRows"></div>
+        <button class="btn small" id="confirmAddBtn" style="margin-top:10px">Add — stopped, won't affect app/site yet</button>
+      </div>
+    </div>
+
+    <button class="btn ghost" id="dashLogout" aria-label="Log out">Log out</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var WORKER_URL = "https://dinar-rate-worker.dollersdaner.workers.dev";
+  var TOKEN_KEY = "adminToken_v1"; // shared session with dashusdiqd.html/admin.html
+  var ADMIN_USER = "itsxzeen";
+
+  var loginWrap = document.getElementById("loginWrap");
+  var page = document.getElementById("page");
+  var dashMsg = document.getElementById("dashMsg");
+
+  function timeAgo(iso){
+    if(!iso) return "—";
+    var normalized = /[+Zz]|T\d\d:\d\d:\d\d/.test(iso) ? iso : iso.replace(" ","T")+"Z";
+    var s = Math.max(0, Math.floor((Date.now() - new Date(normalized).getTime())/1000));
+    if(s < 60) return s+"s ago";
+    if(s < 3600) return Math.floor(s/60)+"m ago";
+    return Math.floor(s/3600)+"h ago";
+  }
+
+  function showPage(){
+    loginWrap.style.display = "none";
+    page.style.display = "block";
+    loadChannels();
+  }
+  function showLogin(msg){
+    loginWrap.style.display = "";
+    page.style.display = "none";
+    dashMsg.textContent = msg || "";
+  }
+
+  function authedFetch(path, opts){
+    var token = localStorage.getItem(TOKEN_KEY);
+    opts = opts || {};
+    opts.headers = Object.assign({}, opts.headers, { "Authorization": "Bearer " + token });
+    return fetch(WORKER_URL + path, opts).then(function(r){
+      if(r.status === 401){
+        localStorage.removeItem(TOKEN_KEY);
+        showLogin("Session expired, sign in again.");
+        throw new Error("401");
+      }
+      return r.json();
+    });
+  }
+
+  function dashLogin(){
+    var pass = document.getElementById("dashPass").value || "";
+    if(pass.length < 8){ dashMsg.textContent = "Passcode must be at least 8 characters."; return; }
+    dashMsg.textContent = "Checking...";
+    fetch(WORKER_URL+"/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({email:ADMIN_USER,password:pass})})
+      .then(function(r){ return r.json().then(function(d){ return {ok:r.ok,d:d}; }); })
+      .then(function(res){
+        if(!res.ok){ dashMsg.textContent = res.d.error || "Failed."; return; }
+        if(res.d.token){ localStorage.setItem(TOKEN_KEY, res.d.token); showPage(); }
+        else { dashMsg.textContent = "Unexpected response."; }
+      })
+      .catch(function(){ dashMsg.textContent = "Network error."; });
+  }
+
+  document.getElementById("dashLoginBtn").addEventListener("click", dashLogin);
+  document.getElementById("dashPass").addEventListener("keydown", function(e){ if(e.key==="Enter") dashLogin(); });
+  document.getElementById("dashLogout").addEventListener("click", function(){
+    localStorage.removeItem(TOKEN_KEY);
+    showLogin();
+  });
+
+  /* ---------- rate sources (multi-channel) ---------- */
+
+  var openChannelDetail = null;
+
+  function renderChannels(channels){
+    var wrap = document.getElementById("channelRows");
+    wrap.innerHTML = "";
+    if(!channels || !channels.length){
+      wrap.innerHTML = '<div class="empty">No channels configured.</div>';
+      return;
+    }
+    channels.forEach(function(ch){
+      var card = document.createElement("div");
+      card.className = "channel-card";
+
+      var head = document.createElement("div");
+      head.className = "channel-head";
+
+      var name = document.createElement("span");
+      name.className = "channel-name";
+      name.innerHTML = "@" + ch.username + (ch.builtin ? '<span class="builtin-tag">built-in</span>' : "");
+
+      var actions = document.createElement("span");
+      actions.className = "channel-actions";
+
+      var toggleBtn = document.createElement("button");
+      toggleBtn.className = "flag-toggle " + (ch.active ? "on" : "off");
+      toggleBtn.textContent = ch.active ? "Started" : "Stopped";
+      toggleBtn.addEventListener("click", function(e){
+        e.stopPropagation();
+        toggleChannel(ch.username, !ch.active);
+      });
+      actions.appendChild(toggleBtn);
+
+      if(!ch.builtin){
+        var removeBtn = document.createElement("button");
+        removeBtn.className = "btn small danger";
+        removeBtn.style.cssText = "background:transparent;border:1px solid var(--danger);color:var(--danger)";
+        removeBtn.textContent = "Remove";
+        removeBtn.addEventListener("click", function(e){
+          e.stopPropagation();
+          deleteChannel(ch.username);
+        });
+        actions.appendChild(removeBtn);
+      }
+
+      head.appendChild(name);
+      head.appendChild(actions);
+
+      var detail = document.createElement("div");
+      detail.className = "channel-detail";
+      if(!ch.cities || !ch.cities.length){
+        detail.innerHTML = '<div class="empty" style="padding:12px 0">No readings yet — this channel hasn\'t posted a recognizable rate since it was added.</div>';
+      } else {
+        ch.cities.forEach(function(c){
+          var row = document.createElement("div");
+          row.className = "channel-city-row";
+          row.innerHTML =
+            '<span class="lbl">' + c.label + '</span>' +
+            '<span class="val">' + Number(c.rate).toLocaleString("en-US") +
+            '<span class="changes">sent ' + timeAgo(c.lastPostedAt) + ' · changed ' + c.changes + (c.changes === 1 ? " time" : " times") + '</span></span>';
+          detail.appendChild(row);
+        });
+      }
+
+      head.addEventListener("click", function(){
+        var isOpen = detail.classList.contains("open");
+        wrap.querySelectorAll(".channel-detail.open").forEach(function(d){ d.classList.remove("open"); });
+        if(!isOpen) detail.classList.add("open");
+        openChannelDetail = isOpen ? null : ch.username;
+      });
+      if(openChannelDetail === ch.username) detail.classList.add("open");
+
+      card.appendChild(head);
+      card.appendChild(detail);
+      wrap.appendChild(card);
+    });
+  }
+
+  function loadChannels(){
+    authedFetch("/admin/channels").then(function(d){ renderChannels(d.channels); }).catch(function(){});
+  }
+
+  document.getElementById("detectBtn").addEventListener("click", function(){
+    var input = document.getElementById("sourceInput");
+    var msg = document.getElementById("sourceMsg");
+    var preview = document.getElementById("detectPreview");
+    var username = input.value.trim();
+    if(!username){ msg.textContent = "Enter a channel username."; return; }
+    msg.textContent = "Checking recent posts...";
+    preview.style.display = "none";
+    authedFetch("/admin/channels/detect", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({username:username})})
+      .then(function(d){
+        if(d && d.error){ msg.textContent = d.error; return; }
+        msg.textContent = "";
+        var rows = document.getElementById("detectRows");
+        rows.innerHTML = "";
+        d.cities.forEach(function(c){
+          var row = document.createElement("div");
+          row.className = "channel-city-row";
+          row.innerHTML =
+            '<span class="lbl">' + c.label + '</span>' +
+            '<span class="val">' + Number(c.rate).toLocaleString("en-US") +
+            '<span class="changes">sent ' + timeAgo(c.postedAt) + '</span></span>';
+          rows.appendChild(row);
+        });
+        preview.style.display = "block";
+        document.getElementById("confirmAddBtn").onclick = function(){ addChannel(d.username); };
+      })
+      .catch(function(){ msg.textContent = "Failed to check that channel."; });
+  });
+
+  function addChannel(username){
+    var msg = document.getElementById("sourceMsg");
+    msg.textContent = "Adding...";
+    authedFetch("/admin/channels", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({username:username})})
+      .then(function(d){
+        if(d && d.error){ msg.textContent = d.error; return; }
+        msg.textContent = "Added, stopped — it won't affect the app or site until you start it.";
+        document.getElementById("sourceInput").value = "";
+        document.getElementById("detectPreview").style.display = "none";
+        loadChannels();
+      })
+      .catch(function(){ msg.textContent = "Failed to add."; });
+  }
+
+  function toggleChannel(username, makeActive){
+    var msg = document.getElementById("sourceMsg");
+    msg.textContent = makeActive ? "Starting..." : "Stopping...";
+    authedFetch("/admin/channels/" + (makeActive ? "start" : "stop"), {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({username:username})})
+      .then(function(d){
+        if(d && d.error){ msg.textContent = d.error; return; }
+        msg.textContent = "@" + username + (makeActive ? " started." : " stopped.");
+        loadChannels();
+      })
+      .catch(function(){ msg.textContent = "Failed."; });
+  }
+
+  function deleteChannel(username){
+    var msg = document.getElementById("sourceMsg");
+    msg.textContent = "Removing...";
+    authedFetch("/admin/channels?username="+encodeURIComponent(username), {method:"DELETE"})
+      .then(function(d){
+        if(d && d.error){ msg.textContent = d.error; return; }
+        msg.textContent = "Removed.";
+        loadChannels();
+      })
+      .catch(function(){ msg.textContent = "Failed to remove."; });
+  }
+
+  if(localStorage.getItem(TOKEN_KEY)) showPage();
+  else showLogin();
+})();
+</script>
+</body>
+</html>
