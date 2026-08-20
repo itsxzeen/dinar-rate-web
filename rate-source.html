@@ -30,13 +30,16 @@
   .wrap{max-width:640px;margin:0 auto}
   @media(min-width:900px){
     body{padding:24px 24px 80px}
+    .wrap{max-width:1280px}
     .brand{font-size:17px}
-    .card{padding:13px 15px;margin-bottom:12px;border-radius:14px}
+    .card{padding:16px 18px;margin-bottom:12px;border-radius:14px}
     .card h2{font-size:11px;margin-bottom:11px}
     .input{padding:9px 11px;font-size:13px;border-radius:10px}
     .btn{padding:9px;font-size:13px;border-radius:10px;margin-top:8px}
     .btn.small{padding:7px 12px;font-size:12px}
     .flag-toggle{font-size:10px;padding:5px 11px}
+    .sources-cols{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:start}
+    .sources-cols > .card{margin-bottom:0}
   }
   .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:10px}
   .brand{font-family:"Sora",sans-serif;font-weight:800;font-size:22px;letter-spacing:.3px}
@@ -107,6 +110,7 @@
   </div>
 
   <div id="page">
+    <div class="sources-cols">
     <div class="card" id="rateSourcesCard">
       <h2>Rate Sources</h2>
       <div class="card-desc">
@@ -142,17 +146,18 @@
         <div class="channel-head" style="cursor:default">
           <span class="channel-name">@azura_gold <span class="tag" style="background:var(--gold);color:#241a00;margin-left:6px">GOLD</span> <span class="builtin-tag">built-in</span></span>
         </div>
-        <div class="channel-detail open">
-          <div class="channel-city-row">
-            <span class="lbl">24K per gram</span>
-            <span class="val" id="goldLastRate">—</span>
+        <div class="channel-detail open" style="padding-top:14px">
+          <div style="text-align:center;padding:10px 0 16px">
+            <div id="goldLastRate" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:28px">—</div>
+            <div style="font-size:11px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.05em;margin-top:4px">24K per gram</div>
           </div>
-          <div class="channel-city-row">
+          <div class="channel-city-row" style="border-top:1px solid var(--dark-3);padding-top:12px">
             <span class="lbl">Status</span>
-            <span class="val" id="goldHealthStatus">—</span>
+            <span class="val" id="goldHealthStatus" style="font-size:13px;font-weight:700">—</span>
           </div>
         </div>
       </div>
+    </div>
     </div>
 
     <button class="btn ghost" id="dashLogout" aria-label="Log out">Log out</button>
@@ -191,7 +196,7 @@
       var statusEl = document.getElementById("goldHealthStatus");
       if(d.goldSource && d.goldSource.lastRate != null){
         rateEl.innerHTML = Number(d.goldSource.lastRate).toLocaleString("en-US") + " IQD" +
-          '<span class="changes">last seen ' + timeAgo(d.goldSource.lastPolledAt) + '</span>';
+          '<div style="font-size:11px;color:var(--paper-dim2);font-weight:400;margin-top:4px;font-family:inherit">last seen ' + timeAgo(d.goldSource.lastPolledAt) + '</div>';
       } else {
         rateEl.textContent = "—";
       }
