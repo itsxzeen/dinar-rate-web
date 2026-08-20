@@ -87,6 +87,7 @@
   .channel-city-row .val .changes{display:block;font-size:10px;color:var(--paper-dim2);margin-top:2px}
   .detect-preview{background:var(--dark-3);border-radius:10px;padding:12px;margin-top:10px}
   .detect-preview h3{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--paper-dim);margin-bottom:8px}
+  .tag{font-size:9px;font-weight:700;padding:2px 6px;border-radius:5px;letter-spacing:.05em}
 </style>
 </head>
 <body>
@@ -129,6 +130,31 @@
       </div>
     </div>
 
+    <div class="card" id="goldSourceCard" style="border-top-color:var(--gold)">
+      <h2>Gold Source</h2>
+      <div class="card-desc">
+        Gold prices are parsed from one channel's specific text format, unlike the dinar
+        rate channels above — a second gold channel can't just be "detected" the same way,
+        since its post format would need its own parsing rules first. Shown here so it's
+        not hidden from view.
+      </div>
+      <div class="channel-card">
+        <div class="channel-head" style="cursor:default">
+          <span class="channel-name">@azura_gold <span class="tag" style="background:var(--gold);color:#241a00;margin-left:6px">GOLD</span> <span class="builtin-tag">built-in</span></span>
+        </div>
+        <div class="channel-detail open">
+          <div class="channel-city-row">
+            <span class="lbl">24K per gram</span>
+            <span class="val" id="goldLastRate">—</span>
+          </div>
+          <div class="channel-city-row">
+            <span class="lbl">Status</span>
+            <span class="val" id="goldHealthStatus">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <button class="btn ghost" id="dashLogout" aria-label="Log out">Log out</button>
   </div>
 </div>
@@ -156,6 +182,27 @@
     loginWrap.style.display = "none";
     page.style.display = "block";
     loadChannels();
+    loadGoldSource();
+  }
+
+  function loadGoldSource(){
+    authedFetch("/admin/rate-status").then(function(d){
+      var rateEl = document.getElementById("goldLastRate");
+      var statusEl = document.getElementById("goldHealthStatus");
+      if(d.goldSource && d.goldSource.lastRate != null){
+        rateEl.innerHTML = Number(d.goldSource.lastRate).toLocaleString("en-US") + " IQD" +
+          '<span class="changes">last seen ' + timeAgo(d.goldSource.lastPolledAt) + '</span>';
+      } else {
+        rateEl.textContent = "—";
+      }
+      if(d.goldScrapeIssue){
+        statusEl.textContent = "⚠ Failed " + d.goldScrapeIssue.consecutiveFailures + "x in a row (~" + d.goldScrapeIssue.minutesDown + " min)";
+        statusEl.style.color = "var(--danger)";
+      } else {
+        statusEl.textContent = "Healthy";
+        statusEl.style.color = "var(--accent)";
+      }
+    }).catch(function(){});
   }
   function showLogin(msg){
     loginWrap.style.display = "";
