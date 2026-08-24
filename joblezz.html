@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<meta name="theme-color" content="#070908" />
+<meta name="robots" content="noindex, nofollow" />
+<title>joblezz · Control Panel</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="shortcut icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Work+Sans:wght@400;500;600;700&family=Fragment+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --dark:#070908; --dark-2:rgba(255,255,255,.045); --dark-3:rgba(255,255,255,.06);
+    --line:rgba(255,255,255,.09); --paper:#f5f7f4; --paper-dim:#9ba39d; --paper-dim2:#6b716c;
+    --accent:#8cff00; --accent2:#52d600; --danger:#fb7185;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  button,input,select,textarea{font-family:inherit}
+  body{
+    background:
+      radial-gradient(1200px 600px at 8% -10%, rgba(140,255,0,.12), transparent 55%),
+      radial-gradient(1000px 550px at 100% 0%, rgba(82,214,0,.10), transparent 50%),
+      var(--dark);
+    background-attachment:fixed;
+    color:var(--paper);
+    font-family:"Work Sans",-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh; padding:20px 16px 80px;
+  }
+  .wrap{max-width:880px;margin:0 auto}
+  @media(min-width:900px){
+    body{padding:24px 24px 80px}
+    .wrap{max-width:1200px}
+  }
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px}
+  .brand{font-family:"Sora",sans-serif;font-weight:800;font-size:18px;letter-spacing:-.01em;display:flex;align-items:center}
+  .brand span{color:var(--accent)}
+  a.back{color:var(--paper-dim);font-size:13px;text-decoration:none;display:flex;align-items:center;gap:6px}
+
+  #loginWrap{max-width:360px;margin:80px auto 0}
+  .card{background:var(--dark-2);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;backdrop-filter:blur(14px)}
+  .card h2{font-family:"Sora",sans-serif;font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--paper);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+  .input{width:100%;background:var(--dark-3);border:1px solid var(--line);border-radius:10px;
+    color:var(--paper);font-size:15px;padding:13px 14px;outline:none;font-family:inherit}
+  .input:focus{border-color:var(--accent)}
+  .btn{width:100%;background:var(--accent);color:#07120a;border:none;border-radius:11px;
+    font-size:15px;font-weight:700;padding:13px;cursor:pointer;margin-top:10px;font-family:inherit}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:var(--dark-3);border:1px solid var(--line);color:var(--paper)}
+  .btn.danger{background:transparent;border:1px solid var(--danger);color:var(--danger)}
+  .msg{font-size:12px;color:var(--paper-dim);margin-top:10px;min-height:14px;text-align:center}
+
+  #panel{display:none}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:6px}
+  @media(min-width:700px){.stat-grid{grid-template-columns:repeat(4,1fr)}}
+  .stat{background:var(--dark-3);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+  .stat-num{font-family:"Fragment Mono",monospace;font-size:22px;font-weight:700;color:var(--accent)}
+  .stat-lbl{font-size:11px;color:var(--paper-dim);margin-top:4px}
+
+  .empty{font-size:12px;color:var(--paper-dim);text-align:center;padding:18px 0}
+  .notice{font-size:12px;color:var(--paper-dim);line-height:1.5;background:var(--dark-3);border:1px dashed var(--line);
+    border-radius:10px;padding:12px 14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">job<span>lezz</span> · Control Panel</div>
+    <a class="back" href="dashusdiqd.html">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+      Dashboard
+    </a>
+  </div>
+
+  <div id="loginWrap">
+    <div id="loginCard" class="card">
+      <h2>Sign in</h2>
+      <input class="input" id="jlUser" type="text" placeholder="Username" autocomplete="username" aria-label="Username" autocapitalize="off" spellcheck="false" />
+      <input class="input" id="jlPass" type="password" placeholder="Password" autocomplete="current-password" aria-label="Password" style="margin-top:8px" />
+      <button class="btn" id="jlLoginBtn" aria-label="Sign in">Enter</button>
+      <div class="msg" id="jlMsg"></div>
+    </div>
+  </div>
+
+  <div id="panel">
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-num" id="stAppUsers">—</div><div class="stat-lbl">App accounts</div></div>
+      <div class="stat"><div class="stat-num" id="stJobsToday">—</div><div class="stat-lbl">Jobs posted today</div></div>
+      <div class="stat"><div class="stat-num" id="stApplications">—</div><div class="stat-lbl">Applications tracked</div></div>
+      <div class="stat"><div class="stat-num" id="stSaved">—</div><div class="stat-lbl">Saved jobs</div></div>
+    </div>
+
+    <div class="card">
+      <h2>App Accounts</h2>
+      <div class="empty" id="accountsEmpty">Not wired up yet — this will list joblezz app accounts once the backend endpoint is connected.</div>
+    </div>
+
+    <div class="card">
+      <h2>Job Posts</h2>
+      <div class="empty" id="jobsEmpty">Not wired up yet — this will list live Telegram-sourced job posts with moderation controls (edit / remove / feature).</div>
+    </div>
+
+    <div class="card">
+      <h2>Setup</h2>
+      <div class="notice">
+        This page is a placeholder shell, styled to match the dashboard. It reuses the same admin login as the rest of se3rforiqd.xyz.
+        Tell me what it should actually control — job moderation, app user accounts, applications data, feature flags for joblezz —
+        and which backend Worker it should talk to (the existing dinar-rate-worker, or a separate one for joblezz), and I'll wire it up.
+      </div>
+    </div>
+
+    <button class="btn danger" id="jlLogout" aria-label="Log out">Log out</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var WORKER_URL = "https://dinar-rate-worker.dollersdaner.workers.dev";
+  var TOKEN_KEY = "adminToken_v1"; // shared with admin.html / dashusdiqd.html's login session
+
+  var loginWrap = document.getElementById("loginWrap");
+  var panel = document.getElementById("panel");
+  var jlMsg = document.getElementById("jlMsg");
+
+  function showPanel(){
+    loginWrap.style.display = "none";
+    panel.style.display = "block";
+  }
+  function showLogin(msg){
+    loginWrap.style.display = "";
+    panel.style.display = "none";
+    jlMsg.textContent = msg || "";
+  }
+
+  // Already signed in via the dashboard/admin page? Skip straight to the panel.
+  if (localStorage.getItem(TOKEN_KEY)) {
+    showPanel();
+  }
+
+  document.getElementById("jlLoginBtn").addEventListener("click", function(){
+    var user = document.getElementById("jlUser").value.trim();
+    var pass = document.getElementById("jlPass").value;
+    if (!user || !pass) { jlMsg.textContent = "Enter username and password."; return; }
+    jlMsg.textContent = "Signing in…";
+    fetch(WORKER_URL + "/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: user, password: pass })
+    }).then(function(r){ return r.json(); }).then(function(res){
+      if (res && res.d && res.d.token) {
+        localStorage.setItem(TOKEN_KEY, res.d.token);
+        showPanel();
+      } else {
+        jlMsg.textContent = "Invalid username or password.";
+      }
+    }).catch(function(){ jlMsg.textContent = "Couldn't reach the server."; });
+  });
+
+  document.getElementById("jlLogout").addEventListener("click", function(){
+    localStorage.removeItem(TOKEN_KEY);
+    showLogin();
+  });
+})();
+</script>
+</body>
+</html>
