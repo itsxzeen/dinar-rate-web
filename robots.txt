@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /dashusdiqd.html
+Disallow: /admin.html
+Disallow: /rate-source.html
+Disallow: /subscriptions.html
+
+Sitemap: https://se3rforiqd.xyz/sitemap.xml

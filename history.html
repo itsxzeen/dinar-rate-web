@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#090b12" />
+<meta name="description" content="Rate history and gold price history for Se3rForIQD." />
+<meta name="robots" content="index,follow" />
+<link rel="canonical" href="https://se3rforiqd.xyz/history.html" />
+<title>History · Se3rForIQD</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="shortcut icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Work+Sans:wght@400;500;600;700&family=Fragment+Mono&display=swap" rel="stylesheet">
+<style>
+  ::view-transition-old(root),::view-transition-new(root){animation-duration:.32s;animation-timing-function:ease-in-out;}
+  html[data-vt-dir="forward"]::view-transition-old(root){animation-name:vt-out-left;}
+  html[data-vt-dir="forward"]::view-transition-new(root){animation-name:vt-in-right;}
+  html[data-vt-dir="back"]::view-transition-old(root){animation-name:vt-out-right;}
+  html[data-vt-dir="back"]::view-transition-new(root){animation-name:vt-in-left;}
+  @keyframes vt-out-left{to{transform:translateX(-25%);}}
+  @keyframes vt-in-right{from{transform:translateX(100%);}to{transform:translateX(0);}}
+  @keyframes vt-out-right{to{transform:translateX(100%);}}
+  @keyframes vt-in-left{from{transform:translateX(-100%);}to{transform:translateX(0);}}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{height:100%}
+  :root{
+    --dark:#090b12; --dark-2:rgba(255,255,255,.045); --dark-3:rgba(255,255,255,.065);
+    --line:rgba(255,255,255,.09); --line-strong:rgba(255,255,255,.16);
+    --paper:#e9ecf8; --paper-dim:#9aa2bd; --paper-dim2:#6b7390;
+    --violet:#8b98ff; --violet-dim:#7c93ff; --gold:#d3ad63;
+  }
+  body{
+    background:
+      radial-gradient(1000px 560px at 8% -10%, rgba(139,152,255,.14), transparent 55%),
+      radial-gradient(800px 460px at 100% 0%, rgba(211,173,99,.08), transparent 50%),
+      var(--dark);
+    background-attachment:fixed;
+    color:var(--paper);font-family:"Work Sans",-apple-system,sans-serif;
+    min-height:100%;line-height:1.5;-webkit-font-smoothing:antialiased;
+  }
+  .topbar{
+    position:sticky;top:0;z-index:30;
+    display:flex;align-items:center;gap:16px;
+    padding:max(calc(env(safe-area-inset-top) + 4px), 16px) 18px 14px;
+    border-bottom:1px solid var(--line);background:rgba(9,11,18,.72);backdrop-filter:blur(16px);
+  }
+  .back-btn{
+    width:40px;height:40px;background:var(--dark-2);border:1px solid var(--line);border-radius:11px;
+    color:var(--paper);text-decoration:none;display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;transition:background .18s,border-color .18s;
+  }
+  .back-btn:hover{background:var(--dark-3);border-color:var(--line-strong)}
+  .title{flex:1;text-align:center;font-family:"Fraunces",serif;font-weight:600;font-size:18px;letter-spacing:.005em;margin:0}
+  .wrap{max-width:640px;margin:0 auto;padding:20px 18px 40px}
+  @media (min-width:900px){ .wrap{max-width:820px;padding-top:36px} }
+
+  .mode-tabs{display:flex;gap:8px;margin-bottom:16px}
+  .mode-tab{
+    flex:1;text-align:center;padding:11px;border-radius:12px;border:1px solid var(--line);
+    background:var(--dark-2);color:var(--paper-dim);cursor:pointer;font-weight:700;font-size:13px;
+    transition:background .18s,color .18s,border-color .18s;
+  }
+  .mode-tab.active{background:var(--violet-dim);color:#0a0b14;border-color:transparent}
+  .mode-tab.active.gold-mode{background:var(--gold);color:#241a00}
+
+  .sub-tabs{display:flex;gap:8px;margin-bottom:18px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .sub-tabs::-webkit-scrollbar{display:none}
+  .sub-tab{
+    flex:0 0 auto;text-align:center;padding:9px 15px;border-radius:999px;border:1px solid var(--line);
+    background:var(--dark-2);color:var(--paper-dim);cursor:pointer;font-weight:600;font-size:12.5px;white-space:nowrap;
+    transition:background .18s,color .18s;
+  }
+  .sub-tab.active{background:var(--dark-3);color:var(--paper);border-color:var(--line-strong)}
+
+  .row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 16px;border-bottom:1px solid var(--line);font-family:"Fragment Mono",monospace;
+  }
+  .row:last-child{border-bottom:none}
+  .row .time{font-size:11.5px;color:var(--paper-dim2)}
+  .row .iqd{font-weight:700;font-size:15px;color:var(--paper)}
+  .row .usd{font-size:12px;color:var(--paper-dim);min-width:60px;text-align:right}
+  .card{background:var(--dark-2);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+  .empty{padding:34px;text-align:center;color:var(--paper-dim);font-size:13px}
+  .chart-card{margin-bottom:14px;padding:16px 16px 12px;overflow:visible}
+  .chart-range{display:flex;justify-content:space-between;font-size:11px;color:var(--paper-dim2);font-family:"Fragment Mono",monospace;margin-bottom:8px}
+  .chart-box{height:100px}
+  .chart-box svg{width:100%;height:100%;display:block;overflow:visible}
+</style>
+<script>
+  (function(){
+    if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+      var s = document.createElement("style");
+      s.textContent = "@view-transition{navigation:auto;}";
+      document.head.appendChild(s);
+    }
+    function markDir(){
+      var dir = "forward";
+      try {
+        if (window.navigation && navigation.activation && navigation.activation.navigationType === "traverse") {
+          var from = navigation.activation.from, entry = navigation.activation.entry;
+          if (from && entry && entry.index < from.index) dir = "back";
+        }
+      } catch(e){}
+      document.documentElement.setAttribute("data-vt-dir", dir);
+    }
+    markDir();
+    document.addEventListener("pagereveal", markDir);
+    document.addEventListener("DOMContentLoaded", function(){
+      var backBtn = document.getElementById("backBtn");
+      if(backBtn) backBtn.addEventListener("click", function(e){
+        if(history.length > 1){ e.preventDefault(); history.back(); }
+      });
+    });
+  })();
+</script>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="back-btn" id="backBtn" aria-label="Back"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>
+  <h1 class="title">History</h1>
+  <div style="width:40px;"></div>
+</div>
+
+<div class="wrap">
+  <div class="mode-tabs" id="modeTabs">
+    <button type="button" class="mode-tab active" id="modeRates" data-mode="rates">Dinar Rate</button>
+    <button type="button" class="mode-tab" id="modeGold" data-mode="gold">Gold Price</button>
+  </div>
+
+  <div class="sub-tabs" id="cityTabs">
+    <div class="sub-tab active" data-city="erbil">Erbil</div>
+    <div class="sub-tab" data-city="baghdad">Baghdad</div>
+    <div class="sub-tab" data-city="sulaymaniyah">Sulaymaniyah</div>
+    <div class="sub-tab" data-city="karbala">Karbala</div>
+    <div class="sub-tab" data-city="najaf">Najaf</div>
+    <div class="sub-tab" data-city="basra">Basra</div>
+    <div class="sub-tab" data-city="kirkuk">Kirkuk</div>
+    <div class="sub-tab" data-city="mosul">Mosul</div>
+    <div class="sub-tab" data-city="duhok">Duhok</div>
+  </div>
+  <div class="sub-tabs" id="karatTabs" style="display:none">
+    <div class="sub-tab" data-k="18">18K</div>
+    <div class="sub-tab" data-k="21">21K</div>
+    <div class="sub-tab" data-k="22">22K</div>
+    <div class="sub-tab active" data-k="24">24K</div>
+  </div>
+
+  <div class="card chart-card" id="chartCard" style="display:none">
+    <div class="chart-range">
+      <span>Low <b id="chartMin">—</b></span>
+      <span>High <b id="chartMax">—</b></span>
+    </div>
+    <div class="chart-box" id="chartBox"></div>
+  </div>
+  <div class="card">
+    <div id="list" class="empty">Loading…</div>
+  </div>
+</div>
+
+<script>
+  var WORKER_URL = "https://dinar-rate-worker.dollersdaner.workers.dev";
+  var mode = "rates";
+  var currentCity = "erbil";
+  var currentK = 24;
+
+  function fmt(n){ return n==null ? "—" : Math.round(n).toLocaleString("en-US"); }
+  function formatTime(iso){
+    var d = new Date(iso.replace(" ", "T")+"Z");
+    return d.toLocaleString("en-US", { month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });
+  }
+
+  function renderChart(points, color, fillColor){
+    var card = document.getElementById("chartCard");
+    var box = document.getElementById("chartBox");
+    if(!points || points.length < 2){ card.style.display = "none"; return; }
+    card.style.display = "";
+    var w = 480, h = 100, pad = 6;
+    var min = Math.min.apply(null, points), max = Math.max.apply(null, points);
+    var range = (max - min) || 1;
+    var stepX = (w - pad*2) / (points.length - 1);
+    var coords = points.map(function(v, i){
+      var x = pad + i*stepX;
+      var y = pad + (h - pad*2) * (1 - (v - min)/range);
+      return x.toFixed(1) + "," + y.toFixed(1);
+    });
+    var line = coords.join(" ");
+    var area = pad + "," + (h-pad) + " " + line + " " + (w-pad) + "," + (h-pad);
+    box.innerHTML =
+      '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none">' +
+      '<polygon points="' + area + '" fill="' + fillColor + '"></polygon>' +
+      '<polyline points="' + line + '" fill="none" stroke="' + color + '" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></polyline>' +
+      '</svg>';
+    document.getElementById("chartMin").textContent = fmt(min) + " IQD";
+    document.getElementById("chartMax").textContent = fmt(max) + " IQD";
+  }
+
+  function loadRates(city){
+    currentCity = city;
+    document.querySelectorAll("#cityTabs .sub-tab").forEach(function(t){
+      t.classList.toggle("active", t.getAttribute("data-city") === city);
+    });
+    var list = document.getElementById("list");
+    list.className = "empty";
+    list.textContent = "Loading…";
+    fetch(WORKER_URL+"/rate/history?city="+city+"&limit=20")
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(mode !== "rates") return;
+        if(!d.history || !d.history.length){
+          list.className = "empty";
+          list.textContent = "No history yet — check back after the next update.";
+          document.getElementById("chartCard").style.display = "none";
+          return;
+        }
+        list.className = "";
+        var html = "";
+        d.history.forEach(function(item){
+          html += '<div class="row">'+
+            '<span class="time">'+formatTime(item.recorded_at)+'</span>'+
+            '<span class="iqd">'+fmt(item.rate)+' IQD</span>'+
+            '</div>';
+        });
+        list.innerHTML = html;
+        renderChart(d.history.map(function(item){ return item.rate; }).reverse(), "#8b98ff", "rgba(139,152,255,.16)");
+      })
+      .catch(function(){
+        if(mode !== "rates") return;
+        list.className = "empty";
+        list.textContent = "Couldn't load history right now.";
+      });
+  }
+
+  function loadGold(k){
+    currentK = k;
+    document.querySelectorAll("#karatTabs .sub-tab").forEach(function(t){
+      t.classList.toggle("active", parseInt(t.getAttribute("data-k"),10) === k);
+    });
+    var list = document.getElementById("list");
+    list.className = "empty";
+    list.textContent = "Loading…";
+    fetch(WORKER_URL+"/gold/history?k="+k+"&limit=20")
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(mode !== "gold") return;
+        if(!d.history || !d.history.length){
+          list.className = "empty";
+          list.textContent = "No history yet — check back after the next update.";
+          document.getElementById("chartCard").style.display = "none";
+          return;
+        }
+        list.className = "";
+        var html = "";
+        d.history.forEach(function(item){
+          html += '<div class="row">'+
+            '<span class="time">'+formatTime(item.recorded_at)+'</span>'+
+            '<span class="iqd">'+fmt(item.iqd)+' IQD</span>'+
+            '<span class="usd">$'+fmt(item.usd)+'</span>'+
+            '</div>';
+        });
+        list.innerHTML = html;
+        renderChart(d.history.map(function(item){ return item.iqd; }).reverse(), "#d3ad63", "rgba(211,173,99,.18)");
+      })
+      .catch(function(){
+        if(mode !== "gold") return;
+        list.className = "empty";
+        list.textContent = "Couldn't load history right now.";
+      });
+  }
+
+  function setMode(m){
+    mode = m;
+    document.getElementById("modeRates").classList.toggle("active", m === "rates");
+    document.getElementById("modeGold").classList.toggle("active", m === "gold");
+    document.getElementById("modeGold").classList.toggle("gold-mode", true);
+    document.getElementById("cityTabs").style.display = m === "rates" ? "flex" : "none";
+    document.getElementById("karatTabs").style.display = m === "gold" ? "flex" : "none";
+    if(m === "rates") loadRates(currentCity); else loadGold(currentK);
+  }
+
+  document.getElementById("modeTabs").addEventListener("click", function(e){
+    var btn = e.target.closest(".mode-tab");
+    if(!btn) return;
+    setMode(btn.getAttribute("data-mode"));
+  });
+  document.getElementById("cityTabs").addEventListener("click", function(e){
+    var tab = e.target.closest(".sub-tab");
+    if(!tab) return;
+    loadRates(tab.getAttribute("data-city"));
+  });
+  document.getElementById("karatTabs").addEventListener("click", function(e){
+    var tab = e.target.closest(".sub-tab");
+    if(!tab) return;
+    loadGold(parseInt(tab.getAttribute("data-k"), 10));
+  });
+
+  fetch(WORKER_URL + "/flags").then(function(r){ return r.json(); }).then(function(d){
+    if(d.flags && d.flags.site_operational === false){
+      document.body.innerHTML = '<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:#090b12;color:#fff;font-family:system-ui,sans-serif"><div style="font-size:40px;margin-bottom:12px">🛠️</div><div style="font-size:18px;font-weight:700;margin-bottom:8px">Down for maintenance</div><div style="font-size:14px;color:#9aa2bd;max-width:320px">Se3rForIQD is temporarily unavailable while we fix something. Please check back soon.</div></div>';
+      return;
+    }
+    if(d.flags && d.flags.page_history === false){
+      document.querySelector(".wrap").innerHTML = '<div class="card"><div class="empty">This page is temporarily unavailable.</div></div>';
+      return;
+    }
+    var initialMode = /[?&]tab=gold\b/.test(location.search) ? "gold" : "rates";
+    setMode(initialMode);
+  }).catch(function(){
+    var initialMode = /[?&]tab=gold\b/.test(location.search) ? "gold" : "rates";
+    setMode(initialMode);
+  });
+</script>
+
+</body>
+</html>
