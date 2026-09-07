@@ -194,11 +194,12 @@
     .wrap > .big-logo{grid-column:1 / -1}
     .wrap > .hero{grid-column:1;grid-row:2 / span 2}
     .wrap > .leaderboard-card{grid-column:2;grid-row:2;margin-top:0}
-    .wrap > .cities-card{grid-column:2;grid-row:3;margin-top:0}
+    .wrap > .cbi-card{grid-column:2;grid-row:3;margin-top:0}
+    .wrap > .cities-card{grid-column:2;grid-row:4;margin-top:0}
     .wrap > .sec-convert{grid-column:1 / -1}
     .wrap > .gold-board{grid-column:1 / -1}
     .wrap > footer{grid-column:1 / -1}
-    .wrap > .hero, .wrap > .leaderboard-card, .wrap > .cities-card,
+    .wrap > .hero, .wrap > .leaderboard-card, .wrap > .cbi-card, .wrap > .cities-card,
     .wrap > .sec-convert, .wrap > .gold-board{min-width:0}
   }
 
@@ -248,6 +249,33 @@
   .hero-disclaimer{font-size:11.5px;color:var(--paper-dim2);margin-top:16px;line-height:1.5}
   .trust-note{font-size:11.5px;color:var(--paper-dim2);margin-top:8px;line-height:1.55}
   .trust-note b{color:var(--paper-dim);font-weight:600}
+  .hero-badges{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+  .hero-badge{
+    display:none;align-items:center;gap:5px;padding:5px 9px;border-radius:999px;
+    background:var(--dark-3);border:1px solid var(--line);font-size:11px;font-weight:700;color:var(--paper-dim);
+  }
+  .hero-badge.show{display:inline-flex}
+  .hero-badge.good{color:var(--rise);background:rgba(61,220,154,.11);border-color:rgba(61,220,154,.22)}
+  .hero-badge.bad{color:var(--fall);background:rgba(251,113,133,.10);border-color:rgba(251,113,133,.20)}
+  .quick-convert{
+    margin-top:14px;padding:11px 12px;border-radius:12px;background:var(--dark-3);border:1px solid var(--line);
+    display:flex;align-items:center;gap:10px;min-height:46px;
+  }
+  .quick-convert input{
+    width:78px;background:var(--dark);border:1px solid var(--line);border-radius:9px;
+    color:var(--paper);font:700 14px "Fragment Mono",monospace;padding:8px 9px;outline:none;text-align:right;
+  }
+  .quick-convert input:focus{border-color:var(--line-strong)}
+  .quick-convert .qc-label{font-size:11px;font-weight:700;color:var(--paper-dim2);letter-spacing:.05em}
+  .quick-convert .qc-result{margin-left:auto;color:var(--rise);font:700 14px "Fragment Mono",monospace;white-space:nowrap}
+  .toast{
+    position:fixed;left:50%;top:max(calc(env(safe-area-inset-top) + 16px),24px);z-index:140;
+    transform:translate(-50%,-12px);opacity:0;pointer-events:none;
+    background:#171b2d;border:1px solid var(--line-strong);color:var(--paper);
+    border-radius:999px;padding:9px 14px;font-size:12px;font-weight:700;box-shadow:0 14px 40px rgba(0,0,0,.45);
+    transition:opacity .2s ease,transform .2s ease;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
 
   .refresh{display:flex;align-items:center;justify-content:space-between;margin-top:22px;padding-top:18px;border-top:1px solid var(--line);flex-wrap:wrap;gap:10px}
   .refresh .cd{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--paper-dim2)}
@@ -283,6 +311,18 @@
   .leaderboard-tag.high{color:var(--fall)}
   .leaderboard-city{flex:1;color:var(--paper-dim)}
   .leaderboard-val{font-weight:700}
+
+  .cbi-card{display:none;margin-top:12px;padding:16px 18px}
+  .cbi-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0}
+  .cbi-row + .cbi-row{border-top:1px solid var(--line)}
+  .cbi-label{font-size:12px;color:var(--paper-dim);font-weight:700}
+  .cbi-val{font:700 15px "Fragment Mono",monospace;color:var(--paper);white-space:nowrap}
+  .cbi-gap{
+    display:inline-flex;margin-top:8px;padding:5px 9px;border-radius:999px;
+    background:rgba(211,173,99,.12);border:1px solid rgba(211,173,99,.22);
+    color:var(--gold);font-size:11px;font-weight:800;
+  }
+  .cbi-note{margin-top:9px;color:var(--paper-dim2);font-size:11.5px;line-height:1.5}
 
   .cities-card{padding:16px 18px;margin-top:12px;position:relative}
   .cities-card::after{
@@ -512,7 +552,7 @@
   // Cards fade/slide into place the first time they scroll into view.
   (function(){
     var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var targets = document.querySelectorAll(".hero, .leaderboard-card, .cities-card, .sec-convert, .gold-board, footer");
+    var targets = document.querySelectorAll(".hero, .leaderboard-card, .cbi-card, .cities-card, .sec-convert, .gold-board, footer");
     if(!targets.length) return;
     if(reduceMotion || !("IntersectionObserver" in window)){
       targets.forEach(function(el){ el.classList.add("in-view"); });
@@ -549,6 +589,17 @@
     </div>
     <div class="hero-sub" data-i18n="heroSub">per 100 USD · Erbil market rate</div>
     <div class="hero-chart" id="heroChart"></div>
+    <div class="hero-badges">
+      <span class="hero-badge" id="avgBadge"></span>
+      <span class="hero-badge" id="streakBadge"></span>
+      <span class="hero-badge" id="lastOpenBadge"></span>
+    </div>
+    <div class="quick-convert" aria-label="Quick USD to IQD conversion">
+      <input id="quickUsd" type="text" inputmode="decimal" value="100" aria-label="USD amount">
+      <span class="qc-label">USD</span>
+      <span class="qc-label">→</span>
+      <span class="qc-result" id="quickResult">—</span>
+    </div>
 
     <div class="hero-divider">
       <div class="hero-split">
@@ -569,6 +620,7 @@
         <span id="cd" data-i18n="updating">Updating...</span>
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
+        <button id="copyBtn" type="button" class="icon-btn" aria-label="Copy current rate"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
         <button id="shareBtn" type="button" class="icon-btn" aria-label="Share today's rate"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button>
         <a href="history.html?tab=rates" class="icon-btn" aria-label="Rate history"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></a>
         <button id="refreshBtn" type="button" aria-label="Refresh now">
@@ -592,6 +644,21 @@
       <span class="leaderboard-val mono" id="highVal">—</span>
     </div>
   </a>
+
+  <!-- CBI COMPARISON -->
+  <div class="card cbi-card" id="cbiCard">
+    <div class="h2" style="margin-bottom:10px" data-i18n="cbiTitle">CBI official rate</div>
+    <div class="cbi-row">
+      <span class="cbi-label" data-i18n="cbiPerUsd">Official / USD</span>
+      <span class="cbi-val" id="cbiPerUsd">—</span>
+    </div>
+    <div class="cbi-row">
+      <span class="cbi-label" data-i18n="cbiPer100">Official / 100 USD</span>
+      <span class="cbi-val" id="cbiPer100">—</span>
+    </div>
+    <div class="cbi-gap" id="cbiGap" style="display:none"></div>
+    <div class="cbi-note" data-i18n="cbiNote">The CBI rate is official; the market rate above is what people usually compare against.</div>
+  </div>
 
   <!-- CITIES -->
   <div class="card cities-card" id="citiesCard" style="display:none">
@@ -619,10 +686,10 @@
       <div class="rate-info" id="rateInfo"></div>
     </div>
     <div class="app-promo">
-      <div class="ic">📲</div>
+      <div class="ic">↔</div>
       <div>
-        <div class="t" data-i18n="appPromoTitle">Live rate alerts</div>
-        <div class="d" data-i18n="footerAppPromo">Get push notifications the moment Erbil or Baghdad moves — only in the app.</div>
+        <div class="t" data-i18n="appPromoTitle">Compare all cities</div>
+        <div class="d" data-i18n="footerAppPromo">Check Baghdad, Erbil and the other Iraqi markets side by side before you convert.</div>
       </div>
     </div>
   </section>
@@ -710,6 +777,7 @@
   </footer>
 
 </div>
+<div class="toast" id="copyToast" data-i18n="copiedToClipboard">Copied to clipboard</div>
 
 <script>
 (function(){
@@ -721,7 +789,9 @@
     .then(function(d){
       if(d.history && d.history.length > 1){
         var pts = d.history.map(function(h){ return h.rate; }).reverse();
+        heroHistory = pts;
         renderHeroChart(pts);
+        renderHeroInsights();
       }
     })
     .catch(function(){});
@@ -745,13 +815,19 @@
       rateHistoryBtn:"History", nearbyMapBtn:"Map",
       aboutSection:"About", aboutBtn:"About", contactBtn:"Contact", privacyBtn:"Privacy Policy", termsBtn:"Terms of Service",
       footerBy:"by", footerStatus:"All rates are live, still working on it",
-      footerAppPromo:"An app for exchange rates, gold prices and currency conversion — coming soon on iOS and Android.",
+      footerAppPromo:"Check Baghdad, Erbil and the other Iraqi markets side by side before you convert.",
       footerMore:"More things are coming soon.",
       navigate:"Navigate", heroSub:"per 100 USD · Erbil market rate",
       heroDisclaimer:"Prices are real and they change — these are today's rates.",
       trustNote:"Market rates are shown from live source feeds and may move quickly. Check locally before exchanging money.",
+      copiedToClipboard:"Copied to clipboard",
+      belowTodaysAverage:"% below today's average", aboveTodaysAverage:"% above today's average", atTodaysAverage:"At today's average",
+      streakUp:"checks rising", streakDown:"checks falling", sinceYouLastOpened:"since you last opened",
       lowestToday:"Lowest today", highestToday:"Highest today",
-      todaysRange:"Today's Range", citiesLabel:"Cities", appPromoTitle:"Live rate alerts",
+      todaysRange:"Today's Range", citiesLabel:"Cities", appPromoTitle:"Compare all cities",
+      cbiTitle:"CBI official rate", cbiPerUsd:"Official / USD", cbiPer100:"Official / 100 USD",
+      cbiNote:"The CBI rate is official; the market rate above is what people usually compare against.",
+      cbiSpreadAbove:"% above official", cbiSpreadBelow:"% below official",
       tagline:"The dinar, the dollar and the gold souk — in one place.",
       footProduct:"Product", footCompany:"Company", footLegal:"Legal", otherRatesLink:"Other Rates",
     },
@@ -768,13 +844,19 @@
       rateHistoryBtn:"السجل", nearbyMapBtn:"الخريطة",
       aboutSection:"حول", aboutBtn:"حول", contactBtn:"تواصل", privacyBtn:"سياسة الخصوصية", termsBtn:"شروط الخدمة",
       footerBy:"بواسطة", footerStatus:"جميع الأسعار مباشرة، ما زلنا نعمل عليه",
-      footerAppPromo:"تطبيق لأسعار الصرف والذهب وتحويل العملات — قريبًا على iOS وAndroid.",
+      footerAppPromo:"قارن بغداد وأربيل وبقية أسواق العراق قبل التحويل.",
       footerMore:"المزيد قادم قريبًا.",
       navigate:"التنقل", heroSub:"لكل 100 دولار · سعر سوق أربيل",
       heroDisclaimer:"الأسعار حقيقية وتتغير — هذه أسعار اليوم.",
       trustNote:"تُعرض الأسعار من مصادر مباشرة وقد تتغير بسرعة. تحقق محليًا قبل تبديل المال.",
+      copiedToClipboard:"تم النسخ",
+      belowTodaysAverage:"% أقل من متوسط اليوم", aboveTodaysAverage:"% أعلى من متوسط اليوم", atTodaysAverage:"عند متوسط اليوم",
+      streakUp:"تحديثات صاعدة", streakDown:"تحديثات هابطة", sinceYouLastOpened:"منذ آخر فتح لك",
       lowestToday:"الأدنى اليوم", highestToday:"الأعلى اليوم",
-      todaysRange:"نطاق اليوم", citiesLabel:"المدن", appPromoTitle:"تنبيهات الأسعار المباشرة",
+      todaysRange:"نطاق اليوم", citiesLabel:"المدن", appPromoTitle:"قارن كل المدن",
+      cbiTitle:"السعر الرسمي للبنك المركزي", cbiPerUsd:"رسمي / دولار", cbiPer100:"رسمي / 100 دولار",
+      cbiNote:"سعر البنك المركزي رسمي؛ سعر السوق أعلاه هو ما يقارنه الناس عادة.",
+      cbiSpreadAbove:"% أعلى من الرسمي", cbiSpreadBelow:"% أقل من الرسمي",
       tagline:"الدينار والدولار وسوق الذهب — في مكان واحد.",
       footProduct:"المنتج", footCompany:"الشركة", footLegal:"قانوني", otherRatesLink:"أسعار أخرى",
     },
@@ -795,11 +877,17 @@
       navigate:"ڕێنیشاندان", heroSub:"بۆ هەر ١٠٠ دۆلار · نرخی بازاڕی هەولێر",
       heroDisclaimer:"نرخەکان ڕاستەقینەن و دەگۆڕدرێن — ئەمانە نرخەکانی ئەمڕۆن.",
       trustNote:"نرخەکان لە سەرچاوە ڕاستەوخۆکان پیشان دەدرێن و زوو دەگۆڕێن. پێش ئاڵوگۆڕ لە شوێنی خۆت بپرسەوە.",
+      copiedToClipboard:"کۆپی کرا",
+      belowTodaysAverage:"% کەمترە لە ناوەندی ئەمڕۆ", aboveTodaysAverage:"% زیاترە لە ناوەندی ئەمڕۆ", atTodaysAverage:"لە ناوەندی ئەمڕۆدایە",
+      streakUp:"جار بەرزبوونەوە", streakDown:"جار دابەزین", sinceYouLastOpened:"لە دوای دوا جار کردنەوەت",
       lowestToday:"کەمترین ئەمڕۆ", highestToday:"زۆرترین ئەمڕۆ",
       todaysRange:"مەودای ئەمڕۆ", citiesLabel:"شارەکان", appPromoTitle:"ئاگاداری نرخی ڕاستەوخۆ",
+      cbiTitle:"نرخی فەرمی بانکی ناوەندی", cbiPerUsd:"فەرمی / دۆلار", cbiPer100:"فەرمی / ١٠٠ دۆلار",
+      cbiNote:"نرخی بانکی ناوەندی فەرمییە؛ نرخی بازاڕی سەرەوە ئەوەیە خەڵک زۆرجار بەراوردی دەکەن.",
+      cbiSpreadAbove:"% زیاترە لە فەرمی", cbiSpreadBelow:"% کەمترە لە فەرمی",
       tagline:"دینار، دۆلار و بازاڕی زێڕ — لە یەک شوێن.",
       footProduct:"بەرهەم", footCompany:"کۆمپانیا", footLegal:"یاسایی", otherRatesLink:"نرخە تر",
-      footerAppPromo:"ئەپێک بۆ نرخی ئاڵوگۆڕ، نرخی زێڕ و گۆڕینی دراو — بەم زووانە بۆ iOS و Android.",
+      footerAppPromo:"بەغدا، هەولێر و بازاڕەکانی دیکەی عێراق بەراورد بکە پێش گۆڕین.",
     },
   };
   var currentLang = localStorage.getItem(LANG_KEY) || "en";
@@ -849,7 +937,10 @@
     stamp();
     if (lastGoldData) renderGold(lastGoldData);
     if (lastLiveData) renderLeaderboard(lastLiveData);
+    if (lastLiveData) renderCbi(lastLiveData);
     updateTrustNote(lastLiveData);
+    renderHeroInsights();
+    convertQuick();
   }
 
   // Push notifications (iOS app only — this whole block is a no-op on the
@@ -923,6 +1014,8 @@
   var erbilSell = null;
   var baghdadSell = null;
   var convCity = "erbil";
+  var heroHistory = [];
+  var lastSeenAtOpen = null;
 
   var menuBtn = document.getElementById("menuBtn");
   var sidebar = document.getElementById("sidebar");
@@ -938,6 +1031,7 @@
   function fmt2(n){ return n==null ? "—" : Number(n).toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2}); }
   function pad(n){ return n<10?"0"+n:""+n; }
   function currentRate(){ return convCity==="baghdad" ? baghdadSell : erbilSell; }
+  function selectedHeroRate(){ return erbilSell; }
 
   function loadCache(){ try{ return JSON.parse(localStorage.getItem(CACHE_KEY)); }catch(e){ return null; } }
   function saveCache(o){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify(o)); }catch(e){} }
@@ -1001,7 +1095,66 @@
     document.getElementById("erbilSellBig").textContent = erbilSell ? fmt(erbilSell) : "—";
     if(erbilSell != null) lastErbilSell = erbilSell;
     if(baghdadSell != null) lastBaghdadSell = baghdadSell;
+    renderHeroInsights();
+    convertQuick();
     stamp();
+  }
+
+  function badge(id, text, tone){
+    var el = document.getElementById(id);
+    if(!el) return;
+    if(!text){ el.className = "hero-badge"; el.textContent = ""; return; }
+    el.textContent = text;
+    el.className = "hero-badge show" + (tone ? " " + tone : "");
+  }
+
+  function renderHeroInsights(){
+    var rate = selectedHeroRate();
+    if(!rate){
+      badge("avgBadge", "", "");
+      badge("streakBadge", "", "");
+      badge("lastOpenBadge", "", "");
+      return;
+    }
+    if(heroHistory.length){
+      var avg = heroHistory.reduce(function(sum, v){ return sum + v; }, 0) / heroHistory.length;
+      var diffPct = avg ? ((rate - avg) / avg * 100) : 0;
+      if(Math.abs(diffPct) < 0.05) badge("avgBadge", I18N[currentLang].atTodaysAverage, "");
+      else badge("avgBadge", Math.abs(diffPct).toFixed(2) + I18N[currentLang][diffPct < 0 ? "belowTodaysAverage" : "aboveTodaysAverage"], diffPct < 0 ? "good" : "bad");
+
+      var streak = 0, dir = 0;
+      for(var i = heroHistory.length - 1; i > 0; i--){
+        var d = heroHistory[i] - heroHistory[i - 1];
+        if(d === 0) break;
+        var thisDir = d > 0 ? 1 : -1;
+        if(dir && thisDir !== dir) break;
+        dir = thisDir;
+        streak++;
+      }
+      badge("streakBadge", streak >= 3 ? (streak + " " + I18N[currentLang][dir > 0 ? "streakUp" : "streakDown"]) : "", dir > 0 ? "good" : "bad");
+    }
+    var lastSeenKey = "lastSeenRate_erbil_v1";
+    if(lastSeenAtOpen == null){
+      var stored = localStorage.getItem(lastSeenKey);
+      lastSeenAtOpen = stored ? parseInt(stored, 10) : rate;
+    }
+    if(lastSeenAtOpen && lastSeenAtOpen !== rate){
+      var moved = rate - lastSeenAtOpen;
+      badge("lastOpenBadge", (moved > 0 ? "▲ " : "▼ ") + fmt(Math.abs(moved)) + " " + I18N[currentLang].sinceYouLastOpened, moved < 0 ? "good" : "bad");
+    } else {
+      badge("lastOpenBadge", "", "");
+    }
+    try{ localStorage.setItem(lastSeenKey, String(rate)); }catch(e){}
+  }
+
+  function convertQuick(){
+    var input = document.getElementById("quickUsd");
+    var output = document.getElementById("quickResult");
+    if(!input || !output) return;
+    var amount = parseFloat((input.value || "").replace(/,/g, ""));
+    var rate = selectedHeroRate();
+    if(isNaN(amount) || amount < 0 || !rate){ output.textContent = "—"; return; }
+    output.textContent = fmt(amount / 100 * rate) + " IQD";
   }
 
   var CITY_LABELS_BY_LANG = {
@@ -1032,6 +1185,30 @@
     document.getElementById("highCity").textContent = CITY_LABELS[high.city] || high.city;
     document.getElementById("highVal").textContent = fmt(high.rate) + " IQD";
     if(card) card.style.display = "block";
+  }
+
+  function renderCbi(data){
+    var card = document.getElementById("cbiCard");
+    var perUsdEl = document.getElementById("cbiPerUsd");
+    var per100El = document.getElementById("cbiPer100");
+    var gapEl = document.getElementById("cbiGap");
+    if(!card || !data || !data.cbi){ if(card) card.style.display = "none"; return; }
+    var perUsd = data.cbi.perUsd;
+    var per100 = data.cbi.per100 || (perUsd ? Math.round(perUsd * 100) : null);
+    perUsdEl.textContent = perUsd ? fmt(perUsd) + " IQD" : "—";
+    per100El.textContent = per100 ? fmt(per100) + " IQD" : "—";
+    if(per100 && erbilSell){
+      var pct = (erbilSell - per100) / per100 * 100;
+      if(Math.abs(pct) >= 0.05){
+        gapEl.style.display = "inline-flex";
+        gapEl.textContent = Math.abs(pct).toFixed(2) + I18N[currentLang][pct >= 0 ? "cbiSpreadAbove" : "cbiSpreadBelow"];
+      } else {
+        gapEl.style.display = "none";
+      }
+    } else if(gapEl){
+      gapEl.style.display = "none";
+    }
+    card.style.display = "block";
   }
 
   var CITY_ORDER2 = ["erbil","baghdad","mosul","basra","sulaymaniyah","kirkuk","najaf","karbala","duhok"];
@@ -1180,6 +1357,7 @@
   }
 
   document.getElementById("fieldTop").addEventListener("input", convertUsd);
+  document.getElementById("quickUsd").addEventListener("input", convertQuick);
 
   document.getElementById("swapDirBtn").addEventListener("click", function(){
     convDir = convDir==="usd2iqd" ? "iqd2usd" : "usd2iqd";
@@ -1219,6 +1397,7 @@
         if(res.data.baghdad) baghdadSell = res.data.baghdad.rate;
         lastLiveData = res.data;
         renderLeaderboard(res.data);
+        renderCbi(res.data);
         lastGoldData = res.data.gold;
         renderGold(res.data.gold);
         renderSpot(res.data.goldSpot);
@@ -1298,6 +1477,21 @@
         btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>';
         setTimeout(function(){ btn.innerHTML = prev; }, 1500);
       }).catch(function(){});
+    }
+  });
+
+  document.getElementById("copyBtn").addEventListener("click", function(){
+    var text = I18N[currentLang].erbil + ": " + (erbilSell ? fmt(erbilSell) : "—") + " IQD";
+    function showToast(){
+      var toast = document.getElementById("copyToast");
+      if(!toast) return;
+      toast.classList.add("show");
+      setTimeout(function(){ toast.classList.remove("show"); }, 1400);
+    }
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(text).then(showToast).catch(showToast);
+    } else {
+      showToast();
     }
   });
 

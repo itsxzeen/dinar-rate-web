@@ -52,6 +52,24 @@
   p{font-size:14px;color:var(--paper-dim);line-height:1.7}
   a{color:var(--violet-dim)}
   .card{background:var(--dark-2);border:1px solid var(--line);border-radius:20px;padding:20px 22px;margin-top:16px}
+  .feedback-form{display:grid;gap:11px;margin-top:18px}
+  .feedback-grid{display:grid;gap:11px}
+  @media(min-width:640px){.feedback-grid{grid-template-columns:1fr 1fr}}
+  .field{display:grid;gap:6px}
+  .field label{font-size:10.5px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+  .field input,.field textarea{
+    width:100%;border:1px solid var(--line);border-radius:12px;background:#070912;color:var(--paper);
+    font:500 14px "Work Sans",system-ui,sans-serif;padding:12px 13px;outline:none;
+  }
+  .field textarea{min-height:140px;resize:vertical;line-height:1.55}
+  .field input:focus,.field textarea:focus{border-color:var(--line-strong)}
+  .submit-btn{
+    border:none;border-radius:14px;background:var(--violet-dim);color:#080a12;font-weight:800;
+    padding:14px 18px;cursor:pointer;font-size:14px;
+  }
+  .submit-btn:disabled{opacity:.55;cursor:wait}
+  .form-status{font-size:13px;color:var(--paper-dim);min-height:20px}
+  .form-status.ok{color:#3ddc9a}.form-status.err{color:#fb7185}
   .contact-row{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit}
   .contact-ic{
     width:40px;height:40px;border-radius:12px;background:rgba(139,152,255,.14);
@@ -78,7 +96,38 @@
 </div>
 
 <div class="wrap">
-  <p>Questions, corrections, or feedback about rates, the site, or the app — reach out any time.</p>
+  <p>Tell us what's working, what's not, or what you'd like to see next. This goes straight into the Se3rForIQD dashboard inbox.</p>
+
+  <div class="card">
+    <form class="feedback-form" id="feedbackForm">
+      <div class="feedback-grid">
+        <div class="field">
+          <label for="firstName">First name</label>
+          <input id="firstName" name="firstName" autocomplete="given-name" required>
+        </div>
+        <div class="field">
+          <label for="lastName">Last name</label>
+          <input id="lastName" name="lastName" autocomplete="family-name" required>
+        </div>
+      </div>
+      <div class="feedback-grid">
+        <div class="field">
+          <label for="phone">Phone optional</label>
+          <input id="phone" name="phone" inputmode="tel" autocomplete="tel">
+        </div>
+        <div class="field">
+          <label for="email">Email optional</label>
+          <input id="email" name="email" type="email" autocomplete="email">
+        </div>
+      </div>
+      <div class="field">
+        <label for="message">Feedback</label>
+        <textarea id="message" name="message" required placeholder="Your feedback..."></textarea>
+      </div>
+      <button class="submit-btn" type="submit" id="submitBtn">Submit</button>
+      <div class="form-status" id="formStatus" aria-live="polite"></div>
+    </form>
+  </div>
 
   <div class="card">
     <a class="contact-row" href="mailto:info@xzeenwaves.us">
@@ -90,6 +139,46 @@
     </a>
   </div>
 </div>
+
+<script>
+  var WORKER_URL = "https://dinar-rate-worker.dollersdaner.workers.dev";
+  document.getElementById("feedbackForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var form = e.currentTarget;
+    var btn = document.getElementById("submitBtn");
+    var status = document.getElementById("formStatus");
+    var body = {
+      firstName: form.firstName.value.trim(),
+      lastName: form.lastName.value.trim(),
+      phone: form.phone.value.trim(),
+      email: form.email.value.trim(),
+      message: form.message.value.trim(),
+    };
+    if(!body.firstName || !body.lastName || !body.message){
+      status.className = "form-status err";
+      status.textContent = "Please add your name and message.";
+      return;
+    }
+    btn.disabled = true;
+    status.className = "form-status";
+    status.textContent = "Sending...";
+    fetch(WORKER_URL + "/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }).then(function(r){
+      if(!r.ok) throw new Error("bad response");
+      form.reset();
+      status.className = "form-status ok";
+      status.textContent = "Thank you. Your feedback has been sent.";
+    }).catch(function(){
+      status.className = "form-status err";
+      status.textContent = "Couldn't send your feedback. You can still email us below.";
+    }).finally(function(){
+      btn.disabled = false;
+    });
+  });
+</script>
 
 </body>
 </html>
