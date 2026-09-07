@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /dashusdiqd.html
+Disallow: /adxzeen
 Disallow: /admin.html
 Disallow: /rate-source.html
 Disallow: /subscriptions.html
