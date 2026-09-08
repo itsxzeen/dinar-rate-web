@@ -177,6 +177,51 @@
   .monitor-table tbody tr:hover{background:var(--dark-3)}
   .monitor-table tbody tr:last-child td{border-bottom:none}
 
+  /* ---------- Rate Hub ---------- */
+  .rh-status{padding:12px 16px;border-radius:10px;font-weight:700;font-size:13px;margin-bottom:14px;line-height:1.5}
+  .rh-status.rh-ok{background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.4);color:var(--status-good)}
+  .rh-status.rh-bad{background:rgba(251,113,133,.13);border:1px solid rgba(251,113,133,.45);color:var(--danger)}
+  .rh-status.rh-neutral{background:var(--dark-2);border:1px solid var(--line);color:var(--paper-dim)}
+  .rh-status ul{margin:6px 0 0;padding-left:18px;font-weight:500}
+  .rh-controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .rh-h{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--paper-dim2);margin:22px 0 8px;font-weight:700}
+  .rh-tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+  .rh-table{width:100%;border-collapse:collapse;font-size:12.5px}
+  .rh-table th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--paper-dim2);padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--dark-2)}
+  .rh-table td{padding:9px 12px;border-bottom:1px solid var(--dark-3);white-space:nowrap;vertical-align:middle}
+  .rh-table tbody tr:last-child td{border-bottom:none}
+  .rh-table tbody tr:hover{background:var(--dark-3)}
+  .rh-pill{display:inline-flex;align-items:center;gap:5px;font-family:"Fragment Mono",monospace;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:999px}
+  .rh-pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .rh-pill.ok{color:var(--status-good);background:rgba(52,211,153,.13)}
+  .rh-pill.down{color:var(--danger);background:rgba(251,113,133,.13)}
+  .rh-pill.stale{color:var(--status-warning);background:rgba(251,191,36,.13)}
+  .rh-pill.unknown{color:var(--paper-dim2);background:var(--dark-3)}
+  .rh-mono{font-family:"Fragment Mono",monospace}
+  .rh-citychip{display:inline-block;font-size:10px;padding:2px 6px;border-radius:6px;margin:1px;background:var(--dark-3);color:var(--paper-dim)}
+  .rh-citychip.stale{background:rgba(251,113,133,.15);color:var(--danger)}
+  .rh-feed{border:1px solid var(--line);border-radius:12px;max-height:320px;overflow-y:auto;font-family:"Fragment Mono",monospace;font-size:11.5px}
+  .rh-feed-row{display:flex;gap:10px;padding:6px 12px;border-bottom:1px solid var(--dark-3)}
+  .rh-feed-row:last-child{border-bottom:none}
+  .rh-feed-row .t{color:var(--paper-dim2);flex-shrink:0}
+  .rh-feed-row .c{color:var(--accent);flex-shrink:0}
+  .rh-detail{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px;background:var(--dark-2)}
+  .rh-detail table{width:100%;border-collapse:collapse;font-size:12px}
+  .rh-detail td{padding:6px 8px;border-bottom:1px solid var(--dark-3)}
+  /* pipeline flow diagram */
+  .rh-flow{display:flex;align-items:center;gap:8px;overflow-x:auto;padding:14px;border:1px solid var(--line);border-radius:12px;margin-bottom:16px;background:var(--dark-2)}
+  .rh-flow-col{display:flex;flex-direction:column;gap:5px;flex-shrink:0}
+  .rh-node{font-size:10.5px;padding:5px 9px;border-radius:8px;border:1px solid var(--line);background:var(--dark-3);color:var(--paper-dim);white-space:nowrap;cursor:pointer;transition:all .15s}
+  .rh-node.ok{border-color:rgba(52,211,153,.5);color:var(--status-good)}
+  .rh-node.down{border-color:rgba(251,113,133,.5);color:var(--danger)}
+  .rh-node.stale{border-color:rgba(251,191,36,.5);color:var(--status-warning)}
+  .rh-node.sel{outline:2px solid var(--accent)}
+  .rh-node.engine,.rh-node.app{background:var(--dark-1,#0c0e14);font-weight:700;color:var(--paper);cursor:default;padding:10px 12px}
+  .rh-wire{position:relative;width:44px;height:2px;background:var(--line);flex-shrink:0;align-self:center}
+  .rh-wire.live::after{content:"";position:absolute;top:-2px;left:0;width:6px;height:6px;border-radius:50%;background:var(--status-good);animation:rhpulse 1.4s linear infinite}
+  @keyframes rhpulse{from{left:0;opacity:0}10%{opacity:1}90%{opacity:1}to{left:38px;opacity:0}}
+  @media (prefers-reduced-motion:reduce){.rh-wire.live::after{animation:none;left:16px}}
+
   #pinMap{height:340px;margin-top:12px;border-radius:12px;border:1px solid var(--line);overflow:hidden;background:var(--dark-3)}
   #pinMap .leaflet-container{background:var(--dark-3)}
   .leaflet-control-attribution{font-size:9px !important}
@@ -261,8 +306,9 @@
         <div class="fn-brand"><img src="favicon-32.png" alt="" width="20" height="20" style="border-radius:5px">Se3r<span>ForIQD</span></div>
         <div class="fn-links">
           <button class="slink" data-target="emergencyCard"><span class="sdot" style="color:var(--danger)"></span>Emergency</button>
-          <button class="slink" data-target="sectionRates"><span class="sdot" style="color:var(--cat-rates)"></span>Rates</button>
-          <button class="slink" data-target="sectionMonitor"><span class="sdot" style="color:var(--cat-monitor)"></span>Channel Monitor</button>
+          <button class="slink" data-target="sectionRateHub"><span class="sdot" style="color:var(--cat-rates)"></span>Rate Hub</button>
+          <button class="slink" data-target="sectionRates"><span class="sdot" style="color:var(--cat-rates)"></span>Rates (old)</button>
+          <button class="slink" data-target="sectionMonitor"><span class="sdot" style="color:var(--cat-monitor)"></span>Channel Monitor (old)</button>
           <button class="slink" data-target="sectionMap"><span class="sdot" style="color:var(--cat-map)"></span>Map</button>
           <button class="slink" data-target="sectionSite"><span class="sdot" style="color:var(--cat-site)"></span>Site &amp; Currencies</button>
           <button class="slink" data-target="sectionComms"><span class="sdot" style="color:var(--cat-comms)"></span>Communication</button>
@@ -339,6 +385,47 @@
           <div class="msg" id="forceUpdateMsg"></div>
         </div>
       </div>
+    </div>
+
+    <div class="section" id="sectionRateHub">
+      <div class="section-head">
+        <span class="section-dot" style="background:var(--cat-rates)"></span>
+        <span class="section-title">Rate Hub</span>
+        <span class="section-sub" id="rhUpdated">—</span>
+      </div>
+
+      <div id="rhStatus" class="rh-status rh-neutral">Loading…</div>
+
+      <div class="rh-controls">
+        <button class="btn small" id="rhForceCheck">Force Check Now</button>
+        <button class="btn small" id="rhRebuild">Rebuild All Rates</button>
+        <button class="btn small" id="rhRestart">Restart Pipeline</button>
+        <button class="btn small danger" id="rhResetAll">Reset All Channels</button>
+        <button class="btn small danger" id="rhClearHist">Clear Chart History</button>
+        <span class="msg" id="rhCtrlMsg" style="margin:0;align-self:center"></span>
+      </div>
+
+      <div class="rh-flow" id="rhFlow"></div>
+
+      <h3 class="rh-h">Cities · live blended rate</h3>
+      <div class="rh-tablewrap">
+        <table class="rh-table" id="rhCityTable">
+          <thead><tr><th>City</th><th>Rate</th><th>Updated</th><th>Age</th><th>Status</th><th>Override</th></tr></thead>
+          <tbody id="rhCityRows"></tbody>
+        </table>
+      </div>
+
+      <h3 class="rh-h">Channels · <span id="rhChCount">—</span></h3>
+      <div class="rh-tablewrap">
+        <table class="rh-table" id="rhChTable">
+          <thead><tr><th>Channel</th><th>Status</th><th>Cities</th><th>Posts 24h</th><th>Total</th><th>Last seen OK</th><th>Fails</th><th></th></tr></thead>
+          <tbody id="rhChRows"></tbody>
+        </table>
+      </div>
+      <div id="rhChDetail"></div>
+
+      <h3 class="rh-h">Activity · latest rate posts</h3>
+      <div class="rh-feed" id="rhFeed"></div>
     </div>
 
     <div class="section" id="sectionRates">
@@ -902,6 +989,7 @@
     // Leaflet can't lay out tiles while its container is display:none — init
     // (or re-measure) only once the Map tab is actually visible.
     if(id === "sectionMap" && typeof initPinMap === "function") initPinMap();
+    if(typeof onRateHubTab === "function") onRateHubTab(id === "sectionRateHub");
   }
   tabButtons.forEach(function(btn){
     btn.addEventListener("click", function(){ activateTab(btn.getAttribute("data-target")); });
@@ -1711,6 +1799,226 @@
         chipHtml("neutral", channels ? channels.length : 0, "channels tracked");
     }
   }
+
+  /* ================= RATE HUB (merged Rate Control + Channel Monitor) ================= */
+
+  var rhTimer = null;
+  var rhSelectedChannel = null;
+
+  function rhFmt(n){ return (n == null) ? "—" : Number(n).toLocaleString("en-US"); }
+  function rhAge(min){
+    if(min == null) return "—";
+    if(min < 1) return "just now";
+    if(min < 60) return min + "m ago";
+    var h = Math.floor(min/60); if(h < 48) return h + "h ago";
+    return Math.floor(h/24) + "d ago";
+  }
+  function rhStamp(iso){
+    if(!iso) return "—";
+    var norm = /[+Zz]|T\d\d:\d\d:\d\d/.test(iso) ? iso : iso.replace(" ","T")+"Z";
+    var d = new Date(norm);
+    if(isNaN(d)) return iso;
+    return d.toLocaleString([], {month:"short", day:"numeric", hour:"2-digit", minute:"2-digit", second:"2-digit"});
+  }
+
+  function onRateHubTab(isActive){
+    if(rhTimer){ clearInterval(rhTimer); rhTimer = null; }
+    if(isActive){
+      loadRateHub();
+      rhTimer = setInterval(loadRateHub, 15000);
+    }
+  }
+
+  function loadRateHub(){
+    authedFetch("/admin/rate-hub")
+      .then(renderRateHub)
+      .catch(function(){
+        var s = document.getElementById("rhStatus");
+        if(s){ s.className = "rh-status rh-bad"; s.textContent = "Couldn't load Rate Hub — the dashboard API is unreachable."; }
+      });
+  }
+
+  function renderRateHub(d){
+    if(!d || d.error){
+      var s0 = document.getElementById("rhStatus");
+      if(s0){ s0.className = "rh-status rh-bad"; s0.textContent = (d && d.error) || "No data."; }
+      return;
+    }
+    document.getElementById("rhUpdated").textContent = "updated " + rhStamp(d.now);
+
+    // ---- status banner ----
+    var s = document.getElementById("rhStatus");
+    var p = d.pipeline || {};
+    if(p.healthy){
+      s.className = "rh-status rh-ok";
+      s.innerHTML = "All systems normal — last full cycle " + rhAge(p.lastCycleMin) + " (" + rhStamp(p.lastCycleAt) + ")";
+    } else {
+      s.className = "rh-status rh-bad";
+      s.innerHTML = "&#9888; " + (p.issues || []).length + " issue(s) — last full cycle " + rhAge(p.lastCycleMin) +
+        "<ul>" + (p.issues || []).map(function(i){ return "<li>" + i + "</li>"; }).join("") + "</ul>";
+    }
+
+    // ---- flow diagram ----
+    renderRhFlow(d.channels || []);
+
+    // ---- cities table ----
+    var cb = document.getElementById("rhCityRows");
+    cb.innerHTML = "";
+    (d.cities || []).forEach(function(c){
+      var tr = document.createElement("tr");
+      var stat = c.rate == null
+        ? '<span class="rh-pill down">no data</span>'
+        : (c.fresh ? '<span class="rh-pill ok">live</span>' : '<span class="rh-pill stale">stale</span>');
+      var ov = c.override
+        ? '<span style="color:var(--status-warning)">' + rhFmt(c.override.rate) + ' (manual)</span> <button class="btn small ghost rh-clr-ov" data-city="'+c.city+'">clear</button>'
+        : '<button class="btn small ghost rh-set-ov" data-city="'+c.city+'">set</button>';
+      tr.innerHTML =
+        '<td>' + c.label + '</td>' +
+        '<td class="rh-mono">' + rhFmt(c.rate) + '</td>' +
+        '<td class="rh-mono">' + rhStamp(c.updatedAt) + '</td>' +
+        '<td>' + rhAge(c.ageMin) + '</td>' +
+        '<td>' + stat + '</td>' +
+        '<td>' + ov + '</td>';
+      cb.appendChild(tr);
+    });
+    cb.querySelectorAll(".rh-set-ov").forEach(function(b){
+      b.addEventListener("click", function(){
+        var city = b.getAttribute("data-city");
+        var v = prompt("Manual override rate for " + city + " (IQD per 100 USD). Leave blank to cancel:");
+        if(!v) return;
+        var rate = parseInt(String(v).replace(/[^\d]/g,""), 10);
+        if(!rate){ alert("Not a number."); return; }
+        authedFetch("/admin/rate", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({city:city, rate:rate})})
+          .then(loadRateHub).catch(function(){ alert("Failed."); });
+      });
+    });
+    cb.querySelectorAll(".rh-clr-ov").forEach(function(b){
+      b.addEventListener("click", function(){
+        authedFetch("/admin/rate?city=" + encodeURIComponent(b.getAttribute("data-city")), {method:"DELETE"})
+          .then(loadRateHub).catch(function(){ alert("Failed."); });
+      });
+    });
+
+    // ---- channels table ----
+    var chs = d.channels || [];
+    document.getElementById("rhChCount").textContent = chs.filter(function(c){return c.active;}).length + " active / " + chs.length + " total";
+    var chb = document.getElementById("rhChRows");
+    chb.innerHTML = "";
+    chs.forEach(function(ch){
+      var tr = document.createElement("tr");
+      var pill = '<span class="rh-pill ' + ch.status + '">' + ch.status + (ch.active ? "" : " · stopped") + '</span>';
+      var cityChips = (ch.cities || []).map(function(c){
+        return '<span class="rh-citychip ' + (c.fresh ? "" : "stale") + '" title="' + c.label + ': ' + rhFmt(c.lastRate) + ', ' + rhAge(c.lastSeenMin) + '">' + c.label.slice(0,3) + '</span>';
+      }).join("") || '<span style="color:var(--paper-dim2)">none</span>';
+      tr.innerHTML =
+        '<td class="rh-mono" style="font-weight:700">@' + ch.username + (ch.builtin ? ' <span style="color:var(--paper-dim2);font-size:9px">built-in</span>' : '') + '</td>' +
+        '<td>' + pill + '</td>' +
+        '<td>' + cityChips + '</td>' +
+        '<td class="rh-mono">' + ch.postsToday + '</td>' +
+        '<td class="rh-mono">' + ch.totalPosts + '</td>' +
+        '<td class="rh-mono">' + rhStamp(ch.lastOkAt) + ' <span style="color:var(--paper-dim2)">(' + rhAge(ch.lastOkMin) + ')</span></td>' +
+        '<td class="rh-mono" style="' + (ch.consecutiveFailures ? 'color:var(--danger);font-weight:700' : '') + '">' + ch.consecutiveFailures + '</td>' +
+        '<td style="white-space:nowrap">' +
+          '<button class="btn small ghost rh-ch-check" data-u="'+ch.username+'">Check</button> ' +
+          '<button class="btn small ghost rh-ch-toggle" data-u="'+ch.username+'" data-a="'+ch.active+'">'+(ch.active?"Stop":"Start")+'</button> ' +
+          '<button class="btn small danger rh-ch-reset" data-u="'+ch.username+'">Reset</button>' +
+        '</td>';
+      chb.appendChild(tr);
+    });
+    chb.querySelectorAll(".rh-ch-check").forEach(function(b){
+      b.addEventListener("click", function(){ rhCheckChannel(b.getAttribute("data-u")); });
+    });
+    chb.querySelectorAll(".rh-ch-toggle").forEach(function(b){
+      b.addEventListener("click", function(){
+        var u = b.getAttribute("data-u"), on = b.getAttribute("data-a") === "true";
+        authedFetch("/admin/channels/" + (on ? "stop" : "start"), {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({username:u})})
+          .then(function(){ setTimeout(loadRateHub, 400); }).catch(function(){ alert("Failed."); });
+      });
+    });
+    chb.querySelectorAll(".rh-ch-reset").forEach(function(b){
+      b.addEventListener("click", function(){
+        var u = b.getAttribute("data-u");
+        if(!confirm("Reset @" + u + "? Clears its logged readings and health so it rebuilds from the next scrape. Does not stop it.")) return;
+        authedFetch("/admin/rate-hub/reset-channel?username=" + encodeURIComponent(u), {method:"POST"})
+          .then(function(){ setTimeout(loadRateHub, 400); }).catch(function(){ alert("Failed."); });
+      });
+    });
+
+    // ---- activity feed ----
+    var f = document.getElementById("rhFeed");
+    f.innerHTML = (d.activity || []).map(function(a){
+      return '<div class="rh-feed-row"><span class="t">' + rhStamp(a.at) + '</span><span class="c">@' + a.username + '</span><span>' + a.label + ' &rarr; ' + rhFmt(a.rate) + '</span></div>';
+    }).join("") || '<div class="rh-feed-row"><span class="t">No activity logged yet.</span></div>';
+  }
+
+  function renderRhFlow(channels){
+    var el = document.getElementById("rhFlow");
+    var col = '<div class="rh-flow-col">' + channels.map(function(ch){
+      var cls = ch.active ? ch.status : "unknown";
+      return '<div class="rh-node ' + cls + (rhSelectedChannel === ch.username ? ' sel' : '') + '" data-u="' + ch.username + '">@' + ch.username + '</div>';
+    }).join("") + '</div>';
+    var anyLive = channels.some(function(c){ return c.active && c.status === "ok"; });
+    var wire = '<div class="rh-wire ' + (anyLive ? "live" : "") + '"></div>';
+    el.innerHTML = col + wire +
+      '<div class="rh-node engine">Consensus<br>Engine</div>' + wire +
+      '<div class="rh-node app">App &amp;<br>Website</div>';
+    el.querySelectorAll(".rh-node[data-u]").forEach(function(n){
+      n.addEventListener("click", function(){
+        var u = n.getAttribute("data-u");
+        rhSelectedChannel = (rhSelectedChannel === u) ? null : u;
+        rhShowChannelDetail(u);
+        loadRateHub();
+      });
+    });
+  }
+
+  function rhShowChannelDetail(username){
+    var box = document.getElementById("rhChDetail");
+    if(!rhSelectedChannel){ box.innerHTML = ""; return; }
+    authedFetch("/admin/rate-hub").then(function(d){
+      var ch = (d.channels || []).find(function(c){ return c.username === username; });
+      if(!ch){ box.innerHTML = ""; return; }
+      box.innerHTML = '<div class="rh-detail"><div style="font-weight:700;margin-bottom:6px">@' + username + ' — city coverage</div>' +
+        '<table><tr><td style="color:var(--paper-dim2)">City</td><td style="color:var(--paper-dim2)">Last rate</td><td style="color:var(--paper-dim2)">Distinct values</td><td style="color:var(--paper-dim2)">Total logged</td><td style="color:var(--paper-dim2)">Last seen</td><td style="color:var(--paper-dim2)">Tracked</td></tr>' +
+        (ch.cities || []).map(function(c){
+          return '<tr><td>' + c.label + '</td><td class="rh-mono">' + rhFmt(c.lastRate) + '</td><td class="rh-mono">' + c.distinctCount + '</td><td class="rh-mono">' + c.totalRows + '</td><td class="rh-mono">' + rhStamp(c.lastSeenAt) + '</td><td>' +
+            (c.enabled ? '<span style="color:var(--status-good)">yes</span>' : '<span style="color:var(--danger)">off</span>') + '</td></tr>';
+        }).join("") + '</table></div>';
+    });
+  }
+
+  function rhCheckChannel(username){
+    var box = document.getElementById("rhChDetail");
+    box.innerHTML = '<div class="rh-detail">Checking @' + username + '…</div>';
+    authedFetch("/admin/rate-hub/check-channel?username=" + encodeURIComponent(username))
+      .then(function(r){
+        if(!r.reachable){ box.innerHTML = '<div class="rh-detail" style="color:var(--danger)">@' + username + ' unreachable (HTTP ' + r.httpStatus + ')</div>'; return; }
+        box.innerHTML = '<div class="rh-detail"><div style="font-weight:700;margin-bottom:6px">@' + username + ' — live scrape (' + r.postCount + ' posts read)</div>' +
+          (r.cities.length ? '<table>' + r.cities.map(function(c){
+            return '<tr><td>' + c.label + '</td><td class="rh-mono">' + rhFmt(c.rate) + '</td><td class="rh-mono" style="color:var(--paper-dim2)">' + rhStamp(c.postedAt) + '</td></tr>';
+          }).join("") + '</table>' : '<div style="color:var(--status-warning)">Reachable, but no rate parsed from recent posts.</div>') +
+          '</div>';
+      })
+      .catch(function(){ box.innerHTML = '<div class="rh-detail" style="color:var(--danger)">Check failed.</div>'; });
+  }
+
+  function rhAction(path, confirmMsg){
+    if(confirmMsg && !confirm(confirmMsg)) return;
+    var m = document.getElementById("rhCtrlMsg");
+    m.textContent = "Working…";
+    authedFetch("/admin/rate-hub/" + path, {method:"POST"})
+      .then(function(r){
+        m.textContent = r && r.error ? r.error : "Done.";
+        setTimeout(function(){ m.textContent = ""; }, 4000);
+        loadRateHub();
+      })
+      .catch(function(){ m.textContent = "Failed."; });
+  }
+  document.getElementById("rhForceCheck").addEventListener("click", function(){ rhAction("force-check"); });
+  document.getElementById("rhRebuild").addEventListener("click", function(){ rhAction("rebuild", "Rebuild all 9 city rates from live data now, and clear every manual override?"); });
+  document.getElementById("rhRestart").addEventListener("click", function(){ rhAction("restart", "Restart the rate pipeline (off, then on) and run a fresh cycle now?"); });
+  document.getElementById("rhResetAll").addEventListener("click", function(){ rhAction("reset-all-channels", "Clear ALL logged channel readings and health across every channel? Rates are unaffected; the monitor rebuilds from the next scrape."); });
+  document.getElementById("rhClearHist").addEventListener("click", function(){ rhAction("clear-history", "DELETE all rate + gold chart history? The app's history charts will be empty until they refill over the next ~day. Cannot be undone."); });
 
   function loadMonitor(){
     var msg = document.getElementById("monitorTableMsg");
