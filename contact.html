@@ -48,7 +48,7 @@
   .back-btn:hover{background:var(--dark-3);border-color:var(--line-strong)}
   .title{flex:1;text-align:center;font-family:"Fraunces",serif;font-weight:600;font-size:18px;letter-spacing:.005em;margin:0}
   .wrap{max-width:640px;margin:0 auto;padding:28px 20px 48px}
-  @media (min-width:900px){ .wrap{padding-top:52px;padding-bottom:64px} }
+  @media (min-width:900px){ .wrap{max-width:1180px;padding:52px 32px 64px;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;align-items:start} }
   p{font-size:14px;color:var(--paper-dim);line-height:1.7}
   a{color:var(--violet-dim)}
   .card{background:var(--dark-2);border:1px solid var(--line);border-radius:20px;padding:20px 22px;margin-top:16px}
@@ -77,6 +77,9 @@
   }
   .contact-label{font-size:10.5px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.06em}
   .contact-value{font-size:15px;font-weight:600;color:var(--paper);margin-top:3px}
+  .contact-intro{font-size:14px;color:var(--paper-dim);line-height:1.7}
+  .support-card{position:static}
+  @media(min-width:900px){.contact-intro{grid-column:1 / -1}.support-card{position:sticky;top:92px}}
 </style>
 <script>
   document.addEventListener("DOMContentLoaded", function(){
@@ -96,9 +99,9 @@
 </div>
 
 <div class="wrap">
-  <p>Tell us what's working, what's not, or what you'd like to see next. This goes straight into the Se3rForIQD dashboard inbox.</p>
+  <p class="contact-intro">Tell us what's working, what's not, or what you'd like to see next. This goes straight into the Se3rForIQD dashboard inbox.</p>
 
-  <div class="card">
+  <div class="card support-card">
     <form class="feedback-form" id="feedbackForm">
       <div class="feedback-grid">
         <div class="field">

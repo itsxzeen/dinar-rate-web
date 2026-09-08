@@ -48,7 +48,7 @@
   .back-btn:hover{background:var(--dark-3);border-color:var(--line-strong)}
   .title{flex:1;text-align:center;font-family:"Fraunces",serif;font-weight:600;font-size:18px;letter-spacing:.005em;margin:0}
   .wrap{max-width:640px;margin:0 auto;padding:28px 20px 48px}
-  @media (min-width:900px){ .wrap{padding-top:52px;padding-bottom:64px} }
+  @media (min-width:900px){ .wrap{max-width:1180px;padding:52px 32px 64px} }
   h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--paper-dim);font-weight:700;margin:26px 0 10px}
   h2:first-of-type{margin-top:0}
   p, li{font-size:14px;color:var(--paper-dim);line-height:1.7}
@@ -57,6 +57,15 @@
   a{color:var(--violet-dim)}
   .card{background:var(--dark-2);border:1px solid var(--line);border-radius:20px;padding:20px 22px;margin-top:16px}
   .card p{margin:0;color:var(--paper)}
+  .about-grid{display:grid;gap:16px;margin-top:18px}
+  .about-tile{background:var(--dark-2);border:1px solid var(--line);border-radius:18px;padding:18px}
+  .about-tile .k{font-size:11px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.08em;font-weight:800}
+  .about-tile .v{margin-top:8px;font-size:14px;color:var(--paper);line-height:1.6}
+  @media(min-width:900px){
+    .intro-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:start}
+    .intro-grid .card{margin-top:0}
+    .about-grid{grid-template-columns:repeat(2,1fr);margin-top:0}
+  }
 </style>
 <script>
   document.addEventListener("DOMContentLoaded", function(){
@@ -76,8 +85,14 @@
 </div>
 
 <div class="wrap">
-  <div class="card">
-    <p>Se3rForIQD is an independent project built to give Iraq accurate, real-time dinar and dollar exchange rates, along with daily gold and silver prices — pulled live and updated automatically, with no account required to use it.</p>
+  <div class="intro-grid">
+    <div class="card">
+      <p>Se3rForIQD is an independent project built to give Iraq accurate, real-time dinar and dollar exchange rates, along with daily gold and silver prices — pulled live and updated automatically, with no account required to use it.</p>
+    </div>
+    <div class="about-grid">
+      <div class="about-tile"><div class="k">Markets</div><div class="v">Baghdad, Erbil and other Iraqi cities are shown together so differences are easy to scan.</div></div>
+      <div class="about-tile"><div class="k">Metals</div><div class="v">Gold and silver prices include gram, mithqal and ounce views when source data is available.</div></div>
+    </div>
   </div>
 
   <h2>What it covers</h2>

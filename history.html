@@ -57,7 +57,7 @@
   .back-btn:hover{background:var(--dark-3);border-color:var(--line-strong)}
   .title{flex:1;text-align:center;font-family:"Fraunces",serif;font-weight:600;font-size:18px;letter-spacing:.005em;margin:0}
   .wrap{max-width:640px;margin:0 auto;padding:20px 18px 40px}
-  @media (min-width:900px){ .wrap{max-width:820px;padding-top:36px} }
+  @media (min-width:900px){ .wrap{max-width:1180px;padding:36px 32px 56px} }
 
   .mode-tabs{display:flex;gap:8px;margin-bottom:16px}
   .mode-tab{
@@ -88,6 +88,10 @@
   .card{background:var(--dark-2);border:1px solid var(--line);border-radius:22px;overflow:hidden}
   .empty{padding:34px;text-align:center;color:var(--paper-dim);font-size:13px}
   .chart-card{margin-bottom:14px;padding:16px 16px 12px;overflow:visible}
+  @media (min-width:1000px){
+    .history-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);gap:18px;align-items:start}
+    .chart-card{margin-bottom:0;position:sticky;top:92px}
+  }
   .chart-range{display:flex;justify-content:space-between;font-size:11px;color:var(--paper-dim2);font-family:"Fragment Mono",monospace;margin-bottom:8px}
   .chart-box{height:100px}
   .chart-box svg{width:100%;height:100%;display:block;overflow:visible}
@@ -152,15 +156,17 @@
     <div class="sub-tab active" data-k="24">24K</div>
   </div>
 
-  <div class="card chart-card" id="chartCard" style="display:none">
-    <div class="chart-range">
-      <span>Low <b id="chartMin">—</b></span>
-      <span>High <b id="chartMax">—</b></span>
+  <div class="history-grid">
+    <div class="card chart-card" id="chartCard" style="display:none">
+      <div class="chart-range">
+        <span>Low <b id="chartMin">—</b></span>
+        <span>High <b id="chartMax">—</b></span>
+      </div>
+      <div class="chart-box" id="chartBox"></div>
     </div>
-    <div class="chart-box" id="chartBox"></div>
-  </div>
-  <div class="card">
-    <div id="list" class="empty">Loading…</div>
+    <div class="card">
+      <div id="list" class="empty">Loading…</div>
+    </div>
   </div>
 </div>
 
