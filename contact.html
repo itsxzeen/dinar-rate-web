@@ -78,6 +78,11 @@
   .contact-label{font-size:10.5px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.06em}
   .contact-value{font-size:15px;font-weight:600;color:var(--paper);margin-top:3px}
   .contact-intro{font-size:14px;color:var(--paper-dim);line-height:1.7}
+  .note-grid{display:grid;gap:10px;margin-top:14px}
+  .note{border:1px solid var(--line);border-radius:14px;background:var(--dark-3);padding:14px}
+  .note .k{font-size:10.5px;color:var(--paper-dim2);letter-spacing:.07em;text-transform:uppercase;font-weight:800}
+  .note .v{font-size:13px;color:var(--paper);line-height:1.55;margin-top:5px}
+  .note-grid + .contact-row{margin-top:14px}
   .support-card{position:static}
   @media(min-width:900px){.contact-intro{grid-column:1 / -1}.support-card{position:sticky;top:92px}}
 </style>
@@ -99,7 +104,7 @@
 </div>
 
 <div class="wrap">
-  <p class="contact-intro">Tell us what's working, what's not, or what you'd like to see next. This goes straight into the Se3rForIQD dashboard inbox.</p>
+  <p class="contact-intro">Tell us what's working, what's not, or what you'd like to see next. This is the same feedback path used by the iOS and Android apps, and it goes straight into the Se3rForIQD dashboard inbox.</p>
 
   <div class="card support-card">
     <form class="feedback-form" id="feedbackForm">
@@ -133,6 +138,10 @@
   </div>
 
   <div class="card">
+    <div class="note-grid">
+      <div class="note"><div class="k">Best for</div><div class="v">Wrong rate, source issue, app problem, feature request, or account/privacy question.</div></div>
+      <div class="note"><div class="k">Privacy</div><div class="v">We receive your message and whatever optional phone/email you include so we can respond. See the Privacy Policy for the full details.</div></div>
+    </div>
     <a class="contact-row" href="mailto:info@xzeenwaves.us">
       <span class="contact-ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
       <span>

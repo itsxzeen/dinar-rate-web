@@ -61,6 +61,8 @@
   .about-tile{background:var(--dark-2);border:1px solid var(--line);border-radius:18px;padding:18px}
   .about-tile .k{font-size:11px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.08em;font-weight:800}
   .about-tile .v{margin-top:8px;font-size:14px;color:var(--paper);line-height:1.6}
+  .brand-lockup{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+  .brand-mark{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(34,211,238,.22),rgba(139,152,255,.24));border:1px solid var(--line-strong);font-size:25px;font-weight:800;color:var(--paper)}
   @media(min-width:900px){
     .intro-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:start}
     .intro-grid .card{margin-top:0}
@@ -87,11 +89,20 @@
 <div class="wrap">
   <div class="intro-grid">
     <div class="card">
-      <p>Se3rForIQD is an independent project built to give Iraq accurate, real-time dinar and dollar exchange rates, along with daily gold and silver prices — pulled live and updated automatically, with no account required to use it.</p>
+      <div class="brand-lockup">
+        <div class="brand-mark">S</div>
+        <div>
+          <h2 style="margin:0 0 2px">About Se3rForIQD</h2>
+          <p style="font-size:12px;color:var(--paper-dim2)">Built by xzeenwaves.us</p>
+        </div>
+      </div>
+      <p>Se3rForIQD tracks the Iraqi dinar exchange rate across Iraq's markets, plus daily gold and silver prices, and lets you convert between USD, IQD, and other currencies. The public website and the iOS/Android apps all use the same live backend, updated automatically.</p>
     </div>
     <div class="about-grid">
       <div class="about-tile"><div class="k">Markets</div><div class="v">Baghdad, Erbil and other Iraqi cities are shown together so differences are easy to scan.</div></div>
       <div class="about-tile"><div class="k">Metals</div><div class="v">Gold and silver prices include gram, mithqal and ounce views when source data is available.</div></div>
+      <div class="about-tile"><div class="k">Converter</div><div class="v">Convert currencies, gold, and silver from the same market data used in the apps.</div></div>
+      <div class="about-tile"><div class="k">Map</div><div class="v">Find nearby currency exchange shops and compare locations before you go.</div></div>
     </div>
   </div>
 
@@ -99,12 +110,17 @@
   <ul>
     <li>Live Erbil and Baghdad dinar/dollar market rates</li>
     <li>Daily gold and silver prices, by karat and by ounce</li>
-    <li>A currency converter between USD, IQD, and other currencies</li>
+    <li>A currency converter between USD, IQD, other currencies, gold, and silver</li>
     <li>Rate history so you can see how prices have moved</li>
+    <li>Nearby exchange-shop map powered by live place search</li>
+    <li>Optional app accounts for profile, sync, notification settings, and account deletion</li>
   </ul>
 
+  <h2>How the data works</h2>
+  <p>Rate and price data comes from the Se3rForIQD backend, which blends live exchange and gold-market feeds. Market prices can move quickly, so always check locally before exchanging money.</p>
+
   <h2>Contact</h2>
-  <p>Have a question, a correction, or feedback? See the <a href="contact.html">Contact page</a>.</p>
+  <p>Have a question, a correction, or feedback? Use the <a href="contact.html">Contact page</a>; it sends straight to the dashboard inbox. You can also email <a href="mailto:info@xzeenwaves.us">info@xzeenwaves.us</a>.</p>
 </div>
 
 </body>

@@ -32,6 +32,7 @@
     --dark:#090b12; --dark-2:rgba(255,255,255,.045); --dark-3:rgba(255,255,255,.065);
     --line:rgba(255,255,255,.09); --line-strong:rgba(255,255,255,.16);
     --paper:#e9ecf8; --paper-dim:#9aa2bd; --paper-dim2:#6b7390; --violet:#8b98ff; --violet-dim:#7c93ff;
+    --cyan:#22d3ee; --gold:#d3ad63; --green:#3ddc9a; --red:#fb7185;
   }
   body{
     background:
@@ -61,6 +62,13 @@
   }
 
   .card{background:var(--dark-2);border:1px solid var(--line);border-radius:22px;padding:22px}
+  .mode-tabs{display:flex;gap:4px;background:var(--dark);border:1px solid var(--line);border-radius:999px;padding:4px;margin-bottom:16px}
+  .mode-tab{flex:1;border:none;border-radius:999px;background:transparent;color:var(--paper-dim);font:800 12px "Work Sans",system-ui,sans-serif;padding:9px 10px;cursor:pointer}
+  .mode-tab.active{background:var(--violet-dim);color:#080a12}
+  .mode-tab[data-mode="gold"].active{background:var(--gold);color:#241a00}
+  .mode-tab[data-mode="silver"].active{background:#c7ccd1;color:#11141c}
+  .panel{display:none}
+  .panel.active{display:block}
   .field{
     display:flex;align-items:center;justify-content:space-between;gap:10px;
     background:var(--dark);border:1px solid var(--line);border-radius:14px;padding:16px;
@@ -110,11 +118,22 @@
   }
   .amount-chip:hover{background:var(--violet-dim);color:#0a0b14;border-color:transparent}
   .empty-note{text-align:center;font-size:12px;color:var(--paper-dim2);margin-top:14px}
-  .desk-side{display:none;background:var(--dark-2);border:1px solid var(--line);border-radius:22px;padding:20px}
-  .desk-side h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--paper-dim);margin-bottom:12px}
-  .desk-side p{font-size:13px;color:var(--paper-dim);line-height:1.65}
-  .desk-side a{display:inline-block;margin-top:14px;color:var(--violet-dim);font-size:13px;font-weight:700;text-decoration:none}
-  @media (min-width:900px){.desk-side{display:block}}
+  .metal-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .karat-select{border:1px solid var(--line);border-radius:11px;background:var(--dark);color:var(--paper);font:800 14px "Work Sans",system-ui,sans-serif;padding:10px 12px;outline:none}
+  .metal-unit{font-size:13px;font-weight:800;color:var(--paper-dim);min-width:44px;text-align:right}
+  .metal-result{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;background:var(--dark);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .metal-result strong{font-family:"Fragment Mono",monospace;font-size:22px;color:var(--green)}
+  .metal-result span{font-size:13px;color:var(--paper-dim)}
+  .converter-info{background:linear-gradient(155deg,rgba(34,211,238,.08),rgba(211,173,99,.06)),var(--dark-2);border:1px solid var(--line);border-radius:22px;padding:20px}
+  .converter-info h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--paper-dim);margin-bottom:12px}
+  .converter-info p{font-size:13px;color:var(--paper-dim);line-height:1.65}
+  .info-grid{display:grid;gap:10px;margin-top:16px}
+  .info-chip{border:1px solid var(--line);border-radius:14px;background:var(--dark-3);padding:14px}
+  .info-chip .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--paper-dim2);font-weight:800}
+  .info-chip .v{font-size:14px;color:var(--paper);font-weight:700;margin-top:4px}
+  .share-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin-top:14px;border:1px solid var(--line);border-radius:999px;background:var(--dark-3);color:var(--paper-dim);font-weight:800;font-size:12px;padding:9px 14px;cursor:pointer}
+  .share-btn:hover{background:var(--violet-dim);color:#080a12;border-color:transparent}
+  @media (min-width:900px){.converter-info{position:sticky;top:92px}.info-grid{grid-template-columns:1fr 1fr}}
 </style>
 <script>
   (function(){
@@ -154,32 +173,74 @@
 
 <div class="wrap">
   <div class="card">
-    <div class="field">
-      <div class="cur-chip" id="fromChip"><span id="fromLabel">USD</span>
-        <div class="cur-popover" id="fromPopover"></div>
+    <div class="mode-tabs" role="tablist" aria-label="Converter mode">
+      <button type="button" class="mode-tab active" data-mode="currency">Currency</button>
+      <button type="button" class="mode-tab" data-mode="gold">Gold</button>
+      <button type="button" class="mode-tab" data-mode="silver">Silver</button>
+    </div>
+
+    <div class="panel active" id="currencyPanel">
+      <div class="field">
+        <div class="cur-chip" id="fromChip"><span id="fromLabel">USD</span>
+          <div class="cur-popover" id="fromPopover"></div>
+        </div>
+        <input id="fromInput" type="text" inputmode="decimal" placeholder="100" value="100" />
       </div>
-      <input id="fromInput" type="text" inputmode="decimal" placeholder="100" value="100" />
-    </div>
-    <button type="button" id="swapBtn" class="swap-btn" aria-label="Swap currencies"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4 4 7M7 4l3 3"/><path d="M17 8v12M17 20l3-3M17 20l-3-3"/></svg></button>
-    <div class="field">
-      <div class="cur-chip" id="toChip"><span id="toLabel">IQD</span>
-        <div class="cur-popover" id="toPopover"></div>
+      <button type="button" id="swapBtn" class="swap-btn" aria-label="Swap currencies"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4 4 7M7 4l3 3"/><path d="M17 8v12M17 20l3-3M17 20l-3-3"/></svg></button>
+      <div class="field">
+        <div class="cur-chip" id="toChip"><span id="toLabel">IQD</span>
+          <div class="cur-popover" id="toPopover"></div>
+        </div>
+        <input id="toInput" type="text" inputmode="decimal" placeholder="0" readonly />
       </div>
-      <input id="toInput" type="text" inputmode="decimal" placeholder="0" readonly />
+      <div class="rate-info" id="rateInfo"></div>
+      <div class="amount-chips" id="amountChips">
+        <button type="button" class="amount-chip" data-amt="50">50</button>
+        <button type="button" class="amount-chip" data-amt="100">100</button>
+        <button type="button" class="amount-chip" data-amt="500">500</button>
+        <button type="button" class="amount-chip" data-amt="1000">1,000</button>
+      </div>
     </div>
-    <div class="rate-info" id="rateInfo"></div>
-    <div class="amount-chips" id="amountChips">
-      <button type="button" class="amount-chip" data-amt="50">50</button>
-      <button type="button" class="amount-chip" data-amt="100">100</button>
-      <button type="button" class="amount-chip" data-amt="500">500</button>
-      <button type="button" class="amount-chip" data-amt="1000">1,000</button>
+
+    <div class="panel" id="metalPanel">
+      <div class="metal-toolbar">
+        <select class="karat-select" id="karatSelect" aria-label="Gold karat">
+          <option value="24">24K</option>
+          <option value="22">22K</option>
+          <option value="21">21K</option>
+          <option value="18">18K</option>
+        </select>
+        <span style="flex:1"></span>
+        <span class="metal-unit" id="metalInputUnit">g</span>
+      </div>
+      <div class="field">
+        <span id="metalLabel" style="font-size:14px;font-weight:800;color:var(--paper)">24K Gold</span>
+        <input id="metalInput" type="text" inputmode="decimal" placeholder="1" value="1" />
+      </div>
+      <button type="button" id="metalSwapBtn" class="swap-btn" aria-label="Swap metal conversion"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4 4 7M7 4l3 3"/><path d="M17 8v12M17 20l3-3M17 20l-3-3"/></svg></button>
+      <div class="metal-result">
+        <div>
+          <strong id="metalResult">—</strong>
+          <span id="metalResultUnit">IQD</span>
+        </div>
+        <span id="metalUsd">—</span>
+      </div>
+      <div class="rate-info" id="metalRateInfo"></div>
+      <div class="amount-chips" id="metalAmountChips"></div>
     </div>
+
+    <button type="button" class="share-btn" id="shareResultBtn">Share result</button>
   </div>
   <div class="empty-note" id="emptyNote" style="display:none">Only USD/IQD are configured right now — an admin can add more currencies.</div>
-  <aside class="desk-side">
-    <h2>More rates</h2>
-    <p>Use the full desktop space to compare every available currency and Iraqi city before choosing your amount.</p>
-    <a href="other-rates.html">View all city rates</a>
+  <aside class="converter-info">
+    <h2>Live converter</h2>
+    <p>The website now follows the app: currency pairs pivot through IQD, USD uses the Baghdad market base, and metals convert by live gram or ounce prices when the feed has them.</p>
+    <div class="info-grid">
+      <div class="info-chip"><div class="k">Currency</div><div class="v" id="infoCurrency">USD, IQD</div></div>
+      <div class="info-chip"><div class="k">Metals</div><div class="v" id="infoMetals">Gold, Silver</div></div>
+      <div class="info-chip"><div class="k">Base</div><div class="v" id="infoBase">Baghdad market</div></div>
+      <div class="info-chip"><div class="k">Updated</div><div class="v" id="infoUpdated">Live feed</div></div>
+    </div>
   </aside>
 </div>
 
@@ -188,7 +249,6 @@
 
   var CURRENCY_META = {
     USD:{label:"US Dollar", flag:"🇺🇸"}, IQD:{label:"Iraqi Dinar", flag:"🇮🇶"},
-    GOLD:{label:"Gold, 24K per gram", flag:"🪙"},
     EUR:{label:"Euro", flag:"🇪🇺"}, GBP:{label:"British Pound", flag:"🇬🇧"}, TRY:{label:"Turkish Lira", flag:"🇹🇷"},
     AED:{label:"UAE Dirham", flag:"🇦🇪"}, SAR:{label:"Saudi Riyal", flag:"🇸🇦"}, KWD:{label:"Kuwaiti Dinar", flag:"🇰🇼"},
     JOD:{label:"Jordanian Dinar", flag:"🇯🇴"}, EGP:{label:"Egyptian Pound", flag:"🇪🇬"}, IRR:{label:"Iranian Rial", flag:"🇮🇷"},
@@ -204,8 +264,13 @@
 
   var iqdPerUnit = { IQD: 1 }; // how many IQD equal 1 unit of this currency
   var PAIR_KEY = "convPair_v1";
+  var MODE_KEY = "convertMode_v1";
   var savedPair = (function(){ try { return JSON.parse(localStorage.getItem(PAIR_KEY)); } catch(e){ return null; } })();
   var fromCode = (savedPair && savedPair.from) || "USD", toCode = (savedPair && savedPair.to) || "IQD";
+  var mode = localStorage.getItem(MODE_KEY) || "currency";
+  var ratesPayload = null;
+  var metalSwapped = false;
+  var gramsPerOunce = 31.1034768;
   function savePair(){
     try { localStorage.setItem(PAIR_KEY, JSON.stringify({from:fromCode, to:toCode})); } catch(e){}
   }
@@ -214,6 +279,13 @@
   var fromLabel = document.getElementById("fromLabel");
   var toLabel = document.getElementById("toLabel");
   var rateInfo = document.getElementById("rateInfo");
+  var metalInput = document.getElementById("metalInput");
+  var metalLabel = document.getElementById("metalLabel");
+  var metalResult = document.getElementById("metalResult");
+  var metalResultUnit = document.getElementById("metalResultUnit");
+  var metalUsd = document.getElementById("metalUsd");
+  var metalRateInfo = document.getElementById("metalRateInfo");
+  var karatSelect = document.getElementById("karatSelect");
 
   function availableCodes(){
     return Object.keys(iqdPerUnit);
@@ -289,7 +361,91 @@
     var result = amt * fromRate / toRate;
     toInput.value = fmt2(result);
     var unitRate = fromRate / toRate;
-    rateInfo.textContent = "1 " + fromCode + " = " + fmt2(unitRate) + " " + toCode;
+    rateInfo.textContent = "1 " + fromCode + " = " + fmt2(unitRate) + " " + toCode + ((fromCode === "USD" || toCode === "USD") ? " · Baghdad market rate" : "");
+  }
+
+  function setMode(next){
+    mode = next;
+    localStorage.setItem(MODE_KEY, mode);
+    document.querySelectorAll(".mode-tab").forEach(function(btn){
+      btn.classList.toggle("active", btn.getAttribute("data-mode") === mode);
+    });
+    document.getElementById("currencyPanel").classList.toggle("active", mode === "currency");
+    document.getElementById("metalPanel").classList.toggle("active", mode !== "currency");
+    karatSelect.style.display = mode === "gold" ? "" : "none";
+    renderMetal();
+  }
+
+  function pricePerGramIqd(){
+    if(!ratesPayload) return null;
+    if(mode === "gold"){
+      var k = parseInt(karatSelect.value, 10);
+      var row = ratesPayload.gold && ratesPayload.gold.gram ? ratesPayload.gold.gram.filter(function(g){ return g.k === k; })[0] : null;
+      return row && row.iqd != null ? Number(row.iqd) : null;
+    }
+    if(mode === "silver"){
+      var silverOz = ratesPayload.ounceGoldSilver && ratesPayload.ounceGoldSilver.silver;
+      var baghdad = ratesPayload.baghdad && ratesPayload.baghdad.rate;
+      return silverOz != null && baghdad != null ? Number(silverOz) * Number(baghdad) / 100 / gramsPerOunce : null;
+    }
+    return null;
+  }
+
+  function pricePerGramUsd(){
+    if(!ratesPayload) return null;
+    if(mode === "gold"){
+      var k = parseInt(karatSelect.value, 10);
+      var row = ratesPayload.gold && ratesPayload.gold.gram ? ratesPayload.gold.gram.filter(function(g){ return g.k === k; })[0] : null;
+      return row && row.usd != null ? Number(row.usd) : null;
+    }
+    if(mode === "silver"){
+      var silverOz = ratesPayload.ounceGoldSilver && ratesPayload.ounceGoldSilver.silver;
+      return silverOz != null ? Number(silverOz) / gramsPerOunce : null;
+    }
+    return null;
+  }
+
+  function renderMetalChips(){
+    var list = metalSwapped ? [100000, 500000, 1000000, 5000000] : [1, 5, 10, 31.1034768];
+    document.getElementById("metalAmountChips").innerHTML = list.map(function(v){
+      var label = metalSwapped ? fmt(v) : (v > 31 ? "1 oz" : fmt2(v) + "g");
+      return '<button type="button" class="amount-chip" data-amt="'+v+'">'+label+'</button>';
+    }).join("");
+  }
+
+  function renderMetal(){
+    if(mode === "currency") return;
+    var isGold = mode === "gold";
+    var k = parseInt(karatSelect.value, 10);
+    var label = isGold ? k + "K Gold" : "Silver";
+    metalLabel.textContent = label;
+    document.getElementById("metalInputUnit").textContent = metalSwapped ? "IQD" : "g";
+    var priceIqd = pricePerGramIqd();
+    var priceUsd = pricePerGramUsd();
+    var amount = parseFloat((metalInput.value || "").replace(/,/g,""));
+    if(!priceIqd || isNaN(amount) || amount < 0){
+      metalResult.textContent = "—";
+      metalResultUnit.textContent = metalSwapped ? "g" : "IQD";
+      metalUsd.textContent = "—";
+      metalRateInfo.textContent = "Waiting for live metal prices.";
+      renderMetalChips();
+      return;
+    }
+    var grams = metalSwapped ? amount / priceIqd : amount;
+    var iqd = metalSwapped ? amount : amount * priceIqd;
+    metalResult.textContent = metalSwapped ? Number(grams).toLocaleString("en-US",{maximumFractionDigits:3}) : fmt(iqd);
+    metalResultUnit.textContent = metalSwapped ? "g" : "IQD";
+    metalUsd.textContent = priceUsd ? "$" + Number(grams * priceUsd).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}) : "—";
+    metalRateInfo.textContent = "1g " + label + " = " + fmt(priceIqd) + " IQD";
+    renderMetalChips();
+  }
+
+  function currentShareText(){
+    if(mode === "currency"){
+      return (fromInput.value || "0") + " " + fromCode + " = " + (toInput.value || "—") + " " + toCode + " · Se3rForIQD";
+    }
+    var label = mode === "gold" ? karatSelect.value + "K gold" : "Silver";
+    return (metalInput.value || "0") + " " + (metalSwapped ? "IQD" : "g") + " " + label + " = " + metalResult.textContent + " " + metalResultUnit.textContent + " · Se3rForIQD";
   }
 
   fromInput.addEventListener("input", convert);
@@ -299,6 +455,32 @@
     if(!chip) return;
     fromInput.value = chip.getAttribute("data-amt");
     convert();
+  });
+
+  document.querySelectorAll(".mode-tab").forEach(function(btn){
+    btn.addEventListener("click", function(){ setMode(btn.getAttribute("data-mode")); });
+  });
+  metalInput.addEventListener("input", renderMetal);
+  karatSelect.addEventListener("change", renderMetal);
+  document.getElementById("metalSwapBtn").addEventListener("click", function(){
+    var price = pricePerGramIqd();
+    var amount = parseFloat((metalInput.value || "").replace(/,/g,""));
+    if(price && !isNaN(amount)){
+      metalInput.value = metalSwapped ? Number(amount / price).toLocaleString("en-US",{maximumFractionDigits:3}) : String(Math.round(amount * price));
+    }
+    metalSwapped = !metalSwapped;
+    renderMetal();
+  });
+  document.getElementById("metalAmountChips").addEventListener("click", function(e){
+    var chip = e.target.closest(".amount-chip");
+    if(!chip) return;
+    metalInput.value = chip.getAttribute("data-amt");
+    renderMetal();
+  });
+  document.getElementById("shareResultBtn").addEventListener("click", function(){
+    var text = currentShareText();
+    if(navigator.share){ navigator.share({ text:text }).catch(function(){}); return; }
+    navigator.clipboard && navigator.clipboard.writeText(text);
   });
 
   document.getElementById("swapBtn").addEventListener("click", function(){
@@ -318,17 +500,18 @@
   fetch(WORKER_URL)
     .then(function(r){ return r.json(); })
     .then(function(d){
+      ratesPayload = d;
       var baghdadRate = d.baghdad ? d.baghdad.rate : null; // IQD per 100 USD
       if(baghdadRate!=null) iqdPerUnit.USD = baghdadRate / 100;
       (d.extra||[]).forEach(function(c){
         if(c.iqdPer1!=null) iqdPerUnit[c.code] = c.iqdPer1;
       });
-      if(d.gold && d.gold.gram){
-        var g24 = d.gold.gram.filter(function(g){ return g.k === 24; })[0];
-        if(g24 && g24.iqd != null) iqdPerUnit.GOLD = g24.iqd;
-      }
       document.getElementById("emptyNote").style.display = (d.extra && d.extra.length) ? "none" : "";
+      document.getElementById("infoCurrency").textContent = availableCodes().slice(0, 6).join(", ") + (availableCodes().length > 6 ? " +" + (availableCodes().length - 6) : "");
+      var updated = d.fetchedAt || d.ratesAsOf;
+      document.getElementById("infoUpdated").textContent = updated ? new Date(updated).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}) : "Live feed";
       convert();
+      setMode(mode);
     })
     .catch(function(){
       rateInfo.textContent = "Couldn't load rates right now.";
