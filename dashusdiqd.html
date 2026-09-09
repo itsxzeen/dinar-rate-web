@@ -197,6 +197,7 @@
   .rh-pill.down{color:var(--danger);background:rgba(251,113,133,.13)}
   .rh-pill.stale{color:var(--status-warning);background:rgba(251,191,36,.13)}
   .rh-pill.unknown{color:var(--paper-dim2);background:var(--dark-3)}
+  .rh-pill.soon{color:var(--accent);background:var(--accent-soft)}
   .rh-mono{font-family:"Fragment Mono",monospace}
   .rh-citychip{display:inline-block;font-size:10px;padding:2px 6px;border-radius:6px;margin:1px;background:var(--dark-3);color:var(--paper-dim)}
   .rh-citychip.stale{background:rgba(251,113,133,.15);color:var(--danger)}
@@ -889,7 +890,7 @@
   var TOKEN_KEY = "adminToken_v1"; // shared with admin.html's login session
   var statsTimer = null;
   var monitorTimer = null;
-  var DASH_BUILD = "2026-08-21"; // bump this date whenever this file is redeployed
+  var DASH_BUILD = "2026-09-09"; // bump this date whenever this file is redeployed
   document.getElementById("lastDeployed").textContent = "Dashboard build: " + DASH_BUILD;
 
   var loginWrap = document.getElementById("loginWrap");
@@ -1866,17 +1867,20 @@
     cb.innerHTML = "";
     (d.cities || []).forEach(function(c){
       var tr = document.createElement("tr");
-      var stat = c.rate == null
-        ? '<span class="rh-pill down">no data</span>'
-        : (c.fresh ? '<span class="rh-pill ok">live</span>' : '<span class="rh-pill stale">stale</span>');
+      var stat = c.comingSoon
+        ? '<span class="rh-pill soon">coming soon</span>'
+        : (c.rate == null
+            ? '<span class="rh-pill down">no data</span>'
+            : (c.fresh ? '<span class="rh-pill ok">live</span>' : '<span class="rh-pill stale">stale</span>'));
       var ov = c.override
         ? '<span style="color:var(--status-warning)">' + rhFmt(c.override.rate) + ' (manual)</span> <button class="btn small ghost rh-clr-ov" data-city="'+c.city+'">clear</button>'
         : '<button class="btn small ghost rh-set-ov" data-city="'+c.city+'">set</button>';
+      if (c.comingSoon) tr.style.opacity = ".55";
       tr.innerHTML =
         '<td>' + c.label + '</td>' +
-        '<td class="rh-mono">' + rhFmt(c.rate) + '</td>' +
-        '<td class="rh-mono">' + rhStamp(c.updatedAt) + '</td>' +
-        '<td>' + rhAge(c.ageMin) + '</td>' +
+        '<td class="rh-mono">' + (c.comingSoon ? "—" : rhFmt(c.rate)) + '</td>' +
+        '<td class="rh-mono">' + (c.comingSoon ? "—" : rhStamp(c.updatedAt)) + '</td>' +
+        '<td>' + (c.comingSoon ? "—" : rhAge(c.ageMin)) + '</td>' +
         '<td>' + stat + '</td>' +
         '<td>' + ov + '</td>';
       cb.appendChild(tr);
