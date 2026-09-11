@@ -25,8 +25,8 @@
   :root{
     --dark:#0a0c10; --dark-2:#141821; --dark-3:#1b202b;
     --line:rgba(255,255,255,.09); --paper:#eef1f6; --paper-dim:#9aa3b2; --paper-dim2:#67707e;
-    --accent:#22d3ee; --accent-soft:rgba(34,211,238,.12); --blue:#22d3ee; --danger:#f0716f; --gold:#e0b04c;
-    --cat-emergency:#f0716f; --cat-rates:#22d3ee; --cat-site:#a08ce6;
+    --accent:#3b82f6; --accent-soft:rgba(59,130,246,.14); --blue:#3b82f6; --danger:#f0716f; --gold:#e0b04c;
+    --cat-emergency:#f0716f; --cat-rates:#3b82f6; --cat-site:#a08ce6;
     --cat-comms:#e08cc0; --cat-users:#5fd6a8; --cat-system:#e0b04c;
     --cat-monitor:#6fb8e6; --cat-map:#5fd6c0;
     --status-good:#5fd6a8; --status-warning:#e0b04c; --status-critical:#f0716f;
@@ -35,7 +35,7 @@
   button,input,select,textarea{font-family:inherit}
   body{
     background:
-      radial-gradient(1100px 500px at 10% -10%, rgba(34,211,238,.08), transparent 55%),
+      radial-gradient(1100px 520px at 10% -10%, rgba(30,99,255,.12), transparent 55%),
       var(--dark);
     background-attachment:fixed;
     color:var(--paper);
@@ -45,11 +45,11 @@
   }
   .wrap{max-width:880px;margin:0 auto}
   @media(min-width:900px){
-    body{padding:24px 24px 80px}
+    body{padding:24px 32px 80px}
     .wrap{max-width:1600px}
     .brand{font-size:17px}
-    .card{padding:16px 18px;margin-bottom:12px;border-radius:14px}
-    .card h2{font-size:13px;margin-bottom:11px}
+    .card{margin-bottom:40px}
+    .card h2{font-size:15px;margin-bottom:14px}
     .input{padding:9px 11px;font-size:13px;border-radius:9px}
     .btn{padding:9px;font-size:13px;border-radius:10px;margin-top:8px}
     .btn.small{padding:7px 12px;font-size:12px}
@@ -88,12 +88,28 @@
   #sideToggleBtn, #sideBackdrop, #sideDrawer{display:none !important}
 
   #loginWrap{max-width:360px;margin:80px auto 0}
-  .card{background:linear-gradient(180deg,rgba(255,255,255,.03),transparent 40%),var(--dark-2);
-    border:1px solid var(--line);border-radius:16px;padding:20px 22px;backdrop-filter:blur(14px);
-    display:block;box-shadow:0 1px 0 rgba(255,255,255,.02) inset}
-  .card h2{font-family:"Public Sans",sans-serif;font-size:14px;font-weight:700;letter-spacing:-.005em;
+  /* Flat, full-width blocks — no bordered boxes. Each .card is just a
+     titled stretch of the page separated by a hairline, matching the
+     Rate Hub layout that everything else was reskinned to follow. */
+  .card{background:none;border:none;border-radius:0;padding:0;backdrop-filter:none;
+    box-shadow:none;display:block;margin:0 0 40px}
+  .card + .card{padding-top:32px;border-top:1px solid var(--line)}
+  .card h2{font-family:"Public Sans",sans-serif;font-size:15px;font-weight:800;letter-spacing:-.01em;
     color:var(--paper);text-transform:none;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-  .card.full{grid-column:1/-1}
+  #loginWrap .card{border:1px solid var(--line);border-radius:16px;padding:20px 22px;background:var(--dark-2)}
+  #loginWrap .card + .card{border-top:1px solid var(--line);padding-top:20px}
+  .card.full{width:100%}
+  /* Full-width sections still shouldn't stretch a single text field across
+     a 1500px screen — cap standalone form controls and body copy, while
+     tables / feeds / grids keep the whole width. */
+  #dashboard .card > .input,
+  #dashboard .card > .btn:not(.small),
+  #dashboard .card .card-body > .input,
+  #dashboard .card .card-body > .btn:not(.small){display:block;max-width:560px}
+  #dashboard .card .card-desc,
+  #dashboard .card > p,
+  #dashboard .card .card-body > .card-desc,
+  #dashboard .card .card-body > p{max-width:760px}
 
   .input{width:100%;background:var(--dark-3);border:1px solid var(--line);border-radius:10px;
     color:var(--paper);font-size:15px;padding:13px 14px;outline:none;font-family:inherit}
@@ -108,11 +124,92 @@
 
   #dashboard{display:none}
   #dashboard.show{display:block}
-  .dash-main{max-width:1200px;margin:0 auto}
+  .dash-main{max-width:1500px;margin:0 auto;position:relative;isolation:isolate;
+    border-radius:18px;padding:22px}
+  @media(min-width:900px){ .dash-main{padding:30px 34px} }
+  .dash-main::before{
+    content:"";position:absolute;inset:0;border-radius:inherit;padding:2px;
+    background:var(--led);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+    animation:se3r-led-spin 9s linear infinite;pointer-events:none;z-index:2;
+  }
+  .dash-main::after{
+    content:"";position:absolute;inset:-2px;border-radius:inherit;
+    background:var(--led);filter:blur(16px);opacity:.20;
+    animation:se3r-led-spin 9s linear infinite;pointer-events:none;z-index:-1;
+  }
 
-  .dcols{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px}
-  @media(min-width:800px){ .dcols{grid-template-columns:repeat(2,1fr)} }
-  @media(min-width:1300px){ .dcols{grid-template-columns:repeat(3,1fr)} }
+  /* ---------- LED-strip borders ----------
+     An animated gradient runs the perimeter of every bordered surface, and
+     the flat-section dividers become flowing light lines. @property lets the
+     conic angle animate smoothly; browsers without it just show a static
+     gradient border, which still looks fine. */
+  @property --led-a{syntax:"<angle>";initial-value:0deg;inherits:false}
+  @keyframes se3r-led-spin{to{--led-a:360deg}}
+  @keyframes se3r-led-slide{to{background-position:200% 0}}
+  :root{
+    /* Dark-blue LED — deep navy through royal blue to a bright electric edge. */
+    --led:conic-gradient(from var(--led-a),
+      #071a3f,#123a8a,#1e63ff,#4da3ff,#123a8a,#071a3f);
+    --led-line:linear-gradient(90deg,
+      transparent,#123a8a,#1e63ff,#4da3ff,#1e63ff,#123a8a,transparent);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .led-frame::before,.card + .card,#dashboard .card h2::after{animation:none !important}
+  }
+
+  /* Bordered boxes: a 1.5px animated ring, plus a soft outer glow. */
+  .led-frame{position:relative;isolation:isolate}
+  .led-frame::before{
+    content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;
+    background:var(--led);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+    animation:se3r-led-spin 6s linear infinite;pointer-events:none;z-index:1;
+  }
+  .led-frame::after{
+    content:"";position:absolute;inset:-1px;border-radius:inherit;
+    background:var(--led);filter:blur(9px);opacity:.28;
+    animation:se3r-led-spin 6s linear infinite;pointer-events:none;z-index:0;
+  }
+  .rh-tablewrap,.rh-feed,.rh-flow,.rh-status,.stat,#loginWrap .card{border-color:transparent}
+  .rh-tablewrap,.rh-feed,.rh-flow,.rh-status,.stat,#loginWrap .card{position:relative;isolation:isolate}
+  .rh-tablewrap::before,.rh-feed::before,.rh-flow::before,.rh-status::before,.stat::before,#loginWrap .card::before{
+    content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;
+    background:var(--led);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+    animation:se3r-led-spin 6s linear infinite;pointer-events:none;
+  }
+
+  /* Flat-section dividers become a moving light line. */
+  #dashboard .card + .card{
+    border-top:none;position:relative;
+  }
+  #dashboard .card + .card::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:2px;
+    background:var(--led-line);background-size:200% 100%;
+    animation:se3r-led-slide 3.5s linear infinite;
+  }
+  /* Heading gets a short LED underline. */
+  #dashboard .card h2{position:relative;padding-bottom:8px}
+  #dashboard .card h2::after{
+    content:"";position:absolute;left:0;bottom:0;width:46px;height:2px;border-radius:2px;
+    background:var(--led-line);background-size:200% 100%;
+    animation:se3r-led-slide 3s linear infinite;
+  }
+  /* Top navbar carries the strip along its bottom edge. */
+  .floatnav-wrap{position:sticky}
+  .floatnav-wrap::after{
+    content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;
+    background:var(--led-line);background-size:200% 100%;
+    animation:se3r-led-slide 4s linear infinite;
+  }
+
+  /* No column grid any more — every block runs the full width of the page. */
+  .dcols{display:block;margin:0}
+  .dcols > .card{margin-bottom:40px}
   .card-body{min-width:0}
   .card-desc{font-size:12px;color:var(--paper-dim);margin-bottom:12px}
   .mini-btn{background:var(--dark-3);border:1px solid var(--line);color:var(--paper-dim);
@@ -121,6 +218,21 @@
   .mini-btn:disabled{opacity:.3;cursor:default}
   .audit-row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--dark-3);font-size:12px}
   .audit-row:last-child{border-bottom:none}
+  /* Emergency is intentionally more structured than a normal settings form:
+     immediate danger controls stay at the top; configuration is below. */
+  .emergency-console{padding:0!important;overflow:hidden;background:linear-gradient(135deg,#0b1223,#101a31)!important}
+  .emergency-lead{padding:20px 22px 16px;background:linear-gradient(90deg,rgba(255,69,58,.16),rgba(12,19,35,0));border-bottom:1px solid rgba(255,69,58,.28)}
+  .emergency-lead b{display:block;font-size:16px;color:#fff;margin-bottom:5px}.emergency-lead span{font-size:12px;color:var(--paper-dim)}
+  .emergency-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:16px 22px}
+  .emergency-switch,.emergency-reset{padding:15px!important;margin:0!important;border:1px solid var(--line)!important;border-radius:12px!important;background:rgba(255,255,255,.025)!important;min-height:116px;display:flex!important;flex-direction:column;align-items:flex-start!important;justify-content:space-between!important}
+  .emergency-switch .flag-toggle{align-self:flex-end;margin-top:8px}.emergency-switch>div:first-child{font-weight:750!important;color:#fff}
+  .emergency-reset{background:rgba(243,181,67,.06)!important}.emergency-reset .pill-btn{margin-top:10px!important}
+  .emergency-settings{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 22px 22px}.emergency-panel{margin:0!important;padding:16px!important;border:1px solid var(--line)!important;border-radius:12px!important;background:var(--dark-3)!important}
+  .emergency-panel .input{margin-top:8px}.emergency-panel .input:first-of-type{margin-top:0}
+  .emergency-features{margin:0 22px 22px;padding:16px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.018)}
+  .emergency-features h3{margin:0 0 4px;font-size:13px;color:#fff}.emergency-features p{margin:0 0 12px;font-size:11px;color:var(--paper-dim)}
+  #emergencyCard #flagRows{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 14px}.flag-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+  @media(max-width:760px){.emergency-grid,.emergency-settings{grid-template-columns:1fr}.emergency-console{margin:0 -2px}}
   .audit-row .act{color:var(--paper)}
   .audit-row .when{color:var(--paper-dim2);white-space:nowrap;flex-shrink:0;font-family:"IBM Plex Mono",monospace}
   .trend-bars{display:flex;align-items:flex-end;gap:3px;height:40px;margin:10px 0}
@@ -198,6 +310,7 @@
   .rh-pill.stale{color:var(--status-warning);background:rgba(251,191,36,.13)}
   .rh-pill.unknown{color:var(--paper-dim2);background:var(--dark-3)}
   .rh-pill.soon{color:var(--accent);background:var(--accent-soft)}
+  .rh-pill.closed{color:var(--paper-dim2);background:var(--dark-3)}
   .rh-mono{font-family:"Fragment Mono",monospace}
   .rh-citychip{display:inline-block;font-size:10px;padding:2px 6px;border-radius:6px;margin:1px;background:var(--dark-3);color:var(--paper-dim)}
   .rh-citychip.stale{background:rgba(251,113,133,.15);color:var(--danger)}
@@ -308,8 +421,6 @@
         <div class="fn-links">
           <button class="slink" data-target="emergencyCard"><span class="sdot" style="color:var(--danger)"></span>Emergency</button>
           <button class="slink" data-target="sectionRateHub"><span class="sdot" style="color:var(--cat-rates)"></span>Rate Hub</button>
-          <button class="slink" data-target="sectionRates"><span class="sdot" style="color:var(--cat-rates)"></span>Rates (old)</button>
-          <button class="slink" data-target="sectionMonitor"><span class="sdot" style="color:var(--cat-monitor)"></span>Channel Monitor (old)</button>
           <button class="slink" data-target="sectionMap"><span class="sdot" style="color:var(--cat-map)"></span>Map</button>
           <button class="slink" data-target="sectionSite"><span class="sdot" style="color:var(--cat-site)"></span>Site &amp; Currencies</button>
           <button class="slink" data-target="sectionComms"><span class="sdot" style="color:var(--cat-comms)"></span>Communication</button>
@@ -340,8 +451,10 @@
         <span class="section-dot blink" style="background:var(--danger)"></span>
         <span class="section-title" style="color:var(--danger)">[!] Emergency</span>
       </div>
-      <div class="card full cat-emergency">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid rgba(255,69,58,.2)">
+      <div class="card full cat-emergency emergency-console">
+        <div class="emergency-lead"><b>Emergency Control Center</b><span>Stop a broken part of the app, protect users, or recover safely — changes are remote and do not need a new upload.</span></div>
+        <div class="emergency-grid">
+        <div class="emergency-switch">
           <div>
             <div style="font-weight:700;font-size:14px" id="maintenanceLabel">App is running normally</div>
             <div style="font-size:11px;color:var(--paper-dim);margin-top:2px">
@@ -350,7 +463,7 @@
           </div>
           <button class="flag-toggle" id="maintenanceToggle" style="flex-shrink:0"></button>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid rgba(255,69,58,.2)">
+        <div class="emergency-switch">
           <div>
             <div style="font-weight:700;font-size:14px" id="siteMaintenanceLabel">Website is running normally</div>
             <div style="font-size:11px;color:var(--paper-dim);margin-top:2px">
@@ -359,22 +472,31 @@
           </div>
           <button class="flag-toggle" id="siteMaintenanceToggle" style="flex-shrink:0"></button>
         </div>
-        <div style="background:var(--dark-3);border-radius:10px;padding:10px 12px">
+        <div class="emergency-reset">
           <div style="font-weight:700;font-size:12px">Force reset the app</div>
           <div style="font-size:10px;color:var(--paper-dim);margin-top:2px;line-height:1.4">
             Clears cached city/language preferences on every device and reloads fresh data — for a screen that's stuck or crashing, not for logging anyone out. Takes effect next time each device opens the app.
           </div>
           <button class="pill-btn danger" id="appResetBtn" style="margin-top:8px">Reset App</button>
         </div>
+        <div class="emergency-switch">
+          <div>
+            <div style="font-weight:700;font-size:14px" id="pipelineLabel">Rate pipeline is running</div>
+            <div style="font-size:11px;color:var(--paper-dim);margin-top:2px">Freezes all cities on their last good rate if a source incident happens.</div>
+          </div>
+          <button class="flag-toggle" id="pipelineToggle" style="flex-shrink:0"></button>
+        </div>
         <div class="msg" id="appResetMsg"></div>
-        <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,69,58,.2)">
+        </div>
+        <div class="emergency-settings">
+        <div class="emergency-panel">
           <div style="font-size:11px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Custom maintenance message (optional)</div>
           <input class="input" id="maintenanceTitleInput" type="text" placeholder="Title, e.g. Down for maintenance" maxlength="80" autocomplete="off" />
           <input class="input" id="maintenanceBodyInput" type="text" placeholder="Message shown under the title" maxlength="500" style="margin-top:8px" autocomplete="off" />
           <button class="btn small ghost" id="saveMaintenanceMsgBtn" style="margin-top:8px">Save message</button>
           <div class="msg" id="maintenanceMsgMsg"></div>
         </div>
-        <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,69,58,.2)">
+        <div class="emergency-panel">
           <div style="font-size:11px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Force update</div>
           <div style="font-size:11px;color:var(--paper-dim);margin-bottom:8px;line-height:1.4">
             Set the lowest app version still allowed to run. Anyone on an older build gets a full-screen "Update Required" page they can't dismiss until they update. Leave blank to turn it off.
@@ -384,6 +506,22 @@
           <input class="input" id="appStoreUrlInput" type="text" placeholder="App Store link the Update button opens (optional)" maxlength="300" style="margin-top:8px" autocomplete="off" />
           <button class="btn small ghost" id="saveForceUpdateBtn" style="margin-top:8px">Save</button>
           <div class="msg" id="forceUpdateMsg"></div>
+        </div>
+        <div class="emergency-panel">
+          <div style="font-size:11px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Scheduled maintenance</div>
+          <div style="font-size:11px;color:var(--paper-dim);margin-bottom:8px">Automatically show the full maintenance screen, then turn the app back on at the end time.</div>
+          <input class="input" id="maintenanceStartsAt" type="datetime-local" />
+          <input class="input" id="maintenanceEndsAt" type="datetime-local" style="margin-top:8px" />
+          <button class="btn small ghost" id="saveMaintenanceScheduleBtn" style="margin-top:8px">Save schedule</button>
+          <button class="btn small ghost" id="clearMaintenanceScheduleBtn" style="margin-top:8px">Clear</button>
+          <div class="msg" id="maintenanceScheduleMsg"></div>
+        </div>
+        </div>
+        <div class="emergency-features">
+          <h3>Remote feature switches</h3>
+          <p>Turn off one part of the iPhone app safely. Rates-only mode leaves only Home available.</p>
+          <div id="flagRows"></div>
+          <div class="msg" id="flagMsg"></div>
         </div>
       </div>
     </div>
@@ -399,12 +537,15 @@
 
       <div class="rh-controls">
         <button class="btn small" id="rhForceCheck">Force Check Now</button>
+        <button class="btn small ghost" id="rhAuditSources">Scan Sources · 20h</button>
         <button class="btn small" id="rhRebuild">Rebuild All Rates</button>
         <button class="btn small" id="rhRestart">Restart Pipeline</button>
         <button class="btn small danger" id="rhResetAll">Reset All Channels</button>
         <button class="btn small danger" id="rhClearHist">Clear Chart History</button>
         <span class="msg" id="rhCtrlMsg" style="margin:0;align-self:center"></span>
       </div>
+
+      <div id="rhAuditBox" style="display:none;margin-bottom:16px"></div>
 
       <div class="rh-flow" id="rhFlow"></div>
 
@@ -427,19 +568,12 @@
 
       <h3 class="rh-h">Activity · latest rate posts</h3>
       <div class="rh-feed" id="rhFeed"></div>
-    </div>
 
-    <div class="section" id="sectionRates">
-      <div class="section-head">
-        <span class="section-dot" style="background:var(--cat-rates)"></span>
-        <span class="section-title">Rates</span>
-      </div>
+      <div class="stat-chip-row" id="rateStatStrip" style="margin:24px 0 16px"></div>
 
-      <div class="stat-chip-row" id="rateStatStrip" style="margin-bottom:16px"></div>
-
-      <div class="card cat-rates" id="marketRatesCard" style="height:auto;padding:22px">
+      <div class="card cat-rates" id="marketRatesCard" style="height:auto">
         <h2>Market Rates</h2>
-        <div class="card-desc">The live rate for one city, straight from whichever source channel posted it most recently. Green dot = fresh, red = stale.</div>
+        <div class="card-desc">The live rate for one city, blended from current active sources to prevent one noisy quote from making the app jump. Green dot = fresh, red = stale.</div>
         <div id="marketIssue" style="display:none;font-size:12px;color:var(--danger);background:rgba(251,113,133,.12);border:1px solid rgba(251,113,133,.35);border-radius:10px;padding:9px 12px;margin-bottom:12px"></div>
         <div id="goldIssue" style="display:none;font-size:12px;color:var(--status-warning);background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.35);border-radius:10px;padding:9px 12px;margin-bottom:12px"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
@@ -478,7 +612,7 @@
           <button class="btn small ghost" id="refreshSourcesBtn" style="margin-top:0">Reset &amp; take latest</button>
         </h2>
         <div class="card-body">
-        <div class="card-desc">Any number of channels can be active at once. For each city, whichever active channel posted most recently wins. Tap a channel to see which cities it covers, turn tracking on/off per city, and how many times each rate has changed.</div>
+        <div class="card-desc">Any number of channels can be active at once. Current quotes are combined into a stable consensus while stale posts are ignored. Tap a channel to inspect city coverage, control each city, and review detected changes.</div>
         <div id="channelRows"></div>
         <div class="rate-edit" style="margin-top:14px">
           <input class="input" id="sourceInput" type="text" placeholder="Channel username, e.g. dollar_price" autocomplete="off" />
@@ -530,26 +664,10 @@
         </div>
       </div>
       </div>
-    </div>
 
-    <div class="section" id="sectionMonitor">
-      <div class="section-head">
-        <span class="section-dot" style="background:var(--cat-monitor)"></span>
-        <span class="section-title">Channel Monitor</span>
-      </div>
-
-      <div class="stat-chip-row" id="monitorStatStrip" style="margin-bottom:16px"></div>
+      <div class="stat-chip-row" id="monitorStatStrip" style="margin:8px 0 16px"></div>
 
       <div class="card full" id="pipelineControlCard" style="padding:22px">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--dark-3)">
-          <div>
-            <div style="font-weight:700;font-size:14px" id="pipelineLabel">Rate pipeline is running</div>
-            <div style="font-size:11px;color:var(--paper-dim);margin-top:2px">
-              Turning this off freezes every city on its last known rate — the app and site keep showing that number, nothing new gets scraped, blended, or logged — until you turn it back on.
-            </div>
-          </div>
-          <button class="flag-toggle" id="pipelineToggle" style="flex-shrink:0"></button>
-        </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
           <button class="btn small" id="forceCheckBtn">Check Now</button>
           <button class="btn small ghost" id="refreshMonitorBtn">Refresh Table</button>
@@ -601,6 +719,10 @@
           <input class="input" id="shopName" type="text" placeholder="Shop name" autocomplete="off" />
           <input class="input" id="shopAddress" type="text" placeholder="Address (optional)" autocomplete="off" />
           <input class="input" id="shopPhone" type="text" placeholder="Phone (optional)" autocomplete="off" />
+          <input class="input" id="shopCity" type="text" placeholder="City (optional)" autocomplete="off" />
+          <input class="input" id="shopHours" type="text" placeholder="Opening hours (optional)" autocomplete="off" />
+          <input class="input" id="shopWebsite" type="url" placeholder="Website (optional)" autocomplete="off" />
+          <input class="input" id="shopNotes" type="text" placeholder="Notes, e.g. services or landmark (optional)" autocomplete="off" />
           <input class="input" id="shopLat" type="text" inputmode="decimal" placeholder="Latitude — set by the pin" autocomplete="off" />
           <input class="input" id="shopLng" type="text" inputmode="decimal" placeholder="Longitude — set by the pin" autocomplete="off" />
         </div>
@@ -613,6 +735,19 @@
         <div class="card-desc">Everything added above. Removing one here removes it from the app immediately.</div>
         <div id="shopRows" style="margin-top:10px"></div>
       </div>
+      <div id="shopEditModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.68);z-index:1000;padding:24px;overflow:auto">
+        <div style="max-width:760px;margin:40px auto;background:var(--dark-2);border:1px solid var(--line);border-radius:16px;padding:22px">
+          <h2 style="margin-top:0">Edit Exchange Shop</h2><p class="card-desc">Change any detail below, then save. This does not affect the Add Shop form.</p>
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+            <input class="input" id="editShopName" placeholder="Shop name" /><input class="input" id="editShopAddress" placeholder="Address" />
+            <input class="input" id="editShopPhone" placeholder="Phone" /><input class="input" id="editShopCity" placeholder="City" />
+            <input class="input" id="editShopHours" placeholder="Opening hours" /><input class="input" id="editShopWebsite" placeholder="Website" />
+            <input class="input" id="editShopNotes" placeholder="Notes" /><input class="input" id="editShopLat" placeholder="Latitude" />
+            <input class="input" id="editShopLng" placeholder="Longitude" />
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px"><button class="btn" id="saveShopEditBtn">Save Changes</button><button class="btn ghost" id="closeShopEditBtn">Cancel</button><span class="msg" id="editShopMsg"></span></div>
+        </div>
+      </div>
     </div>
 
     <div class="section" id="sectionSite">
@@ -621,15 +756,6 @@
         <span class="section-title">Site &amp; Currencies</span>
       </div>
       <div class="dcols">
-      <div class="card cat-site" id="appSiteControlCard">
-        <h2>App / Site Control</h2>
-        <div class="card-body">
-        <div class="card-desc">Individual on/off switches for one page or feature at a time. For "everything off" use the Emergency card instead.</div>
-        <div id="flagRows"></div>
-        <div class="msg" id="flagMsg"></div>
-        </div>
-      </div>
-
       <div class="card cat-site" id="currenciesCard">
         <h2>Currencies</h2>
         <div class="card-body">
@@ -693,6 +819,17 @@
         <div class="card-desc">The last notifications actually delivered — manual sends and automatic rate-change alerts both land here.</div>
         <div id="notifHistoryRows"></div>
         <button class="btn small ghost" id="notifHistoryLoadMoreBtn" style="display:none;width:100%;margin-top:8px">Load more</button>
+        </div>
+      </div>
+
+      <div class="card cat-comms" id="pushInsightsCard">
+        <h2 style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <span>Push Insights</span>
+          <button class="btn small ghost" id="pushInsightsRefresh" style="text-transform:none;letter-spacing:0;font-weight:700">Refresh</button>
+        </h2>
+        <div class="card-body">
+          <div class="card-desc">Who's subscribed, how reliably pushes are landing, and how often people actually want to be pinged.</div>
+          <div id="pushInsightsBody"><div class="card-desc">Loading…</div></div>
         </div>
       </div>
 
@@ -1021,6 +1158,7 @@
     loadMonitor();
     loadShops();
     loadGoldSource();
+    loadPushInsights();
     if(statsTimer) clearInterval(statsTimer);
     statsTimer = setInterval(loadStats, 10000);
     if(monitorTimer) clearInterval(monitorTimer);
@@ -1664,17 +1802,29 @@
   var FLAG_LABELS = {
     page_history: "History Page",
     page_convert: "Convert Page",
+    page_gold: "Gold Page",
     page_other_rates: "Other Rates Page",
     page_profile: "Profile Page (app)",
     page_map: "Map Page",
+    page_feedback: "Feedback Page",
+    map_search_enabled: "Map Search & Location",
+    app_rate_only: "Rates-only Safe Mode",
     btn_share: "Share Button",
     btn_notifications: "Notifications Toggle",
     sms_verification: "SMS Verification (OTPIQ)",
     live_activity_enabled: "Live Activity",
+    widget_enabled: "Widgets",
     signup_enabled: "New Account Signups",
+    login_enabled: "Sign-in",
     push_enabled: "Push Notifications",
   };
   var lastFlags = {};
+  var FLAG_GROUPS = [
+    { title: "APP PAGES", keys: ["page_history", "page_convert", "page_gold", "page_map", "page_profile", "page_feedback"] },
+    { title: "SAFE MODE & TOOLS", keys: ["app_rate_only", "map_search_enabled", "btn_share", "btn_notifications", "widget_enabled", "live_activity_enabled"] },
+    { title: "ACCOUNTS & DELIVERY", keys: ["login_enabled", "signup_enabled", "sms_verification", "push_enabled"] },
+    { title: "LEGACY", keys: ["page_other_rates"] }
+  ];
 
   function renderMaintenanceToggle(flags){
     var on = flags["app_operational"] !== false; // missing key = operating normally
@@ -1850,12 +2000,13 @@
     // ---- status banner ----
     var s = document.getElementById("rhStatus");
     var p = d.pipeline || {};
+    var marketNote = " &middot; Market " + (p.marketOpen ? "open" : "closed (8am–5pm Sun–Thu, Baghdad time)");
     if(p.healthy){
       s.className = "rh-status rh-ok";
-      s.innerHTML = "All systems normal — last full cycle " + rhAge(p.lastCycleMin) + " (" + rhStamp(p.lastCycleAt) + ")";
+      s.innerHTML = "All systems normal — last full cycle " + rhAge(p.lastCycleMin) + " (" + rhStamp(p.lastCycleAt) + ")" + marketNote;
     } else {
       s.className = "rh-status rh-bad";
-      s.innerHTML = "&#9888; " + (p.issues || []).length + " issue(s) — last full cycle " + rhAge(p.lastCycleMin) +
+      s.innerHTML = "&#9888; " + (p.issues || []).length + " issue(s) — last full cycle " + rhAge(p.lastCycleMin) + marketNote +
         "<ul>" + (p.issues || []).map(function(i){ return "<li>" + i + "</li>"; }).join("") + "</ul>";
     }
 
@@ -1871,7 +2022,8 @@
         ? '<span class="rh-pill soon">coming soon</span>'
         : (c.rate == null
             ? '<span class="rh-pill down">no data</span>'
-            : (c.fresh ? '<span class="rh-pill ok">live</span>' : '<span class="rh-pill stale">stale</span>'));
+            : (c.fresh ? '<span class="rh-pill ok">live</span>'
+                : (d.pipeline && d.pipeline.marketOpen ? '<span class="rh-pill stale">stale</span>' : '<span class="rh-pill closed">market closed</span>')));
       var ov = c.override
         ? '<span style="color:var(--status-warning)">' + rhFmt(c.override.rate) + ' (manual)</span> <button class="btn small ghost rh-clr-ov" data-city="'+c.city+'">clear</button>'
         : '<button class="btn small ghost rh-set-ov" data-city="'+c.city+'">set</button>';
@@ -2018,7 +2170,32 @@
       })
       .catch(function(){ m.textContent = "Failed."; });
   }
+  function rhAuditSources(){
+    var box = document.getElementById("rhAuditBox");
+    box.style.display = "block";
+    box.innerHTML = '<div class="rh-detail">Scanning every configured and watched Telegram source for the last 20 hours…</div>';
+    authedFetch("/admin/rate-hub/audit-sources").then(function(d){
+      if(!d || d.error){ box.innerHTML = '<div class="rh-detail" style="color:var(--danger)">'+((d&&d.error)||"Scan failed.")+'</div>'; return; }
+      var auto = d.autoAudit || {};
+      var autoLine;
+      if(auto.flagged && auto.flagged.length){
+        autoLine = '<div style="font-size:11px;color:var(--danger);margin-bottom:8px">⚠ Auto-scan '+(auto.lastRunAt?rhStamp(auto.lastRunAt):'—')+' · '+auto.flagged.length+' source(s) degraded: '+
+          auto.flagged.map(function(f){ return '@'+f.username+' ("'+f.classification+'" since '+rhStamp(f.degradedSince)+')'; }).join(', ')+'</div>';
+      } else {
+        autoLine = '<div style="font-size:11px;color:var(--paper-dim2);margin-bottom:8px">Auto-scan runs hourly'+(auto.lastRunAt?' · last '+rhStamp(auto.lastRunAt):'')+' · no active sources flagged.</div>';
+      }
+      box.innerHTML = '<div class="rh-detail"><div style="font-weight:700;margin-bottom:8px">20-hour source audit · '+rhStamp(d.checkedAt)+'</div>'+
+        autoLine +
+        '<div class="rh-tablewrap"><table class="rh-table"><thead><tr><th>Source</th><th>Mode</th><th>Posts</th><th>Detected rates</th><th>Latest post</th><th>Assessment</th></tr></thead><tbody>'+
+        (d.sources||[]).map(function(s){
+          var rates=(s.cities||[]).map(function(c){return c.label+': '+rhFmt(c.rate);}).join(' · ') || '—';
+          var cls=s.classification==='city-rates'?'ok':(s.classification==='unreachable'?'down':'stale');
+          return '<tr><td class="rh-mono">@'+s.username+'</td><td><span class="rh-pill '+(s.active?'ok':'unknown')+'">'+(s.active?'active':'watch only')+'</span></td><td class="rh-mono">'+s.posts20h+'</td><td>'+rates+'</td><td class="rh-mono">'+rhStamp(s.latestPostAt)+'</td><td><span class="rh-pill '+cls+'">'+s.classification+'</span>'+(s.note?'<div style="font-size:10px;color:var(--paper-dim2);margin-top:4px">'+s.note+'</div>':'')+'</td></tr>';
+        }).join('')+'</tbody></table></div></div>';
+    }).catch(function(){ box.innerHTML = '<div class="rh-detail" style="color:var(--danger)">Source scan failed.</div>'; });
+  }
   document.getElementById("rhForceCheck").addEventListener("click", function(){ rhAction("force-check"); });
+  document.getElementById("rhAuditSources").addEventListener("click", rhAuditSources);
   document.getElementById("rhRebuild").addEventListener("click", function(){ rhAction("rebuild", "Rebuild all 9 city rates from live data now, and clear every manual override?"); });
   document.getElementById("rhRestart").addEventListener("click", function(){ rhAction("restart", "Restart the rate pipeline (off, then on) and run a fresh cycle now?"); });
   document.getElementById("rhResetAll").addEventListener("click", function(){ rhAction("reset-all-channels", "Clear ALL logged channel readings and health across every channel? Rates are unaffected; the monitor rebuilds from the next scrape."); });
@@ -2156,6 +2333,7 @@
       row.className = "flag-row";
       var label = document.createElement("span");
       label.className = "flag-label";
+      label.style.flex = "1";
       label.innerHTML = "<strong>" + s.name + "</strong>" +
         (s.address ? '<span style="display:block;font-size:10px;color:var(--paper-dim2);margin-top:2px">' + s.address + '</span>' : "") +
         '<span style="display:block;font-size:10px;color:var(--paper-dim2);margin-top:2px" class="mono-ish">' + s.lat + ", " + s.lng + (s.phone ? " · " + s.phone : "") + '</span>';
@@ -2168,7 +2346,12 @@
           .then(loadShops)
           .catch(function(){ alert("Failed to remove."); });
       });
+      var edit = document.createElement("button");
+      edit.className = "btn small ghost";
+      edit.textContent = "Edit";
+      edit.addEventListener("click", function(){ beginShopEdit(s); });
       row.appendChild(label);
+      row.appendChild(edit);
       row.appendChild(del);
       wrap.appendChild(row);
     });
@@ -2178,11 +2361,34 @@
     authedFetch("/admin/exchange-shops").then(function(d){ renderShopRows(d.shops); }).catch(function(){});
   }
 
+  var editingShopId = null;
+  function beginShopEdit(shop){
+    editingShopId = shop.id;
+    document.getElementById("editShopName").value=shop.name||""; document.getElementById("editShopAddress").value=shop.address||"";
+    document.getElementById("editShopPhone").value=shop.phone||""; document.getElementById("editShopCity").value=shop.city||"";
+    document.getElementById("editShopHours").value=shop.opening_hours||""; document.getElementById("editShopWebsite").value=shop.website||"";
+    document.getElementById("editShopNotes").value=shop.notes||""; document.getElementById("editShopLat").value=shop.lat; document.getElementById("editShopLng").value=shop.lng;
+    document.getElementById("editShopMsg").textContent=""; document.getElementById("shopEditModal").style.display="block";
+  }
+  function clearShopForm(){
+    ["shopName","shopAddress","shopPhone","shopCity","shopHours","shopWebsite","shopNotes","shopLat","shopLng"].forEach(function(id){document.getElementById(id).value="";});
+  }
+  document.getElementById("closeShopEditBtn").addEventListener("click", function(){document.getElementById("shopEditModal").style.display="none";editingShopId=null;});
+  document.getElementById("saveShopEditBtn").addEventListener("click", function(){
+    var g=function(id){return document.getElementById(id).value.trim();}; var msg=document.getElementById("editShopMsg");
+    var name=g("editShopName"),lat=parseFloat(g("editShopLat")),lng=parseFloat(g("editShopLng")); if(!editingShopId||!name||!isFinite(lat)||!isFinite(lng)){msg.textContent="Name and valid coordinates are required.";return;}
+    msg.textContent="Saving..."; authedFetch("/admin/exchange-shops?id="+editingShopId,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name,address:g("editShopAddress"),phone:g("editShopPhone"),city:g("editShopCity"),openingHours:g("editShopHours"),website:g("editShopWebsite"),notes:g("editShopNotes"),lat:lat,lng:lng})}).then(function(d){if(d&&d.error)throw Error(d.error);document.getElementById("shopEditModal").style.display="none";editingShopId=null;loadShops();}).catch(function(e){msg.textContent=e.message||"Failed to save.";});
+  });
+
   document.getElementById("addShopBtn").addEventListener("click", function(){
     var msg = document.getElementById("addShopMsg");
     var name = document.getElementById("shopName").value.trim();
     var address = document.getElementById("shopAddress").value.trim();
     var phone = document.getElementById("shopPhone").value.trim();
+    var city = document.getElementById("shopCity").value.trim();
+    var openingHours = document.getElementById("shopHours").value.trim();
+    var website = document.getElementById("shopWebsite").value.trim();
+    var notes = document.getElementById("shopNotes").value.trim();
     var lat = parseFloat(document.getElementById("shopLat").value);
     var lng = parseFloat(document.getElementById("shopLng").value);
     if(!name){ msg.textContent = "Enter a shop name."; return; }
@@ -2193,15 +2399,11 @@
     msg.textContent = "Adding...";
     authedFetch("/admin/exchange-shops", {
       method: "POST", headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ name: name, address: address, phone: phone, lat: lat, lng: lng })
+      body: JSON.stringify({ name: name, address: address, phone: phone, city: city, openingHours: openingHours, website: website, notes: notes, lat: lat, lng: lng })
     }).then(function(d){
       if(d && d.error){ msg.textContent = d.error; return; }
       msg.textContent = "Added.";
-      document.getElementById("shopName").value = "";
-      document.getElementById("shopAddress").value = "";
-      document.getElementById("shopPhone").value = "";
-      document.getElementById("shopLat").value = "";
-      document.getElementById("shopLng").value = "";
+      clearShopForm();
       if(pinMarker && pinMap){ pinMap.removeLayer(pinMarker); pinMarker = null; }
       loadShops();
     }).catch(function(){ msg.textContent = "Failed to add."; });
@@ -2214,7 +2416,12 @@
     renderPipelineToggle(flags);
     var wrap = document.getElementById("flagRows");
     wrap.innerHTML = "";
-    Object.keys(FLAG_LABELS).forEach(function(key){
+    FLAG_GROUPS.forEach(function(group){
+      var heading = document.createElement("div");
+      heading.style.cssText = "grid-column:1/-1;font-size:10px;letter-spacing:.09em;color:var(--paper-dim2);margin:9px 0 1px";
+      heading.textContent = group.title;
+      wrap.appendChild(heading);
+      group.keys.forEach(function(key){
       var on = flags[key] !== false;
       var row = document.createElement("div");
       row.className = "flag-row";
@@ -2228,6 +2435,7 @@
       row.appendChild(label);
       row.appendChild(btn);
       wrap.appendChild(row);
+      });
     });
   }
 
@@ -2242,6 +2450,9 @@
         document.getElementById("minVersionInput").value = d.minAppVersion || "";
         document.getElementById("forceUpdateMsgInput").value = d.forceUpdateMessage || "";
         document.getElementById("appStoreUrlInput").value = d.appStoreUrl || "";
+        var schedule = d.maintenanceSchedule;
+        document.getElementById("maintenanceStartsAt").value = schedule && schedule.startsAt ? schedule.startsAt.slice(0,16) : "";
+        document.getElementById("maintenanceEndsAt").value = schedule && schedule.endsAt ? schedule.endsAt.slice(0,16) : "";
       }).catch(function(){});
   }
 
@@ -2275,6 +2486,18 @@
       .catch(function(){ msg.textContent = "Failed to save."; });
   });
 
+  function saveMaintenanceSchedule(clear){
+    var msg = document.getElementById("maintenanceScheduleMsg");
+    var startsAt = clear ? "" : document.getElementById("maintenanceStartsAt").value;
+    var endsAt = clear ? "" : document.getElementById("maintenanceEndsAt").value;
+    msg.textContent = "Saving...";
+    authedFetch("/admin/maintenance-schedule", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({startsAt:startsAt,endsAt:endsAt})})
+      .then(function(){msg.textContent=clear?"Schedule cleared.":"Scheduled. The app will return automatically.";loadFlags();})
+      .catch(function(){msg.textContent="Could not save the schedule.";});
+  }
+  document.getElementById("saveMaintenanceScheduleBtn").addEventListener("click", function(){ saveMaintenanceSchedule(false); });
+  document.getElementById("clearMaintenanceScheduleBtn").addEventListener("click", function(){ saveMaintenanceSchedule(true); });
+
   function setFlag(key, enabled){
     var msg = document.getElementById("flagMsg");
     msg.textContent = "Saving...";
@@ -2302,7 +2525,7 @@
       row.className = "flag-row";
       var label = document.createElement("span");
       label.className = "flag-label";
-      label.textContent = c.code + " — " + c.label;
+      label.innerHTML = "<strong>"+c.code+" — "+c.label+"</strong><span style=\"display:block;font-size:11px;color:var(--paper-dim2);margin-top:3px\">"+(c.iqdPer1 ? "1 "+c.code+" = "+Number(c.iqdPer1).toLocaleString()+" IQD · ":"Rate unavailable · ")+"FXRatesAPI live · backup Frankfurter</span>";
       var actions = document.createElement("span");
       actions.style.cssText = "display:flex;gap:6px;align-items:center;flex-shrink:0";
       var upBtn = document.createElement("button");
@@ -2311,11 +2534,10 @@
       var downBtn = document.createElement("button");
       downBtn.className = "mini-btn"; downBtn.textContent = "↓"; downBtn.disabled = i === currencies.length - 1;
       downBtn.addEventListener("click", function(){ moveCurrency(i, 1); });
-      var removeBtn = document.createElement("button");
-      removeBtn.className = "btn small danger";
-      removeBtn.textContent = "Remove";
-      removeBtn.addEventListener("click", function(){ deleteCurrency(c.code); });
-      actions.appendChild(upBtn); actions.appendChild(downBtn); actions.appendChild(removeBtn);
+      var toggleBtn=document.createElement("button"); toggleBtn.className="btn small "+(c.enabled===0?"ghost":"danger"); toggleBtn.textContent=c.enabled===0?"Start":"Stop";
+      toggleBtn.addEventListener("click",function(){authedFetch("/admin/currencies?code="+c.code,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({enabled:c.enabled===0})}).then(loadCurrencies);});
+      var editBtn=document.createElement("button"); editBtn.className="btn small ghost";editBtn.textContent="Edit";editBtn.addEventListener("click",function(){var label=prompt("Currency label",c.label);if(label!==null)authedFetch("/admin/currencies?code="+c.code,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({enabled:c.enabled!==0,label:label})}).then(loadCurrencies);});
+      actions.appendChild(upBtn); actions.appendChild(downBtn); actions.appendChild(editBtn); actions.appendChild(toggleBtn);
       row.appendChild(label);
       row.appendChild(actions);
       wrap.appendChild(row);
@@ -2323,7 +2545,7 @@
   }
 
   function loadCurrencies(){
-    authedFetch("/admin/currencies").then(function(d){ renderCurrencies(d.currencies); }).catch(function(){});
+    Promise.all([authedFetch("/admin/currencies"),fetch(WORKER_URL+"/rates").then(function(r){return r.json();})]).then(function(v){var rates={};(v[1].extra||[]).forEach(function(x){rates[x.code]=x;});v[0].currencies.forEach(function(c){Object.assign(c,rates[c.code]||{});});renderCurrencies(v[0].currencies);}).catch(function(){});
   }
 
   function moveCurrency(index, direction){
@@ -2393,6 +2615,60 @@
       .then(function(){ msg.textContent = "Removed."; loadCurrencies(); })
       .catch(function(){ msg.textContent = "Failed to remove."; });
   }
+
+  /* ---------- push insights ---------- */
+
+  function pctText(r){ return r == null ? "—" : (r * 100).toFixed(1) + "%"; }
+
+  function miniBars(map, unit){
+    var keys = Object.keys(map).map(Number).sort(function(a,b){ return a-b; });
+    if(!keys.length) return '<div style="font-size:11px;color:var(--paper-dim2)">No custom values yet — everyone\'s on the 5-minute default.</div>';
+    var max = Math.max.apply(null, keys.map(function(k){ return map[k]; }));
+    return '<div style="display:flex;flex-direction:column;gap:4px">' + keys.map(function(k){
+      var w = max ? Math.round(map[k] / max * 100) : 0;
+      return '<div style="display:flex;align-items:center;gap:8px;font-size:11px">' +
+        '<span style="width:52px;color:var(--paper-dim2);text-align:right">'+k+' '+unit+'</span>' +
+        '<span style="flex:1;height:10px;background:var(--dark-3);border-radius:5px;overflow:hidden">' +
+          '<span style="display:block;height:100%;width:'+w+'%;background:var(--cat-comms,#7c93ff)"></span></span>' +
+        '<span style="width:28px;color:var(--paper-dim)">'+map[k]+'</span></div>';
+    }).join('') + '</div>';
+  }
+
+  function topList(items, labelKey, max){
+    var top = items.slice(0, max || 5).filter(function(x){ return x.count > 0; });
+    if(!top.length) return '<div style="font-size:11px;color:var(--paper-dim2)">None.</div>';
+    var big = Math.max.apply(null, top.map(function(x){ return x.count; }));
+    return '<div style="display:flex;flex-direction:column;gap:4px">' + top.map(function(x){
+      var w = big ? Math.round(x.count / big * 100) : 0;
+      return '<div style="display:flex;align-items:center;gap:8px;font-size:11px">' +
+        '<span style="width:88px;color:var(--paper-dim2);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(x[labelKey]||x.unit)+'</span>' +
+        '<span style="flex:1;height:10px;background:var(--dark-3);border-radius:5px;overflow:hidden">' +
+          '<span style="display:block;height:100%;width:'+w+'%;background:var(--cat-comms,#7c93ff)"></span></span>' +
+        '<span style="width:28px;color:var(--paper-dim)">'+x.count+'</span></div>';
+    }).join('') + '</div>';
+  }
+
+  function loadPushInsights(){
+    var box = document.getElementById("pushInsightsBody");
+    if(!box) return;
+    authedFetch("/admin/push/insights").then(function(d){
+      if(!d || d.error){ box.innerHTML = '<div class="card-desc" style="color:var(--danger)">'+((d&&d.error)||"Failed to load.")+'</div>'; return; }
+      var dv = d.devices || {}, sub = d.subscriptions || {}, del = (d.delivery && d.delivery.last7d) || {};
+      var langs = Object.keys(dv.byLang || {}).map(function(k){ return k.toUpperCase()+' '+dv.byLang[k]; }).join(' · ') || '—';
+      box.innerHTML =
+        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">' +
+          '<div style="background:var(--dark-2);border:1px solid var(--line);border-radius:10px;padding:10px"><div style="font-size:20px;font-weight:800">'+(dv.total||0)+'</div><div style="font-size:10px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.04em">Devices</div></div>' +
+          '<div style="background:var(--dark-2);border:1px solid var(--line);border-radius:10px;padding:10px"><div style="font-size:20px;font-weight:800">'+pctText(del.successRate)+'</div><div style="font-size:10px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.04em">7-day delivery</div></div>' +
+          '<div style="background:var(--dark-2);border:1px solid var(--line);border-radius:10px;padding:10px"><div style="font-size:20px;font-weight:800">'+(sub.masterOff||0)+'</div><div style="font-size:10px;color:var(--paper-dim2);text-transform:uppercase;letter-spacing:.04em">Fully opted out</div></div>' +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--paper-dim2);margin-bottom:10px">Rate alerts on: <b style="color:var(--paper)">'+(sub.rateAlertsOn||0)+'</b> · Metal alerts on: <b style="color:var(--paper)">'+(sub.metalAlertsOn||0)+'</b> · Languages: '+langs+' · 7d sent '+(del.sent||0)+' / failed '+(del.failed||0)+'</div>' +
+        '<div style="font-weight:700;font-size:12px;margin:12px 0 6px">Most-watched cities</div>' + topList(sub.cities || [], "label", 9) +
+        '<div style="font-weight:700;font-size:12px;margin:14px 0 6px">Rate-alert interval spread</div>' + miniBars((d.intervals && d.intervals.city) || {}, "min") +
+        '<div style="font-weight:700;font-size:12px;margin:14px 0 6px">Metal-alert interval spread</div>' + miniBars((d.intervals && d.intervals.metal) || {}, "min") +
+        '<div style="font-size:10px;color:var(--paper-dim2);margin-top:12px">Updated '+new Date(d.checkedAt).toLocaleTimeString()+'</div>';
+    }).catch(function(){ box.innerHTML = '<div class="card-desc" style="color:var(--danger)">Failed to load push insights.</div>'; });
+  }
+  document.getElementById("pushInsightsRefresh").addEventListener("click", loadPushInsights);
 
   /* ---------- push broadcast ---------- */
 
